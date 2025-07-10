@@ -1,0 +1,19 @@
+{
+  "initialized": true,
+  "mode": "file-router",
+  "projectName": "realmind",
+  "typescript": true,
+  "tailwind": true,
+  "git": true,
+  "packageManager": "npm",
+  "version": 1,
+  "framework": "react-cra",
+  "chosenAddOns": [
+    "netlify",
+    "shadcn",
+    "start",
+    "tRPC",
+    "tanstack-query",
+    "biome"
+  ]
+}
