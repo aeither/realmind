@@ -4,3 +4,5 @@ bootstrap with:
 pnpx create-tsrouter-app@latest --ui
 ```
 
+
+npx convex dev
