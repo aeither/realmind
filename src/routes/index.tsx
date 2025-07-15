@@ -5,20 +5,16 @@ import { Input } from "@/components/ui/input";
 import { initialQuizzes } from "@/data/quizzes";
 import { useQuizData } from "@/hooks/useQuizData";
 import { useQuizGenerator } from "@/hooks/useQuizGenerator";
-import { useWallet } from "@/hooks/useWallet";
 import { createFileRoute } from "@tanstack/react-router";
-import { Coins, Crown, Gift, User, Wallet, Wand2 } from "lucide-react";
+import { Coins, Crown, Gift, User, Wand2 } from "lucide-react";
+import { ConnectButton } from '@rainbow-me/rainbowkit';
+import { useAccount, useBalance } from 'wagmi';
 
 const Index = () => {
-  const {
-    isWalletConnected,
-    walletAddress,
-    walletBalance,
-    connectWallet,
-    disconnectWallet,
-    handleDeposit,
-    handleClaimReward
-  } = useWallet();
+  const { address, isConnected } = useAccount();
+  const { data: balance } = useBalance({
+    address: address,
+  });
 
   const {
     completedQuizzes,
@@ -61,33 +57,11 @@ const Index = () => {
               <span className="font-medium">{totalTickets} Tickets</span>
             </div>
             
-            {!isWalletConnected ? (
-              <Button 
-                variant="secondary" 
-                size="sm" 
-                onClick={connectWallet}
-                className="bg-white/20 text-white border-white/30 hover:bg-white/30"
-              >
-                <Wallet className="w-4 h-4 mr-2" />
-                Connect Wallet
-              </Button>
-            ) : (
-              <div className="flex items-center gap-2">
-                <div className="text-right text-xs">
-                  <div className="text-white/80">Balance</div>
-                  <div className="font-bold">{walletBalance} QT</div>
-                </div>
-                <Button 
-                  variant="ghost" 
-                  size="sm" 
-                  onClick={disconnectWallet}
-                  className="text-white/80 hover:bg-white/20 p-2"
-                >
-                  <div className="w-2 h-2 bg-green-400 rounded-full mr-2" />
-                  {walletAddress.slice(0, 6)}...{walletAddress.slice(-4)}
-                </Button>
-              </div>
-            )}
+            <ConnectButton 
+              chainStatus="none"
+              accountStatus="address"
+              showBalance={false}
+            />
           </div>
 
           {/* Main header content */}
@@ -99,7 +73,7 @@ const Index = () => {
               <div>
                 <h1 className="text-xl font-bold">Welcome back!</h1>
                 <p className="text-white/80 text-sm">
-                  {isWalletConnected ? "Ready to earn rewards?" : "Connect wallet to start"}
+                  {isConnected ? "Ready to earn rewards?" : "Connect wallet to start"}
                 </p>
               </div>
             </div>
@@ -140,9 +114,7 @@ const Index = () => {
               quiz={quiz.quiz}
               isCompleted={completedQuizzes.includes(quiz.id)}
               onComplete={(tickets) => handleQuizComplete(quiz.id, tickets)}
-              isWalletConnected={isWalletConnected}
-              onDeposit={handleDeposit}
-              onClaimReward={handleClaimReward}
+              isWalletConnected={isConnected}
             />
           ))}
         </div>

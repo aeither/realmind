@@ -1,12 +1,13 @@
 import {
-  HeadContent,
-  Outlet,
-  Scripts,
-  createRootRouteWithContext,
+    HeadContent,
+    Outlet,
+    Scripts,
+    createRootRouteWithContext,
 } from "@tanstack/react-router";
 import { TanStackRouterDevtools } from "@tanstack/react-router-devtools";
 
 import Header from "../components/Header";
+import { ToastListener } from "../components/ToastListener";
 
 import TanStackQueryLayout from "../integrations/tanstack-query/layout.tsx";
 
@@ -34,7 +35,7 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
         content: "width=device-width, initial-scale=1",
       },
       {
-        title: "TanStack Start Starter",
+        title: "Quiz Arena - Real-time Quiz App",
       },
     ],
     links: [
@@ -53,6 +54,9 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
       <TanStackRouterDevtools />
 
       <TanStackQueryLayout />
+      
+      {/* Real-time toast notifications */}
+      <ToastListener />
     </RootDocument>
   ),
 });

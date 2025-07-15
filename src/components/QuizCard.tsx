@@ -17,8 +17,6 @@ interface QuizCardProps {
   isCompleted: boolean;
   onComplete: (tickets: number) => void;
   isWalletConnected: boolean;
-  onDeposit: (amount: number) => boolean;
-  onClaimReward: (amount: number) => void;
 }
 
 export const QuizCard = ({ 
@@ -29,9 +27,7 @@ export const QuizCard = ({
   quiz, 
   isCompleted, 
   onComplete,
-  isWalletConnected,
-  onDeposit,
-  onClaimReward
+  isWalletConnected
 }: QuizCardProps) => {
   const [isActive, setIsActive] = useState(false);
   const [timeLeft, setTimeLeft] = useState(10);
@@ -43,24 +39,13 @@ export const QuizCard = ({
   const { toast } = useToast();
 
   const handleDeposit = () => {
-    const depositAmount = 50; // 50 QT tokens to play
-    const success = onDeposit(depositAmount);
-    
-    if (success) {
-      setHasDeposited(true);
-      toast({
-        title: "Deposit Successful! 💰",
-        description: `Deposited ${depositAmount} QT tokens to play`,
-      });
-      // Auto-start quiz after deposit
-      setTimeout(startQuiz, 1000);
-    } else {
-      toast({
-        title: "Insufficient Balance",
-        description: "You need at least 50 QT tokens to play",
-        variant: "destructive",
-      });
-    }
+    setHasDeposited(true);
+    toast({
+      title: "Ready to Play! 💰",
+      description: "Quiz unlocked, let's start!",
+    });
+    // Auto-start quiz after deposit
+    setTimeout(startQuiz, 1000);
   };
 
   const startQuiz = () => {
@@ -133,7 +118,6 @@ export const QuizCard = ({
   };
 
   const handleClaimReward = () => {
-    onClaimReward(rewardAmount);
     setShowClaimButton(false);
     toast({
       title: "Reward Claimed! 💰",
@@ -256,7 +240,7 @@ export const QuizCard = ({
                 <Coins className="w-6 h-6 text-white" />
               </div>
               <p className="text-muted-foreground mb-4 text-sm">
-                Deposit 50 QT tokens to play this quiz!
+                Click to unlock this quiz!
               </p>
               <Button 
                 variant="default" 
@@ -265,7 +249,7 @@ export const QuizCard = ({
                 className="bg-orange-500 text-white hover:bg-orange-600"
               >
                 <Wallet className="w-5 h-5 mr-2" />
-                Deposit 50 QT
+                Play Quiz
               </Button>
             </div>
           ) : (
