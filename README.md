@@ -1,323 +1,270 @@
-Welcome to your new TanStack app! 
+# 🎯 QuizDrop
 
-# Getting Started
+Interactive quiz mini-app for **Farcaster** that creates **real ERC-20 coins** using Zora's Coins SDK and enables trading on Base network.
 
-To run this application:
+## ✨ Key Features
 
-```bash
-npm install
-npm run start  
-```
+- **🎮 Quiz & Earn**: Take quizzes and interact with creator coins
+- **🪙 Real Coin Creation**: Deploy actual ERC-20 tokens via Zora Coins SDK  
+- **🔄 Live Trading**: Buy/sell quiz coins with ETH using Zora's trading infrastructure
+- **🔐 Farcaster Native**: Seamless auth and user management via Farcaster Frame SDK
+- **🌐 Base Network**: Built for Coinbase's L2 with optimized gas costs
 
-# Building For Production
+## 🚀 Quick Start
 
-To build this application for production:
+### Prerequisites
+- Node.js 18+ and pnpm
+- Farcaster account  
+- Base network wallet with ETH
+- [Zora API key](https://docs.zora.co/docs/zora-network/api)
 
-```bash
-npm run build
-```
-
-## Testing
-
-This project uses [Vitest](https://vitest.dev/) for testing. You can run the tests with:
-
-```bash
-npm run test
-```
-
-## Styling
-
-This project uses [Tailwind CSS](https://tailwindcss.com/) for styling.
-
-
-## Linting & Formatting
-
-This project uses [Biome](https://biomejs.dev/) for linting and formatting. The following scripts are available:
-
+### Setup
 
 ```bash
-npm run lint
-npm run format
-npm run check
+# Install dependencies
+pnpm install
+
+# Environment setup
+cp .env.example .env.local
 ```
 
+**Required Environment Variables:**
+```env
+# Zora Coins SDK Integration
+VITE_ZORA_API_KEY=your_zora_api_key
 
-## Setting up Netlify
+# Blockchain (Base Network)  
+VITE_PRIVATE_KEY=your_private_key_for_coin_creation
+VITE_RPC_URL=https://mainnet.base.org
+VITE_PAYOUT_RECIPIENT=0x_your_wallet_address
 
-First install the Netlify CLI with:
+# Database (PostgreSQL)
+DATABASE_URL=postgresql://user:pass@host:port/db
+```
 
+### Run
 ```bash
-npm install -g netlify-cli`
+# Development
+pnpm dev
+
+# Database setup  
+pnpm db:push
+
+# Production build
+pnpm build
 ```
 
-```bash
-netlify init
-```
+## 🏗️ Core Integrations
 
+### 🪙 Zora Coins SDK Integration
 
-## Shadcn
+**Real ERC-20 Coin Creation:**
+```typescript
+import { createCoin, DeployCurrency } from '@zoralabs/coins-sdk';
 
-Add components using the latest version of [Shadcn](https://ui.shadcn.com/).
-
-```bash
-pnpx shadcn@latest add button
-```
-
-
-
-## Routing
-This project uses [TanStack Router](https://tanstack.com/router). The initial setup is a file based router. Which means that the routes are managed as files in `src/routes`.
-
-### Adding A Route
-
-To add a new route to your application just add another a new file in the `./src/routes` directory.
-
-TanStack will automatically generate the content of the route file for you.
-
-Now that you have two routes you can use a `Link` component to navigate between them.
-
-### Adding Links
-
-To use SPA (Single Page Application) navigation you will need to import the `Link` component from `@tanstack/react-router`.
-
-```tsx
-import { Link } from "@tanstack/react-router";
-```
-
-Then anywhere in your JSX you can use it like so:
-
-```tsx
-<Link to="/about">About</Link>
-```
-
-This will create a link that will navigate to the `/about` route.
-
-More information on the `Link` component can be found in the [Link documentation](https://tanstack.com/router/v1/docs/framework/react/api/router/linkComponent).
-
-### Using A Layout
-
-In the File Based Routing setup the layout is located in `src/routes/__root.tsx`. Anything you add to the root route will appear in all the routes. The route content will appear in the JSX where you use the `<Outlet />` component.
-
-Here is an example layout that includes a header:
-
-```tsx
-import { Outlet, createRootRoute } from '@tanstack/react-router'
-import { TanStackRouterDevtools } from '@tanstack/react-router-devtools'
-
-import { Link } from "@tanstack/react-router";
-
-export const Route = createRootRoute({
-  component: () => (
-    <>
-      <header>
-        <nav>
-          <Link to="/">Home</Link>
-          <Link to="/about">About</Link>
-        </nav>
-      </header>
-      <Outlet />
-      <TanStackRouterDevtools />
-    </>
-  ),
-})
-```
-
-The `<TanStackRouterDevtools />` component is not required so you can remove it if you don't want it in your layout.
-
-More information on layouts can be found in the [Layouts documentation](https://tanstack.com/router/latest/docs/framework/react/guide/routing-concepts#layouts).
-
-
-## Data Fetching
-
-There are multiple ways to fetch data in your application. You can use TanStack Query to fetch data from a server. But you can also use the `loader` functionality built into TanStack Router to load the data for a route before it's rendered.
-
-For example:
-
-```tsx
-const peopleRoute = createRoute({
-  getParentRoute: () => rootRoute,
-  path: "/people",
-  loader: async () => {
-    const response = await fetch("https://swapi.dev/api/people");
-    return response.json() as Promise<{
-      results: {
-        name: string;
-      }[];
-    }>;
+// Create quiz coin on Base network
+const result = await createCoin(
+  {
+    name: "My Quiz Coin",
+    symbol: "QUIZ", 
+    uri: "ipfs://metadata-uri",
+    payoutRecipient: "0x...",
+    chainId: 8453, // Base
+    currency: DeployCurrency.ZORA
   },
-  component: () => {
-    const data = peopleRoute.useLoaderData();
-    return (
-      <ul>
-        {data.results.map((person) => (
-          <li key={person.name}>{person.name}</li>
-        ))}
-      </ul>
-    );
-  },
+  walletClient,
+  publicClient,
+  { gasMultiplier: 120 }
+);
+
+// Returns: { address, hash, deployment }
+```
+
+**Trading with Zora's Infrastructure:**
+```typescript
+import { tradeCoin, TradeParameters } from '@zoralabs/coins-sdk';
+
+// Buy quiz coin with ETH
+const tradeParams: TradeParameters = {
+  sell: { type: "eth" },
+  buy: { type: "erc20", address: quizCoinAddress },
+  amountIn: parseEther("0.001"), // 0.001 ETH
+  slippage: 0.05, // 5% tolerance
+  sender: userAddress,
+};
+
+const receipt = await tradeCoin({
+  tradeParameters: tradeParams,
+  walletClient,
+  account,
+  publicClient,
 });
 ```
 
-Loaders simplify your data fetching logic dramatically. Check out more information in the [Loader documentation](https://tanstack.com/router/latest/docs/framework/react/guide/data-loading#loader-parameters).
+**Key Features:**
+- ✅ **Real token deployment** on Base mainnet
+- ✅ **Gasless approvals** via permit signatures  
+- ✅ **Automatic routing** for optimal trades
+- ✅ **Slippage protection** and parameter validation
+- ✅ **Creator monetization** through trading fees
 
-### React-Query
+### 🔐 Farcaster Frame SDK Integration
 
-React-Query is an excellent addition or alternative to route loading and integrating it into you application is a breeze.
+**Authentication & User Management:**
+```typescript
+import { sdk } from "@farcaster/frame-sdk";
 
-First add your dependencies:
+// Initialize Farcaster context
+const context = await sdk.context;
+if (context.user) {
+  // Access user data: fid, displayName, username, pfpUrl
+  const { fid, displayName, pfpUrl } = context.user;
+  
+  // Get auth token
+  const { token } = await sdk.quickAuth.getToken();
+}
+
+// Sign in flow
+await sdk.actions.signIn({
+  nonce: crypto.randomUUID(),
+  acceptAuthAddress: true,
+});
+```
+
+**Frame-Ready Components:**
+```typescript
+// Frame lifecycle management
+useEffect(() => {
+  const initializeApp = async () => {
+    // App initialization logic
+    sdk.actions.ready(); // Signal frame is ready
+  };
+  initializeApp();
+}, []);
+```
+
+**Key Features:**
+- ✅ **One-click authentication** with Farcaster
+- ✅ **Profile integration** (FID, name, avatar)
+- ✅ **Token-based auth** for secure API calls
+- ✅ **Frame lifecycle** management
+- ✅ **Native UX** within Farcaster ecosystem
+
+## 📊 Database Schema
+
+```sql
+-- Quiz coins storage
+CREATE TABLE quizzes (
+    id SERIAL PRIMARY KEY,
+    coin_address VARCHAR(42) UNIQUE NOT NULL,
+    tx_hash VARCHAR(66) NOT NULL,
+    name VARCHAR(100) NOT NULL,
+    symbol VARCHAR(10) NOT NULL,
+    creator_address VARCHAR(42) NOT NULL,
+    creator_fid BIGINT, -- Farcaster user ID
+    created_at TIMESTAMP DEFAULT now()
+);
+
+-- Extensible quiz questions
+CREATE TABLE quiz_questions (
+    id SERIAL PRIMARY KEY,
+    quiz_id INTEGER REFERENCES quizzes(id),
+    question TEXT NOT NULL,
+    options TEXT[] NOT NULL,
+    correct_idx INTEGER NOT NULL,
+    explanation TEXT
+);
+```
+
+## 🛠️ Key Scripts
 
 ```bash
-npm install @tanstack/react-query @tanstack/react-query-devtools
+# Database operations
+pnpm db:generate      # Generate migrations
+pnpm db:push         # Push schema to database  
+pnpm db:studio       # Open database browser
+
+# Coin utilities
+pnpm create-coin     # Create test coin via Zora SDK
+pnpm get-coins       # Query coin balances
+
+# Development
+pnpm dev            # Start dev server with ngrok
+pnpm ngrok          # Expose local server for Farcaster testing
 ```
 
-Next we'll need to create a query client and provider. We recommend putting those in `main.tsx`.
+## 🔧 Tech Stack
 
-```tsx
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+- **Frontend**: React + TypeScript + Vite
+- **Web3**: Wagmi + Viem for Base network integration
+- **Coins**: Zora Coins SDK for token creation and trading
+- **Auth**: Farcaster Frame SDK for user management  
+- **Database**: PostgreSQL + Drizzle ORM
+- **Network**: Base (Coinbase L2) for low-cost transactions
 
-// ...
+## 🌐 Production Deployment
 
-const queryClient = new QueryClient();
+**Environment Setup:**
+- Base mainnet RPC endpoint
+- PostgreSQL database (Railway recommended)
+- Zora API key with appropriate limits
+- Secure private key management
+- ngrok domain for Farcaster Frame hosting
 
-// ...
+**Security Considerations:**
+- Private keys in environment variables only
+- Input validation for all user data  
+- Rate limiting for coin creation endpoints
+- Transaction validation and error handling
 
-if (!rootElement.innerHTML) {
-  const root = ReactDOM.createRoot(rootElement);
+## 🏆 Zora Coins Implementation
 
-  root.render(
-    <QueryClientProvider client={queryClient}>
-      <RouterProvider router={router} />
-    </QueryClientProvider>
-  );
-}
-```
+### How We Used Zora Coins
 
-You can also add TanStack Query Devtools to the root route (optional).
+**Core Integration:**
+QuizDrop leverages Zora Coins SDK for two primary functions:
 
-```tsx
-import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
+1. **Quiz Coin Creation**: When users create a quiz, we deploy a real ERC-20 token using `createCoin()` that represents their quiz. Each quiz becomes a tradeable creator coin on Base network.
 
-const rootRoute = createRootRoute({
-  component: () => (
-    <>
-      <Outlet />
-      <ReactQueryDevtools buttonPosition="top-right" />
-      <TanStackRouterDevtools />
-    </>
-  ),
-});
-```
+2. **Live Trading System**: Users can buy/sell quiz coins with ETH using Zora's `tradeCoin()` function, creating a marketplace where successful quiz creators can monetize their content through coin appreciation.
 
-Now you can use `useQuery` to fetch your data.
+**Technical Implementation:**
+- **Real Token Deployment**: Creates actual ERC-20 contracts (not mock tokens) 
+- **Gasless Trading**: Uses permit signatures for seamless user experience
+- **Creator Monetization**: Quiz creators earn from trading fees automatically
+- **Farcaster Integration**: Links coins to Farcaster user profiles (FID) for social discovery
 
-```tsx
-import { useQuery } from "@tanstack/react-query";
+**Business Model**: Transforms educational content into tradeable assets, allowing creators to build sustainable quiz businesses through coin mechanics.
 
-import "./App.css";
+### Technology Feedback & Experience
 
-function App() {
-  const { data } = useQuery({
-    queryKey: ["people"],
-    queryFn: () =>
-      fetch("https://swapi.dev/api/people")
-        .then((res) => res.json())
-        .then((data) => data.results as { name: string }[]),
-    initialData: [],
-  });
+**✅ Zora Coins SDK - Excellent**
+- **Documentation**: Comprehensive with clear examples for both coin creation and trading
+- **Developer Experience**: Intuitive API design, TypeScript support is excellent
+- **Reliability**: Consistent performance on Base mainnet, gas optimization works well
+- **Integration**: Seamless with existing Web3 stack (Wagmi/Viem)
 
-  return (
-    <div>
-      <ul>
-        {data.map((person) => (
-          <li key={person.name}>{person.name}</li>
-        ))}
-      </ul>
-    </div>
-  );
-}
+**✅ Farcaster Frame SDK - Outstanding**  
+- **Authentication**: One-click auth flow is incredibly smooth
+- **User Context**: Rich profile data (FID, username, avatar) readily available
+- **Frame Lifecycle**: Clear state management for Frame readiness
+- **Social Integration**: Natural fit for creator coin mechanics
 
-export default App;
-```
+**🔧 Areas for Future Improvement**
+- **Zora SDK**: More granular fee configuration options for different creator tiers
+- **Trading**: Additional token pair support beyond ETH (USDC, ZORA)
+- **Analytics**: Built-in trading metrics and creator dashboard APIs
+- **Mobile**: Enhanced mobile wallet connection experience
 
-You can find out everything you need to know on how to use React-Query in the [React-Query documentation](https://tanstack.com/query/latest/docs/framework/react/overview).
+**Overall Assessment**: Both SDKs are production-ready with excellent documentation. The combination creates a powerful foundation for social-finance applications in the Farcaster ecosystem.
 
-## State Management
+## 📖 Documentation
 
-Another common requirement for React applications is state management. There are many options for state management in React. TanStack Store provides a great starting point for your project.
+- [Zora Coins SDK Docs](https://docs.zora.co/docs/smart-contracts/creator-tools/collect-premints)
+- [Farcaster Frame Docs](https://docs.farcaster.xyz/developers/frames/spec)
+- [Base Network Docs](https://docs.base.org/)
+- [Wagmi Docs](https://wagmi.sh/)
 
-First you need to add TanStack Store as a dependency:
+---
 
-```bash
-npm install @tanstack/store
-```
-
-Now let's create a simple counter in the `src/App.tsx` file as a demonstration.
-
-```tsx
-import { useStore } from "@tanstack/react-store";
-import { Store } from "@tanstack/store";
-import "./App.css";
-
-const countStore = new Store(0);
-
-function App() {
-  const count = useStore(countStore);
-  return (
-    <div>
-      <button onClick={() => countStore.setState((n) => n + 1)}>
-        Increment - {count}
-      </button>
-    </div>
-  );
-}
-
-export default App;
-```
-
-One of the many nice features of TanStack Store is the ability to derive state from other state. That derived state will update when the base state updates.
-
-Let's check this out by doubling the count using derived state.
-
-```tsx
-import { useStore } from "@tanstack/react-store";
-import { Store, Derived } from "@tanstack/store";
-import "./App.css";
-
-const countStore = new Store(0);
-
-const doubledStore = new Derived({
-  fn: () => countStore.state * 2,
-  deps: [countStore],
-});
-doubledStore.mount();
-
-function App() {
-  const count = useStore(countStore);
-  const doubledCount = useStore(doubledStore);
-
-  return (
-    <div>
-      <button onClick={() => countStore.setState((n) => n + 1)}>
-        Increment - {count}
-      </button>
-      <div>Doubled - {doubledCount}</div>
-    </div>
-  );
-}
-
-export default App;
-```
-
-We use the `Derived` class to create a new store that is derived from another store. The `Derived` class has a `mount` method that will start the derived store updating.
-
-Once we've created the derived store we can use it in the `App` component just like we would any other store using the `useStore` hook.
-
-You can find out everything you need to know on how to use TanStack Store in the [TanStack Store documentation](https://tanstack.com/store/latest).
-
-# Demo files
-
-Files prefixed with `demo` can be safely deleted. They are there to provide a starting point for you to play around with the features you've installed.
-
-# Learn More
-
-You can learn more about all of the offerings from TanStack in the [TanStack documentation](https://tanstack.com).
+**Built for the Farcaster ecosystem with real Web3 functionality** 🚀
