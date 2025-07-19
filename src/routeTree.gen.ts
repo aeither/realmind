@@ -14,6 +14,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as RewardsRouteImport } from './routes/rewards'
 import { Route as DemoRouteImport } from './routes/demo'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as FarcasterLayoutRouteImport } from './routes/farcaster/layout'
 import { Route as DemoTanstackQueryRouteImport } from './routes/demo.tanstack-query'
 import { Route as DemoStartServerFuncsRouteImport } from './routes/demo.start.server-funcs'
 import { Route as DemoStartApiRequestRouteImport } from './routes/demo.start.api-request'
@@ -35,6 +36,11 @@ const DemoRoute = DemoRouteImport.update({
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const FarcasterLayoutRoute = FarcasterLayoutRouteImport.update({
+  id: '/farcaster/layout',
+  path: '/farcaster/layout',
   getParentRoute: () => rootRouteImport,
 } as any)
 const DemoTanstackQueryRoute = DemoTanstackQueryRouteImport.update({
@@ -68,6 +74,7 @@ export interface FileRoutesByFullPath {
   '/demo': typeof DemoRouteWithChildren
   '/rewards': typeof RewardsRoute
   '/demo/tanstack-query': typeof DemoTanstackQueryRoute
+  '/farcaster/layout': typeof FarcasterLayoutRoute
   '/demo/start/api-request': typeof DemoStartApiRequestRoute
   '/demo/start/server-funcs': typeof DemoStartServerFuncsRoute
 }
@@ -76,6 +83,7 @@ export interface FileRoutesByTo {
   '/demo': typeof DemoRouteWithChildren
   '/rewards': typeof RewardsRoute
   '/demo/tanstack-query': typeof DemoTanstackQueryRoute
+  '/farcaster/layout': typeof FarcasterLayoutRoute
   '/demo/start/api-request': typeof DemoStartApiRequestRoute
   '/demo/start/server-funcs': typeof DemoStartServerFuncsRoute
 }
@@ -85,6 +93,7 @@ export interface FileRoutesById {
   '/demo': typeof DemoRouteWithChildren
   '/rewards': typeof RewardsRoute
   '/demo/tanstack-query': typeof DemoTanstackQueryRoute
+  '/farcaster/layout': typeof FarcasterLayoutRoute
   '/demo/start/api-request': typeof DemoStartApiRequestRoute
   '/demo/start/server-funcs': typeof DemoStartServerFuncsRoute
 }
@@ -95,6 +104,7 @@ export interface FileRouteTypes {
     | '/demo'
     | '/rewards'
     | '/demo/tanstack-query'
+    | '/farcaster/layout'
     | '/demo/start/api-request'
     | '/demo/start/server-funcs'
   fileRoutesByTo: FileRoutesByTo
@@ -103,6 +113,7 @@ export interface FileRouteTypes {
     | '/demo'
     | '/rewards'
     | '/demo/tanstack-query'
+    | '/farcaster/layout'
     | '/demo/start/api-request'
     | '/demo/start/server-funcs'
   id:
@@ -111,6 +122,7 @@ export interface FileRouteTypes {
     | '/demo'
     | '/rewards'
     | '/demo/tanstack-query'
+    | '/farcaster/layout'
     | '/demo/start/api-request'
     | '/demo/start/server-funcs'
   fileRoutesById: FileRoutesById
@@ -119,6 +131,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   DemoRoute: typeof DemoRouteWithChildren
   RewardsRoute: typeof RewardsRoute
+  FarcasterLayoutRoute: typeof FarcasterLayoutRoute
 }
 export interface FileServerRoutesByFullPath {
   '/api/demo-names': typeof ApiDemoNamesServerRoute
@@ -167,6 +180,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/farcaster/layout': {
+      id: '/farcaster/layout'
+      path: '/farcaster/layout'
+      fullPath: '/farcaster/layout'
+      preLoaderRoute: typeof FarcasterLayoutRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/demo/tanstack-query': {
@@ -229,6 +249,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   DemoRoute: DemoRouteWithChildren,
   RewardsRoute: RewardsRoute,
+  FarcasterLayoutRoute: FarcasterLayoutRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

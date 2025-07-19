@@ -12,9 +12,19 @@ export const ToastListener = ({ userId }: ToastListenerProps) => {
   const notifications = useQuery(api.notifications.getRecentNotifications, { userId });
   const processedIds = useRef(new Set<Id<"notifications">>());
   const { toast } = useToast();
+  
+  // Ref to track component mount status
+  const isMountedRef = useRef(true);
+
+  // Cleanup function to prevent memory leaks
+  useEffect(() => {
+    return () => {
+      isMountedRef.current = false;
+    };
+  }, []);
 
   useEffect(() => {
-    if (!notifications) return;
+    if (!notifications || !isMountedRef.current) return;
 
     for (const notification of notifications) {
       // Only show toast if we haven't processed this notification yet

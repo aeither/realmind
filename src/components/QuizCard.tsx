@@ -2,7 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { Clock, Coins, Star, Trophy, Wallet } from "lucide-react";
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 
 interface QuizCardProps {
   title: string;
@@ -37,6 +37,23 @@ export const QuizCard = ({
   const [rewardAmount, setRewardAmount] = useState(0);
   const [showClaimButton, setShowClaimButton] = useState(false);
   const { toast } = useToast();
+  
+  // Refs to track component mount status and timers
+  const isMountedRef = useRef(true);
+  const timerRef = useRef<NodeJS.Timeout | null>(null);
+  const timeoutRefs = useRef<NodeJS.Timeout[]>([]);
+
+  // Cleanup function to prevent memory leaks
+  useEffect(() => {
+    return () => {
+      isMountedRef.current = false;
+      // Clear all timers
+      if (timerRef.current) {
+        clearInterval(timerRef.current);
+      }
+      timeoutRefs.current.forEach(timeout => clearTimeout(timeout));
+    };
+  }, []);
 
   const handleDeposit = () => {
     setHasDeposited(true);
@@ -45,19 +62,40 @@ export const QuizCard = ({
       description: "Quiz unlocked, let's start!",
     });
     // Auto-start quiz after deposit
-    setTimeout(startQuiz, 1000);
+    const timeout = setTimeout(() => {
+      if (isMountedRef.current) {
+        startQuiz();
+      }
+    }, 1000);
+    timeoutRefs.current.push(timeout);
   };
 
   const startQuiz = () => {
+    if (!isMountedRef.current) return;
+    
     setIsActive(true);
     setTimeLeft(10);
     setSelectedAnswer(null);
     setShowResult(false);
 
-    const timer = setInterval(() => {
+    // Clear any existing timer
+    if (timerRef.current) {
+      clearInterval(timerRef.current);
+    }
+
+    timerRef.current = setInterval(() => {
+      if (!isMountedRef.current) {
+        if (timerRef.current) {
+          clearInterval(timerRef.current);
+        }
+        return;
+      }
+      
       setTimeLeft((prev) => {
         if (prev <= 1) {
-          clearInterval(timer);
+          if (timerRef.current) {
+            clearInterval(timerRef.current);
+          }
           handleTimeout();
           return 0;
         }
@@ -67,20 +105,26 @@ export const QuizCard = ({
   };
 
   const handleTimeout = () => {
+    if (!isMountedRef.current) return;
+    
     setShowResult(true);
     toast({
       title: "Time's up!",
       description: "You didn't answer in time. Try again tomorrow!",
       variant: "destructive",
     });
-    setTimeout(() => {
-      setIsActive(false);
-      setShowResult(false);
+    
+    const timeout = setTimeout(() => {
+      if (isMountedRef.current) {
+        setIsActive(false);
+        setShowResult(false);
+      }
     }, 2000);
+    timeoutRefs.current.push(timeout);
   };
 
   const handleAnswerSelect = (answerIndex: number) => {
-    if (selectedAnswer !== null) return;
+    if (selectedAnswer !== null || !isMountedRef.current) return;
     
     setSelectedAnswer(answerIndex);
     setShowResult(true);
@@ -109,26 +153,32 @@ export const QuizCard = ({
       });
     }
 
-    setTimeout(() => {
-      if (!isCorrect) {
+    const timeout = setTimeout(() => {
+      if (!isCorrect && isMountedRef.current) {
         setIsActive(false);
         setShowResult(false);
       }
     }, 2000);
+    timeoutRefs.current.push(timeout);
   };
 
   const handleClaimReward = () => {
+    if (!isMountedRef.current) return;
+    
     setShowClaimButton(false);
     toast({
       title: "Reward Claimed! 💰",
       description: `Claimed ${rewardAmount} QT tokens!`,
     });
     
-    setTimeout(() => {
-      setIsActive(false);
-      setShowResult(false);
-      setHasDeposited(false);
+    const timeout = setTimeout(() => {
+      if (isMountedRef.current) {
+        setIsActive(false);
+        setShowResult(false);
+        setHasDeposited(false);
+      }
     }, 1500);
+    timeoutRefs.current.push(timeout);
   };
 
   if (isActive && !showResult) {

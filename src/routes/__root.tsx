@@ -4,10 +4,12 @@ import {
     Scripts,
     createRootRouteWithContext,
 } from "@tanstack/react-router";
+import { useEffect, useState } from "react";
 import { TanStackRouterDevtools } from "@tanstack/react-router-devtools";
 
 import Header from "../components/Header";
 import { ToastListener } from "../components/ToastListener";
+import { ToastProvider } from "../hooks/use-toast";
 
 import TanStackQueryLayout from "../integrations/tanstack-query/layout.tsx";
 
@@ -46,22 +48,39 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
     ],
   }),
 
+  notFoundComponent: () => (
+    <div className="min-h-screen flex items-center justify-center">
+      <div className="text-center">
+        <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-4">404</h1>
+        <p className="text-gray-600 dark:text-gray-400">Page not found</p>
+      </div>
+    </div>
+  ),
+
   component: () => (
     <RootDocument>
-      <Header />
+      <ToastProvider>
+        <Header />
 
-      <Outlet />
-      <TanStackRouterDevtools />
+        <Outlet />
+        <TanStackRouterDevtools />
 
-      <TanStackQueryLayout />
-      
-      {/* Real-time toast notifications */}
-      <ToastListener />
+        <TanStackQueryLayout />
+        
+        {/* Real-time toast notifications */}
+        <ToastListener />
+      </ToastProvider>
     </RootDocument>
   ),
 });
 
 function RootDocument({ children }: { children: React.ReactNode }) {
+  const [isHydrated, setIsHydrated] = useState(false);
+
+  useEffect(() => {
+    setIsHydrated(true);
+  }, []);
+
   return (
     <html lang="en">
       <head>
@@ -69,7 +88,7 @@ function RootDocument({ children }: { children: React.ReactNode }) {
       </head>
       <body>
         {children}
-        <Scripts />
+        {isHydrated && <Scripts key="scripts" suppressHydrationWarning />}
       </body>
     </html>
   );
