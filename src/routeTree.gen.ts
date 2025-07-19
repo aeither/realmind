@@ -14,6 +14,8 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as RewardsRouteImport } from './routes/rewards'
 import { Route as DemoRouteImport } from './routes/demo'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as FarcasterIndexRouteImport } from './routes/farcaster/index'
+import { Route as FarcasterQuizAppRouteImport } from './routes/farcaster/quiz-app'
 import { Route as FarcasterLayoutRouteImport } from './routes/farcaster/layout'
 import { Route as DemoTanstackQueryRouteImport } from './routes/demo.tanstack-query'
 import { Route as DemoStartServerFuncsRouteImport } from './routes/demo.start.server-funcs'
@@ -36,6 +38,16 @@ const DemoRoute = DemoRouteImport.update({
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const FarcasterIndexRoute = FarcasterIndexRouteImport.update({
+  id: '/farcaster/',
+  path: '/farcaster/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const FarcasterQuizAppRoute = FarcasterQuizAppRouteImport.update({
+  id: '/farcaster/quiz-app',
+  path: '/farcaster/quiz-app',
   getParentRoute: () => rootRouteImport,
 } as any)
 const FarcasterLayoutRoute = FarcasterLayoutRouteImport.update({
@@ -75,6 +87,8 @@ export interface FileRoutesByFullPath {
   '/rewards': typeof RewardsRoute
   '/demo/tanstack-query': typeof DemoTanstackQueryRoute
   '/farcaster/layout': typeof FarcasterLayoutRoute
+  '/farcaster/quiz-app': typeof FarcasterQuizAppRoute
+  '/farcaster': typeof FarcasterIndexRoute
   '/demo/start/api-request': typeof DemoStartApiRequestRoute
   '/demo/start/server-funcs': typeof DemoStartServerFuncsRoute
 }
@@ -84,6 +98,8 @@ export interface FileRoutesByTo {
   '/rewards': typeof RewardsRoute
   '/demo/tanstack-query': typeof DemoTanstackQueryRoute
   '/farcaster/layout': typeof FarcasterLayoutRoute
+  '/farcaster/quiz-app': typeof FarcasterQuizAppRoute
+  '/farcaster': typeof FarcasterIndexRoute
   '/demo/start/api-request': typeof DemoStartApiRequestRoute
   '/demo/start/server-funcs': typeof DemoStartServerFuncsRoute
 }
@@ -94,6 +110,8 @@ export interface FileRoutesById {
   '/rewards': typeof RewardsRoute
   '/demo/tanstack-query': typeof DemoTanstackQueryRoute
   '/farcaster/layout': typeof FarcasterLayoutRoute
+  '/farcaster/quiz-app': typeof FarcasterQuizAppRoute
+  '/farcaster/': typeof FarcasterIndexRoute
   '/demo/start/api-request': typeof DemoStartApiRequestRoute
   '/demo/start/server-funcs': typeof DemoStartServerFuncsRoute
 }
@@ -105,6 +123,8 @@ export interface FileRouteTypes {
     | '/rewards'
     | '/demo/tanstack-query'
     | '/farcaster/layout'
+    | '/farcaster/quiz-app'
+    | '/farcaster'
     | '/demo/start/api-request'
     | '/demo/start/server-funcs'
   fileRoutesByTo: FileRoutesByTo
@@ -114,6 +134,8 @@ export interface FileRouteTypes {
     | '/rewards'
     | '/demo/tanstack-query'
     | '/farcaster/layout'
+    | '/farcaster/quiz-app'
+    | '/farcaster'
     | '/demo/start/api-request'
     | '/demo/start/server-funcs'
   id:
@@ -123,6 +145,8 @@ export interface FileRouteTypes {
     | '/rewards'
     | '/demo/tanstack-query'
     | '/farcaster/layout'
+    | '/farcaster/quiz-app'
+    | '/farcaster/'
     | '/demo/start/api-request'
     | '/demo/start/server-funcs'
   fileRoutesById: FileRoutesById
@@ -132,6 +156,8 @@ export interface RootRouteChildren {
   DemoRoute: typeof DemoRouteWithChildren
   RewardsRoute: typeof RewardsRoute
   FarcasterLayoutRoute: typeof FarcasterLayoutRoute
+  FarcasterQuizAppRoute: typeof FarcasterQuizAppRoute
+  FarcasterIndexRoute: typeof FarcasterIndexRoute
 }
 export interface FileServerRoutesByFullPath {
   '/api/demo-names': typeof ApiDemoNamesServerRoute
@@ -180,6 +206,20 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/farcaster/': {
+      id: '/farcaster/'
+      path: '/farcaster'
+      fullPath: '/farcaster'
+      preLoaderRoute: typeof FarcasterIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/farcaster/quiz-app': {
+      id: '/farcaster/quiz-app'
+      path: '/farcaster/quiz-app'
+      fullPath: '/farcaster/quiz-app'
+      preLoaderRoute: typeof FarcasterQuizAppRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/farcaster/layout': {
@@ -250,6 +290,8 @@ const rootRouteChildren: RootRouteChildren = {
   DemoRoute: DemoRouteWithChildren,
   RewardsRoute: RewardsRoute,
   FarcasterLayoutRoute: FarcasterLayoutRoute,
+  FarcasterQuizAppRoute: FarcasterQuizAppRoute,
+  FarcasterIndexRoute: FarcasterIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

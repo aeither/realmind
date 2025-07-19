@@ -9,10 +9,12 @@ interface ToastListenerProps {
 }
 
 export const ToastListener = ({ userId }: ToastListenerProps) => {
-  const notifications = useQuery(api.notifications.getRecentNotifications, { userId });
+  const notifications = useQuery(api.notifications.getRecentNotifications, {
+    userId,
+  });
   const processedIds = useRef(new Set<Id<"notifications">>());
   const { toast } = useToast();
-  
+
   // Ref to track component mount status
   const isMountedRef = useRef(true);
 
@@ -30,9 +32,9 @@ export const ToastListener = ({ userId }: ToastListenerProps) => {
       // Only show toast if we haven't processed this notification yet
       if (!processedIds.current.has(notification._id)) {
         processedIds.current.add(notification._id);
-        
+
         const message = `${notification.message} (from ${notification.triggeredBy})`;
-        
+
         switch (notification.type) {
           case "success":
             toast({
@@ -65,10 +67,12 @@ export const ToastListener = ({ userId }: ToastListenerProps) => {
 
     // Clean up old processed IDs to prevent memory leaks
     if (processedIds.current.size > 100) {
-      const currentIds = new Set(notifications.map(n => n._id));
-      processedIds.current = new Set([...processedIds.current].filter(id => currentIds.has(id)));
+      const currentIds = new Set(notifications.map((n) => n._id));
+      processedIds.current = new Set(
+        [...processedIds.current].filter((id) => currentIds.has(id))
+      );
     }
   }, [notifications, toast]);
 
   return null;
-}; 
+};

@@ -9,11 +9,11 @@ export const useQuizData = () => {
 
   // Load saved data on component mount
   useEffect(() => {
-    const savedData = localStorage.getItem('quizData');
+    const savedData = localStorage.getItem("quizData");
     if (savedData) {
       const data: QuizData = JSON.parse(savedData);
       const today = new Date().toDateString();
-      
+
       // Check if it's a new day
       if (data.lastPlayDate !== today) {
         // Reset daily progress but keep total tickets
@@ -21,15 +21,18 @@ export const useQuizData = () => {
         setTodayTickets(0);
         setCompletedQuizzes([]);
         setStreak(data.streak || 1);
-        
+
         // Save updated data
-        localStorage.setItem('quizData', JSON.stringify({
-          totalTickets: data.totalTickets || 0,
-          todayTickets: 0,
-          completedQuizzes: [],
-          streak: data.streak || 1,
-          lastPlayDate: today
-        }));
+        localStorage.setItem(
+          "quizData",
+          JSON.stringify({
+            totalTickets: data.totalTickets || 0,
+            todayTickets: 0,
+            completedQuizzes: [],
+            streak: data.streak || 1,
+            lastPlayDate: today,
+          })
+        );
       } else {
         // Same day, restore saved progress
         setTotalTickets(data.totalTickets || 0);
@@ -58,9 +61,9 @@ export const useQuizData = () => {
       todayTickets: newTodayTickets,
       completedQuizzes: newCompletedQuizzes,
       streak: newStreak,
-      lastPlayDate: today
+      lastPlayDate: today,
     };
-    localStorage.setItem('quizData', JSON.stringify(quizData));
+    localStorage.setItem("quizData", JSON.stringify(quizData));
   };
 
   const resetCompletedQuizzes = () => {
@@ -73,6 +76,6 @@ export const useQuizData = () => {
     todayTickets,
     streak,
     handleQuizComplete,
-    resetCompletedQuizzes
+    resetCompletedQuizzes,
   };
-}; 
+};

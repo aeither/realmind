@@ -1,0 +1,20 @@
+{
+  "frame": {
+    "name": "QuizDrop",
+    "version": "1",
+    "iconUrl": "https://basically-enough-clam.ngrok-free.app/icon.png",
+    "homeUrl": "https://basically-enough-clam.ngrok-free.app",
+    "imageUrl": "https://basically-enough-clam.ngrok-free.app/quiz-preview.jpeg",
+    "splashImageUrl": "https://basically-enough-clam.ngrok-free.app/splash.jpeg",
+    "splashBackgroundColor": "#6200EA",
+    "webhookUrl": "https://basically-enough-clam.ngrok-free.app/api/webhook",
+    "subtitle": "Interactive quiz",
+    "description": "QuizDrop is a decentralized quiz application built for the Farcaster ecosystem.",
+    "primaryCategory": "games"
+  },
+  "accountAssociation": {
+    "header": "eyJmaWQiOjIxNjM4MywidHlwZSI6ImF1dGgiLCJrZXkiOiIweENhMDU3RDcxRWY1NDE5RDZDNzhlNTI3MTU2NUFDZEMwMzAxZjA0ODAifQ",
+    "payload": "eyJkb21haW4iOiJiYXNpY2FsbHktZW5vdWdoLWNsYW0ubmdyb2stZnJlZS5hcHAifQ",
+    "signature": "Uy+H2EVKBlVeWEk5x9AYnZdeAtzlpMfUSTvUDheCml4qxh2c9WTEPNQqgJUoYfBBcwdoKGi9N73mWH5gZn+xPRs="
+  }
+}

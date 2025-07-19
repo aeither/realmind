@@ -20,24 +20,26 @@ export const useQuizGenerator = (initialQuizzes: QuizCard[]) => {
     }
 
     setIsGenerating(true);
-    
+
     // Simulate AI generation delay
-    await new Promise(resolve => setTimeout(resolve, 2000));
+    await new Promise((resolve) => setTimeout(resolve, 2000));
 
     const icons = [Brain, Calculator, Globe];
     const colors = ["bg-primary", "bg-success", "bg-warning"];
-    
+
     const newQuizzes: QuizCard[] = [1, 2, 3].map((id) => ({
       id,
       title: `${quizTopic} Quiz ${id}`,
       category: quizTopic,
-      icon: React.createElement(icons[id - 1], { className: "w-6 h-6 text-white" }),
+      icon: React.createElement(icons[id - 1], {
+        className: "w-6 h-6 text-white",
+      }),
       color: colors[id - 1],
       quiz: {
         question: `Generated question about ${quizTopic} #${id}?`,
         options: ["Option A", "Option B", "Option C", "Option D"],
-        correctAnswer: Math.floor(Math.random() * 4)
-      }
+        correctAnswer: Math.floor(Math.random() * 4),
+      },
     }));
 
     setCurrentQuizzes(newQuizzes);
@@ -57,6 +59,6 @@ export const useQuizGenerator = (initialQuizzes: QuizCard[]) => {
     quizTopic,
     setQuizTopic,
     isGenerating,
-    generateNewQuizzes
+    generateNewQuizzes,
   };
-}; 
+};

@@ -4,11 +4,17 @@ import { api } from "../../convex/_generated/api";
 
 export const useConvexQuiz = (userId?: string) => {
   const { toast } = useToast();
-  
+
   // Queries
   const activeQuizzes = useQuery(api.quiz.getActiveQuizzes);
-  const userProgress = useQuery(api.quiz.getUserProgress, userId ? { userId } : "skip");
-  const walletTransactions = useQuery(api.quiz.getWalletTransactions, userId ? { userId } : "skip");
+  const userProgress = useQuery(
+    api.quiz.getUserProgress,
+    userId ? { userId } : "skip"
+  );
+  const walletTransactions = useQuery(
+    api.quiz.getWalletTransactions,
+    userId ? { userId } : "skip"
+  );
 
   // Mutations
   const createQuiz = useMutation(api.quiz.createQuiz);
@@ -49,17 +55,20 @@ export const useConvexQuiz = (userId?: string) => {
 
       const today = new Date().toDateString();
       const isNewDay = currentProgress.lastPlayDate !== today;
-      
-      const newCompletedQuizzes = isCorrect 
+
+      const newCompletedQuizzes = isCorrect
         ? [...currentProgress.completedQuizzes, quizId]
         : currentProgress.completedQuizzes;
-      
-      const newTodayTickets = isNewDay 
-        ? ticketsEarned 
+
+      const newTodayTickets = isNewDay
+        ? ticketsEarned
         : currentProgress.todayTickets + ticketsEarned;
-      
+
       const newTotalTickets = currentProgress.totalTickets + ticketsEarned;
-      const newStreak = newCompletedQuizzes.length === 3 ? currentProgress.streak + 1 : currentProgress.streak;
+      const newStreak =
+        newCompletedQuizzes.length === 3
+          ? currentProgress.streak + 1
+          : currentProgress.streak;
 
       await updateUserProgress({
         userId,
@@ -82,13 +91,12 @@ export const useConvexQuiz = (userId?: string) => {
 
       // Send notification
       await sendToast({
-        message: isCorrect 
+        message: isCorrect
           ? `Correct! You earned ${ticketsEarned} tickets and ${tokensEarned} QT tokens!`
           : "Better luck next time!",
         type: isCorrect ? "success" : "info",
         userId,
       });
-
     } catch (error) {
       console.error("Error recording quiz completion:", error);
       toast({
@@ -128,7 +136,11 @@ export const useConvexQuiz = (userId?: string) => {
     }
   };
 
-  const handleClaimReward = async (rewardName: string, rewardType: string, cost: number) => {
+  const handleClaimReward = async (
+    rewardName: string,
+    rewardType: string,
+    cost: number
+  ) => {
     if (!userId) return;
 
     try {
@@ -159,7 +171,7 @@ export const useConvexQuiz = (userId?: string) => {
     activeQuizzes,
     userProgress,
     walletTransactions,
-    
+
     // Actions
     handleQuizComplete,
     handleWalletDeposit,
@@ -167,4 +179,4 @@ export const useConvexQuiz = (userId?: string) => {
     createQuiz,
     sendToast,
   };
-}; 
+};

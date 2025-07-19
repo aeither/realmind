@@ -7,11 +7,17 @@ interface StatsCardProps {
   streak: number;
 }
 
-export const StatsCard = ({ totalTickets, todayTickets, streak }: StatsCardProps) => {
+export const StatsCard = ({
+  totalTickets,
+  todayTickets,
+  streak,
+}: StatsCardProps) => {
   return (
     <Card className="bg-card shadow-card">
       <CardContent className="p-6">
-        <h2 className="text-xl font-bold mb-4 text-card-foreground">Your Stats</h2>
+        <h2 className="text-xl font-bold mb-4 text-card-foreground">
+          Your Stats
+        </h2>
         <div className="grid grid-cols-3 gap-4">
           <div className="text-center">
             <div className="p-3 rounded-lg bg-blue-100 mb-2 inline-flex">
@@ -38,4 +44,4 @@ export const StatsCard = ({ totalTickets, todayTickets, streak }: StatsCardProps
       </CardContent>
     </Card>
   );
-}; 
+};

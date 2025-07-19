@@ -12,20 +12,20 @@ export const initialQuizzes: QuizCard[] = [
     quiz: {
       question: "What comes next in the sequence: 2, 6, 12, 20, 30, ?",
       options: ["40", "42", "44", "46"],
-      correctAnswer: 1
-    }
+      correctAnswer: 1,
+    },
   },
   {
     id: 2,
     title: "Math Challenge",
-    category: "Mathematics", 
+    category: "Mathematics",
     icon: React.createElement(Calculator, { className: "w-6 h-6 text-white" }),
     color: "bg-success",
     quiz: {
       question: "If 3x + 7 = 22, what is the value of x?",
       options: ["3", "5", "7", "9"],
-      correctAnswer: 1
-    }
+      correctAnswer: 1,
+    },
   },
   {
     id: 3,
@@ -36,7 +36,7 @@ export const initialQuizzes: QuizCard[] = [
     quiz: {
       question: "Which country has the most time zones?",
       options: ["Russia", "USA", "China", "France"],
-      correctAnswer: 3
-    }
-  }
-]; 
+      correctAnswer: 3,
+    },
+  },
+];

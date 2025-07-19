@@ -19,15 +19,15 @@ interface QuizCardProps {
   isWalletConnected: boolean;
 }
 
-export const QuizCard = ({ 
-  title, 
-  category, 
-  icon, 
-  color, 
-  quiz, 
-  isCompleted, 
+export const QuizCard = ({
+  title,
+  category,
+  icon,
+  color,
+  quiz,
+  isCompleted,
   onComplete,
-  isWalletConnected
+  isWalletConnected,
 }: QuizCardProps) => {
   const [isActive, setIsActive] = useState(false);
   const [timeLeft, setTimeLeft] = useState(10);
@@ -37,7 +37,7 @@ export const QuizCard = ({
   const [rewardAmount, setRewardAmount] = useState(0);
   const [showClaimButton, setShowClaimButton] = useState(false);
   const { toast } = useToast();
-  
+
   // Refs to track component mount status and timers
   const isMountedRef = useRef(true);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
@@ -51,7 +51,7 @@ export const QuizCard = ({
       if (timerRef.current) {
         clearInterval(timerRef.current);
       }
-      timeoutRefs.current.forEach(timeout => clearTimeout(timeout));
+      timeoutRefs.current.forEach((timeout) => clearTimeout(timeout));
     };
   }, []);
 
@@ -72,7 +72,7 @@ export const QuizCard = ({
 
   const startQuiz = () => {
     if (!isMountedRef.current) return;
-    
+
     setIsActive(true);
     setTimeLeft(10);
     setSelectedAnswer(null);
@@ -90,7 +90,7 @@ export const QuizCard = ({
         }
         return;
       }
-      
+
       setTimeLeft((prev) => {
         if (prev <= 1) {
           if (timerRef.current) {
@@ -106,14 +106,14 @@ export const QuizCard = ({
 
   const handleTimeout = () => {
     if (!isMountedRef.current) return;
-    
+
     setShowResult(true);
     toast({
       title: "Time's up!",
       description: "You didn't answer in time. Try again tomorrow!",
       variant: "destructive",
     });
-    
+
     const timeout = setTimeout(() => {
       if (isMountedRef.current) {
         setIsActive(false);
@@ -125,16 +125,16 @@ export const QuizCard = ({
 
   const handleAnswerSelect = (answerIndex: number) => {
     if (selectedAnswer !== null || !isMountedRef.current) return;
-    
+
     setSelectedAnswer(answerIndex);
     setShowResult(true);
-    
+
     const isCorrect = answerIndex === quiz.correctAnswer;
     const speed = 11 - timeLeft; // Higher speed = more tickets
     const baseTickets = Math.max(5, 50 - speed * 5);
     const randomMultiplier = Math.random() * 0.5 + 0.75; // 0.75x to 1.25x multiplier
     const tickets = isCorrect ? Math.floor(baseTickets * randomMultiplier) : 0;
-    
+
     if (isCorrect) {
       const reward = tickets * 2; // Double tickets as reward tokens
       setRewardAmount(reward);
@@ -164,13 +164,13 @@ export const QuizCard = ({
 
   const handleClaimReward = () => {
     if (!isMountedRef.current) return;
-    
+
     setShowClaimButton(false);
     toast({
       title: "Reward Claimed! 💰",
       description: `Claimed ${rewardAmount} QT tokens!`,
     });
-    
+
     const timeout = setTimeout(() => {
       if (isMountedRef.current) {
         setIsActive(false);
@@ -187,10 +187,10 @@ export const QuizCard = ({
         <CardContent className="p-6 h-full flex flex-col">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-2">
-              <div className={`p-2 rounded-lg ${color}`}>
-                {icon}
-              </div>
-              <span className="font-semibold text-card-foreground">{title}</span>
+              <div className={`p-2 rounded-lg ${color}`}>{icon}</div>
+              <span className="font-semibold text-card-foreground">
+                {title}
+              </span>
             </div>
             <div className="flex items-center gap-1 text-orange-500">
               <Clock className="w-4 h-4" />
@@ -202,7 +202,7 @@ export const QuizCard = ({
             <h3 className="text-lg font-bold mb-6 text-center text-card-foreground">
               {quiz.question}
             </h3>
-            
+
             <div className="space-y-3">
               {quiz.options.map((option, index) => (
                 <Button
@@ -226,19 +226,27 @@ export const QuizCard = ({
     return (
       <Card className="h-80 bg-card shadow-card">
         <CardContent className="p-6 h-full flex flex-col items-center justify-center">
-          <div className={`p-4 rounded-full mb-4 ${isCorrect ? 'bg-green-500' : 'bg-red-500'}`}>
-            {isCorrect ? <Trophy className="w-8 h-8 text-white" /> : <span className="text-2xl">😔</span>}
+          <div
+            className={`p-4 rounded-full mb-4 ${isCorrect ? "bg-green-500" : "bg-red-500"}`}
+          >
+            {isCorrect ? (
+              <Trophy className="w-8 h-8 text-white" />
+            ) : (
+              <span className="text-2xl">😔</span>
+            )}
           </div>
           <h3 className="text-xl font-bold mb-2 text-center">
-            {isCorrect ? 'Correct!' : 'Wrong Answer'}
+            {isCorrect ? "Correct!" : "Wrong Answer"}
           </h3>
           <p className="text-muted-foreground text-center mb-4">
-            {isCorrect ? `You earned ${Math.floor(rewardAmount/2)} tickets!` : `The correct answer was: ${quiz.options[quiz.correctAnswer]}`}
+            {isCorrect
+              ? `You earned ${Math.floor(rewardAmount / 2)} tickets!`
+              : `The correct answer was: ${quiz.options[quiz.correctAnswer]}`}
           </p>
-          
+
           {showClaimButton && (
-            <Button 
-              variant="default" 
+            <Button
+              variant="default"
               size="lg"
               onClick={handleClaimReward}
               className="animate-pulse"
@@ -256,15 +264,13 @@ export const QuizCard = ({
     <Card className="h-80 bg-card shadow-card hover:shadow-lg transition-all duration-300 hover:scale-105">
       <CardContent className="p-6 h-full flex flex-col">
         <div className="flex items-center gap-3 mb-4">
-          <div className={`p-3 rounded-lg ${color}`}>
-            {icon}
-          </div>
+          <div className={`p-3 rounded-lg ${color}`}>{icon}</div>
           <div>
             <h3 className="font-bold text-lg text-card-foreground">{title}</h3>
             <p className="text-muted-foreground text-sm">{category}</p>
           </div>
         </div>
-        
+
         <div className="flex-1 flex flex-col justify-center items-center">
           {isCompleted ? (
             <div className="text-center">
@@ -272,14 +278,18 @@ export const QuizCard = ({
                 <Star className="w-6 h-6 text-white" />
               </div>
               <p className="text-green-600 font-semibold">Completed!</p>
-              <p className="text-muted-foreground text-sm">Come back tomorrow</p>
+              <p className="text-muted-foreground text-sm">
+                Come back tomorrow
+              </p>
             </div>
           ) : !isWalletConnected ? (
             <div className="text-center">
               <div className="p-3 rounded-full bg-muted mb-4 inline-flex">
                 <Wallet className="w-6 h-6 text-muted-foreground" />
               </div>
-              <p className="text-muted-foreground mb-2 font-semibold">Connect Wallet Required</p>
+              <p className="text-muted-foreground mb-2 font-semibold">
+                Connect Wallet Required
+              </p>
               <p className="text-muted-foreground text-sm">
                 Connect your wallet to deposit and play
               </p>
@@ -292,8 +302,8 @@ export const QuizCard = ({
               <p className="text-muted-foreground mb-4 text-sm">
                 Click to unlock this quiz!
               </p>
-              <Button 
-                variant="default" 
+              <Button
+                variant="default"
                 size="lg"
                 onClick={handleDeposit}
                 className="bg-orange-500 text-white hover:bg-orange-600"
@@ -307,8 +317,8 @@ export const QuizCard = ({
               <p className="text-muted-foreground mb-6">
                 Answer fast to earn more tickets! Rewards are randomized!
               </p>
-              <Button 
-                variant="default" 
+              <Button
+                variant="default"
                 size="lg"
                 onClick={startQuiz}
                 className="animate-pulse"
@@ -321,4 +331,4 @@ export const QuizCard = ({
       </CardContent>
     </Card>
   );
-}; 
+};

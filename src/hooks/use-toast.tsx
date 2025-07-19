@@ -31,9 +31,11 @@ export const useToast = () => {
   return context;
 };
 
-export const ToastProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+export const ToastProvider: React.FC<{ children: React.ReactNode }> = ({
+  children,
+}) => {
   const [toasts, setToasts] = useState<(Toast & { id: string })[]>([]);
-  
+
   // Ref to track component mount status
   const isMountedRef = useRef(true);
 
@@ -46,16 +48,16 @@ export const ToastProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
   const toast = (toast: Toast) => {
     if (!isMountedRef.current) return () => {};
-    
+
     const id = Math.random().toString(36).substring(2, 11);
     setToasts((prev) => [...prev, { ...toast, id }]);
-    
+
     const timeout = setTimeout(() => {
       if (isMountedRef.current) {
         dismissToast(id);
       }
     }, 3000);
-    
+
     // Cleanup timeout if component unmounts
     return () => clearTimeout(timeout);
   };
@@ -82,10 +84,10 @@ const ToastRenderer: React.FC<{
 
   useEffect(() => {
     // Create or get the toast container
-    let toastContainer = document.getElementById('toast-container');
+    let toastContainer = document.getElementById("toast-container");
     if (!toastContainer) {
-      toastContainer = document.createElement('div');
-      toastContainer.id = 'toast-container';
+      toastContainer = document.createElement("div");
+      toastContainer.id = "toast-container";
       toastContainer.style.cssText = `
         position: fixed;
         top: 1rem;
@@ -108,7 +110,7 @@ const ToastRenderer: React.FC<{
           }
         } catch (error) {
           // Silently handle cases where the element is already removed
-          console.debug('Toast container already removed:', error);
+          console.debug("Toast container already removed:", error);
         }
       }
     };
@@ -128,7 +130,7 @@ const ToastRenderer: React.FC<{
             pointer-events-auto cursor-pointer
             transition-all duration-200 ease-in-out
             hover:shadow-xl
-            ${toast.variant === 'destructive' ? 'border-red-200 bg-red-50 dark:bg-red-900/20' : ''}
+            ${toast.variant === "destructive" ? "border-red-200 bg-red-50 dark:bg-red-900/20" : ""}
           `}
           onClick={() => onDismiss(toast.id)}
         >

@@ -15,17 +15,27 @@ export const createRouter = () => {
   // Initialize Convex client
   const CONVEX_URL = import.meta.env.VITE_CONVEX_URL!;
   if (!CONVEX_URL) {
-    console.warn("VITE_CONVEX_URL not found - Convex features will be disabled");
+    console.warn(
+      "VITE_CONVEX_URL not found - Convex features will be disabled"
+    );
   }
-  
-  const convexQueryClient = CONVEX_URL ? new ConvexQueryClient(CONVEX_URL) : null;
-  
+
+  const convexQueryClient = CONVEX_URL
+    ? new ConvexQueryClient(CONVEX_URL)
+    : null;
+
   // Create query client with Convex integration
   const queryClient: QueryClient = new QueryClient({
     defaultOptions: {
       queries: {
-        queryKeyHashFn: convexQueryClient?.hashFn() || TanstackQuery.getContext().queryClient.getDefaultOptions().queries?.queryKeyHashFn,
-        queryFn: convexQueryClient?.queryFn() || TanstackQuery.getContext().queryClient.getDefaultOptions().queries?.queryFn,
+        queryKeyHashFn:
+          convexQueryClient?.hashFn() ||
+          TanstackQuery.getContext().queryClient.getDefaultOptions().queries
+            ?.queryKeyHashFn,
+        queryFn:
+          convexQueryClient?.queryFn() ||
+          TanstackQuery.getContext().queryClient.getDefaultOptions().queries
+            ?.queryFn,
       },
     },
   });

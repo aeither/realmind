@@ -6,7 +6,7 @@ export const useWallet = () => {
   const [walletAddress, setWalletAddress] = useState("");
   const [walletBalance, setWalletBalance] = useState(1000);
   const { toast } = useToast();
-  
+
   // Ref to track component mount status
   const isMountedRef = useRef(true);
 
@@ -30,7 +30,7 @@ export const useWallet = () => {
         });
       }
     }, 1500);
-    
+
     // Cleanup timeout if component unmounts
     return () => clearTimeout(timeout);
   };
@@ -47,14 +47,14 @@ export const useWallet = () => {
 
   const handleDeposit = (amount: number) => {
     if (walletBalance >= amount) {
-      setWalletBalance(prev => prev - amount);
+      setWalletBalance((prev) => prev - amount);
       return true;
     }
     return false;
   };
 
   const handleClaimReward = (amount: number) => {
-    setWalletBalance(prev => prev + amount);
+    setWalletBalance((prev) => prev + amount);
   };
 
   return {
@@ -64,6 +64,6 @@ export const useWallet = () => {
     connectWallet,
     disconnectWallet,
     handleDeposit,
-    handleClaimReward
+    handleClaimReward,
   };
-}; 
+};

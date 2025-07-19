@@ -2,8 +2,8 @@ import { QueryClient } from "@tanstack/react-query";
 import { createTRPCClient, httpBatchStreamLink } from "@trpc/client";
 import { createTRPCOptionsProxy } from "@trpc/tanstack-react-query";
 import superjson from "superjson";
-import { WagmiProvider } from 'wagmi';
-import { RainbowKitProvider } from '@rainbow-me/rainbowkit';
+import { WagmiProvider } from "wagmi";
+import { RainbowKitProvider } from "@rainbow-me/rainbowkit";
 
 import { TRPCProvider } from "@/integrations/trpc/react";
 import { config } from "@/lib/wagmi";
@@ -50,9 +50,7 @@ export function Provider({ children }: { children: React.ReactNode }) {
   return (
     <WagmiProvider config={config}>
       <TRPCProvider trpcClient={trpcClient} queryClient={queryClient}>
-        <RainbowKitProvider>
-          {children}
-        </RainbowKitProvider>
+        <RainbowKitProvider>{children}</RainbowKitProvider>
       </TRPCProvider>
     </WagmiProvider>
   );

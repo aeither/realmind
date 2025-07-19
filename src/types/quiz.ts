@@ -30,4 +30,4 @@ export interface Reward {
   icon: React.ReactNode;
   color: string;
   rarity: string;
-} 
+}

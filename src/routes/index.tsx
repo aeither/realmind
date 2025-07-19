@@ -5,10 +5,10 @@ import { Input } from "@/components/ui/input";
 import { initialQuizzes } from "@/data/quizzes";
 import { useQuizData } from "@/hooks/useQuizData";
 import { useQuizGenerator } from "@/hooks/useQuizGenerator";
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { Coins, Crown, Gift, User, Wand2 } from "lucide-react";
-import { ConnectButton } from '@rainbow-me/rainbowkit';
-import { useAccount, useBalance } from 'wagmi';
+import { ConnectButton } from "@rainbow-me/rainbowkit";
+import { useAccount, useBalance } from "wagmi";
 
 const Index = () => {
   const { address, isConnected } = useAccount();
@@ -22,7 +22,7 @@ const Index = () => {
     todayTickets,
     streak,
     handleQuizComplete,
-    resetCompletedQuizzes
+    resetCompletedQuizzes,
   } = useQuizData();
 
   const {
@@ -30,7 +30,7 @@ const Index = () => {
     quizTopic,
     setQuizTopic,
     isGenerating,
-    generateNewQuizzes
+    generateNewQuizzes,
   } = useQuizGenerator(initialQuizzes);
 
   const handleGenerateQuizzes = async () => {
@@ -51,13 +51,13 @@ const Index = () => {
               <Coins className="w-4 h-4" />
               <span className="font-medium">Quiz Arena</span>
             </div>
-            
+
             <div className="flex items-center gap-1 text-sm bg-white/20 px-3 py-1 rounded-lg">
               <Gift className="w-4 h-4" />
               <span className="font-medium">{totalTickets} Tickets</span>
             </div>
-            
-            <ConnectButton 
+
+            <ConnectButton
               chainStatus="none"
               accountStatus="address"
               showBalance={false}
@@ -73,7 +73,9 @@ const Index = () => {
               <div>
                 <h1 className="text-xl font-bold">Welcome back!</h1>
                 <p className="text-white/80 text-sm">
-                  {isConnected ? "Ready to earn rewards?" : "Connect wallet to start"}
+                  {isConnected
+                    ? "Ready to earn rewards?"
+                    : "Connect wallet to start"}
                 </p>
               </div>
             </div>
@@ -88,7 +90,7 @@ const Index = () => {
       {/* Main Content */}
       <div className="max-w-md mx-auto p-6 space-y-6">
         {/* Stats Card */}
-        <StatsCard 
+        <StatsCard
           totalTickets={totalTickets}
           todayTickets={todayTickets}
           streak={streak}
@@ -96,7 +98,9 @@ const Index = () => {
 
         {/* Daily Quizzes Header */}
         <div className="text-center">
-          <h2 className="text-2xl font-bold text-foreground mb-2">Daily Quizzes</h2>
+          <h2 className="text-2xl font-bold text-foreground mb-2">
+            Daily Quizzes
+          </h2>
           <p className="text-muted-foreground">
             Complete all 3 quizzes to extend your streak!
           </p>
@@ -125,7 +129,9 @@ const Index = () => {
             <div className="p-3 rounded-full bg-blue-600 mb-4 inline-flex">
               <Wand2 className="w-8 h-8 text-white" />
             </div>
-            <h3 className="text-xl font-bold text-blue-600 mb-4">Generate New Quizzes! ✨</h3>
+            <h3 className="text-xl font-bold text-blue-600 mb-4">
+              Generate New Quizzes! ✨
+            </h3>
             <div className="flex gap-2 max-w-sm mx-auto">
               <Input
                 placeholder="Enter quiz topic..."
@@ -134,7 +140,7 @@ const Index = () => {
                 className="flex-1"
                 disabled={isGenerating}
               />
-              <Button 
+              <Button
                 onClick={handleGenerateQuizzes}
                 disabled={isGenerating || !quizTopic.trim()}
                 className="px-3"
@@ -148,6 +154,27 @@ const Index = () => {
             </div>
           </div>
         )}
+
+        {/* Farcaster Integration */}
+        <div className="text-center p-6 bg-purple-50 rounded-2xl border border-purple-200">
+          <div className="p-3 rounded-full bg-purple-600 mb-4 inline-flex">
+            <Coins className="w-8 h-8 text-white" />
+          </div>
+          <h3 className="text-xl font-bold text-purple-600 mb-4">
+            🎯 QuizDrop
+          </h3>
+          <p className="text-purple-700 mb-4">
+            Create quiz coins, play interactive quizzes, and trade on Base
+            network
+          </p>
+          <Link
+            to="/farcaster/quiz-app"
+            className="inline-flex items-center gap-2 bg-purple-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-purple-700 transition-colors"
+          >
+            <Coins className="w-5 h-5" />
+            Launch QuizDrop
+          </Link>
+        </div>
       </div>
     </div>
   );
@@ -157,4 +184,4 @@ export const Route = createFileRoute("/")({
   component: Index,
 });
 
-export default Index; 
+export default Index;

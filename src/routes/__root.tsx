@@ -1,8 +1,8 @@
 import {
-    HeadContent,
-    Outlet,
-    Scripts,
-    createRootRouteWithContext,
+  HeadContent,
+  Outlet,
+  Scripts,
+  createRootRouteWithContext,
 } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { TanStackRouterDevtools } from "@tanstack/react-router-devtools";
@@ -51,7 +51,9 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
   notFoundComponent: () => (
     <div className="min-h-screen flex items-center justify-center">
       <div className="text-center">
-        <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-4">404</h1>
+        <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-4">
+          404
+        </h1>
         <p className="text-gray-600 dark:text-gray-400">Page not found</p>
       </div>
     </div>
@@ -66,7 +68,7 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
         <TanStackRouterDevtools />
 
         <TanStackQueryLayout />
-        
+
         {/* Real-time toast notifications */}
         <ToastListener />
       </ToastProvider>
