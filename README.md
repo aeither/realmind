@@ -1,22 +1,22 @@
-# 🎯 QuizDrop
+# 🧠 RealMind
 
-Interactive quiz mini-app for **Farcaster** that creates **real ERC-20 coins** using Zora's Coins SDK and enables trading on Base network.
+Interactive learning platform that rewards users with **Yuzu Points** through daily quizzes, quests, and challenges. Built for the **Open Campus (OC) EDU Chain** ecosystem.
 
 ## ✨ Key Features
 
-- **🎮 Quiz & Earn**: Take quizzes and interact with creator coins
-- **🪙 Real Coin Creation**: Deploy actual ERC-20 tokens via Zora Coins SDK  
-- **🔄 Live Trading**: Buy/sell quiz coins with ETH using Zora's trading infrastructure
-- **🔐 Farcaster Native**: Seamless auth and user management via Farcaster Frame SDK
-- **🌐 Base Network**: Built for Coinbase's L2 with optimized gas costs
+- **📚 Daily Learning**: Take personalized daily quizzes to earn points
+- **🗺️ Quest System**: Complete special quests across various subjects
+- **🏆 Leaderboards**: Compete with other learners and track your progress
+- **🍋 Yuzu Points**: Earn points that convert to EDU tokens on the EDU Chain
+- **🎯 Season-based**: Participate in seasonal competitions with rewards
+- **🔐 Web3 Ready**: Seamless wallet integration for blockchain rewards
 
 ## 🚀 Quick Start
 
 ### Prerequisites
 - Node.js 18+ and pnpm
-- Farcaster account  
-- Base network wallet with ETH
-- [Zora API key](https://docs.zora.co/docs/zora-network/api)
+- Web3 wallet (MetaMask, WalletConnect, etc.)
+- [Open Campus EDU Chain](https://docs.opencampus.xyz/) knowledge
 
 ### Setup
 
@@ -30,16 +30,15 @@ cp .env.example .env.local
 
 **Required Environment Variables:**
 ```env
-# Zora Coins SDK Integration
-VITE_ZORA_API_KEY=your_zora_api_key
-
-# Blockchain (Base Network)  
-VITE_PRIVATE_KEY=your_private_key_for_coin_creation
-VITE_RPC_URL=https://mainnet.base.org
-VITE_PAYOUT_RECIPIENT=0x_your_wallet_address
-
 # Database (PostgreSQL)
 DATABASE_URL=postgresql://user:pass@host:port/db
+
+# Web3 Configuration
+VITE_RPC_URL=https://mainnet.base.org
+VITE_CHAIN_ID=8453
+
+# Optional: Analytics
+VITE_ANALYTICS_ID=your_analytics_id
 ```
 
 ### Run
@@ -54,125 +53,160 @@ pnpm db:push
 pnpm build
 ```
 
-## 🏗️ Core Integrations
+## 🏗️ Core Features
 
-### 🪙 Zora Coins SDK Integration
+### 📊 Learning & Earning System
 
-**Real ERC-20 Coin Creation:**
+**Daily Quizzes:**
 ```typescript
-import { createCoin, DeployCurrency } from '@zoralabs/coins-sdk';
-
-// Create quiz coin on Base network
-const result = await createCoin(
-  {
-    name: "My Quiz Coin",
-    symbol: "QUIZ", 
-    uri: "ipfs://metadata-uri",
-    payoutRecipient: "0x...",
-    chainId: 8453, // Base
-    currency: DeployCurrency.ZORA
-  },
-  walletClient,
-  publicClient,
-  { gasMultiplier: 120 }
-);
-
-// Returns: { address, hash, deployment }
-```
-
-**Trading with Zora's Infrastructure:**
-```typescript
-import { tradeCoin, TradeParameters } from '@zoralabs/coins-sdk';
-
-// Buy quiz coin with ETH
-const tradeParams: TradeParameters = {
-  sell: { type: "eth" },
-  buy: { type: "erc20", address: quizCoinAddress },
-  amountIn: parseEther("0.001"), // 0.001 ETH
-  slippage: 0.05, // 5% tolerance
-  sender: userAddress,
-};
-
-const receipt = await tradeCoin({
-  tradeParameters: tradeParams,
-  walletClient,
-  account,
-  publicClient,
-});
-```
-
-**Key Features:**
-- ✅ **Real token deployment** on Base mainnet
-- ✅ **Gasless approvals** via permit signatures  
-- ✅ **Automatic routing** for optimal trades
-- ✅ **Slippage protection** and parameter validation
-- ✅ **Creator monetization** through trading fees
-
-### 🔐 Farcaster Frame SDK Integration
-
-**Authentication & User Management:**
-```typescript
-import { sdk } from "@farcaster/frame-sdk";
-
-// Initialize Farcaster context
-const context = await sdk.context;
-if (context.user) {
-  // Access user data: fid, displayName, username, pfpUrl
-  const { fid, displayName, pfpUrl } = context.user;
-  
-  // Get auth token
-  const { token } = await sdk.quickAuth.getToken();
+// Quiz completion tracking
+interface QuizResult {
+  userId: string;
+  quizId: string;
+  score: number;
+  timeSpent: number;
+  pointsEarned: number;
+  completedAt: Date;
 }
 
-// Sign in flow
-await sdk.actions.signIn({
-  nonce: crypto.randomUUID(),
-  acceptAuthAddress: true,
-});
+// Points calculation
+const calculatePoints = (score: number, difficulty: number, timeBonus: number) => {
+  return Math.floor(score * difficulty * timeBonus);
+};
 ```
 
-**Frame-Ready Components:**
+**Quest System:**
 ```typescript
-// Frame lifecycle management
-useEffect(() => {
-  const initializeApp = async () => {
-    // App initialization logic
-    sdk.actions.ready(); // Signal frame is ready
-  };
-  initializeApp();
-}, []);
+// Quest completion
+interface Quest {
+  id: string;
+  title: string;
+  description: string;
+  category: string;
+  pointsReward: number;
+  requirements: QuestRequirement[];
+  isActive: boolean;
+}
+
+// Leaderboard tracking
+interface LeaderboardEntry {
+  userId: string;
+  username: string;
+  totalPoints: number;
+  rank: number;
+  season: string;
+}
 ```
 
 **Key Features:**
-- ✅ **One-click authentication** with Farcaster
-- ✅ **Profile integration** (FID, name, avatar)
-- ✅ **Token-based auth** for secure API calls
-- ✅ **Frame lifecycle** management
-- ✅ **Native UX** within Farcaster ecosystem
+- ✅ **Personalized quizzes** based on user progress
+- ✅ **Multi-category quests** (Math, Science, History, etc.)
+- ✅ **Real-time leaderboards** with seasonal rankings
+- ✅ **Point conversion** to Yuzu Points for EDU Chain
+- ✅ **Progress tracking** and achievement system
+
+### 🏆 Leaderboard System
+
+**Seasonal Competitions:**
+```typescript
+// Season management
+interface Season {
+  id: string;
+  name: string;
+  startDate: Date;
+  endDate: Date;
+  totalParticipants: number;
+  totalPointsDistributed: number;
+  isActive: boolean;
+}
+
+// User rankings
+interface UserRanking {
+  userId: string;
+  seasonId: string;
+  rank: number;
+  points: number;
+  quizzesCompleted: number;
+  questsCompleted: number;
+  lastActivity: Date;
+}
+```
+
+**Key Features:**
+- ✅ **Season-based competitions** with clear start/end dates
+- ✅ **Real-time rankings** updated after each activity
+- ✅ **Historical data** tracking across seasons
+- ✅ **Achievement badges** for milestones
+- ✅ **Social features** to compare with friends
 
 ## 📊 Database Schema
 
 ```sql
--- Quiz coins storage
+-- User profiles and progress
+CREATE TABLE users (
+    id SERIAL PRIMARY KEY,
+    wallet_address VARCHAR(42) UNIQUE NOT NULL,
+    username VARCHAR(50) UNIQUE,
+    total_points INTEGER DEFAULT 0,
+    quizzes_completed INTEGER DEFAULT 0,
+    quests_completed INTEGER DEFAULT 0,
+    joined_at TIMESTAMP DEFAULT now(),
+    last_active TIMESTAMP DEFAULT now()
+);
+
+-- Quiz system
 CREATE TABLE quizzes (
     id SERIAL PRIMARY KEY,
-    coin_address VARCHAR(42) UNIQUE NOT NULL,
-    tx_hash VARCHAR(66) NOT NULL,
-    name VARCHAR(100) NOT NULL,
-    symbol VARCHAR(10) NOT NULL,
-    creator_address VARCHAR(42) NOT NULL,
-    creator_fid BIGINT, -- Farcaster user ID
+    title VARCHAR(200) NOT NULL,
+    category VARCHAR(50) NOT NULL,
+    difficulty INTEGER CHECK (difficulty BETWEEN 1 AND 5),
+    questions JSONB NOT NULL,
+    points_reward INTEGER NOT NULL,
+    is_active BOOLEAN DEFAULT true,
     created_at TIMESTAMP DEFAULT now()
 );
 
--- Extensible quiz questions
-CREATE TABLE quiz_questions (
+-- User quiz attempts
+CREATE TABLE quiz_attempts (
     id SERIAL PRIMARY KEY,
+    user_id INTEGER REFERENCES users(id),
     quiz_id INTEGER REFERENCES quizzes(id),
-    question TEXT NOT NULL,
-    options TEXT[] NOT NULL,
-    correct_idx INTEGER NOT NULL,
-    explanation TEXT
+    score INTEGER NOT NULL,
+    time_spent INTEGER, -- seconds
+    points_earned INTEGER NOT NULL,
+    completed_at TIMESTAMP DEFAULT now()
+);
+
+-- Quest system
+CREATE TABLE quests (
+    id SERIAL PRIMARY KEY,
+    title VARCHAR(200) NOT NULL,
+    description TEXT,
+    category VARCHAR(50) NOT NULL,
+    points_reward INTEGER NOT NULL,
+    requirements JSONB,
+    is_active BOOLEAN DEFAULT true,
+    created_at TIMESTAMP DEFAULT now()
+);
+
+-- Leaderboard entries
+CREATE TABLE leaderboard_entries (
+    id SERIAL PRIMARY KEY,
+    user_id INTEGER REFERENCES users(id),
+    season_id VARCHAR(50) NOT NULL,
+    total_points INTEGER NOT NULL,
+    rank INTEGER,
+    updated_at TIMESTAMP DEFAULT now()
+);
+
+-- Seasons
+CREATE TABLE seasons (
+    id VARCHAR(50) PRIMARY KEY,
+    name VARCHAR(100) NOT NULL,
+    start_date TIMESTAMP NOT NULL,
+    end_date TIMESTAMP NOT NULL,
+    is_active BOOLEAN DEFAULT false,
+    created_at TIMESTAMP DEFAULT now()
 );
 ```
 
@@ -184,87 +218,83 @@ pnpm db:generate      # Generate migrations
 pnpm db:push         # Push schema to database  
 pnpm db:studio       # Open database browser
 
-# Coin utilities
-pnpm create-coin     # Create test coin via Zora SDK
-pnpm get-coins       # Query coin balances
+# Development utilities
+pnpm dev            # Start development server
+pnpm build          # Build for production
+pnpm preview        # Preview production build
 
-# Development
-pnpm dev            # Start dev server with ngrok
-pnpm ngrok          # Expose local server for Farcaster testing
+# Testing
+pnpm test           # Run test suite
+pnpm test:watch     # Run tests in watch mode
 ```
 
 ## 🔧 Tech Stack
 
 - **Frontend**: React + TypeScript + Vite
-- **Web3**: Wagmi + Viem for Base network integration
-- **Coins**: Zora Coins SDK for token creation and trading
-- **Auth**: Farcaster Frame SDK for user management  
+- **UI Components**: Shadcn/ui with Tailwind CSS
 - **Database**: PostgreSQL + Drizzle ORM
-- **Network**: Base (Coinbase L2) for low-cost transactions
+- **Web3**: Wagmi + Viem for wallet integration
+- **Styling**: Tailwind CSS with custom design system
+- **Deployment**: Vercel (recommended)
+
+## 🍋 Yuzu Points Integration
+
+### How RealMind Integrates with EDU Chain
+
+**Core Integration:**
+RealMind is designed to work seamlessly with the Open Campus EDU Chain ecosystem:
+
+1. **Point Accumulation**: Users earn points through daily quizzes and quests
+2. **Season Conversion**: At the end of each season, points convert to Yuzu Points
+3. **EDU Chain Rewards**: Yuzu Points can be used for EDU tokens and EDULand NFT rentals
+4. **Decentralized Education**: Part of the broader OC ecosystem for learning rewards
+
+**Technical Implementation:**
+- **Point Tracking**: Comprehensive system for tracking user engagement
+- **Season Management**: Structured seasons with clear conversion periods
+- **Leaderboard System**: Competitive rankings to encourage participation
+- **Web3 Ready**: Wallet integration for future blockchain rewards
+
+**Educational Model**: Transforms learning into a gamified experience where knowledge acquisition directly translates to real rewards in the decentralized education ecosystem.
 
 ## 🌐 Production Deployment
 
 **Environment Setup:**
-- Base mainnet RPC endpoint
-- PostgreSQL database (Railway recommended)
-- Zora API key with appropriate limits
-- Secure private key management
-- ngrok domain for Farcaster Frame hosting
+- PostgreSQL database (Railway, Supabase, or Vercel Postgres recommended)
+- Vercel for frontend hosting
+- Environment variables for database and analytics
+- SSL certificate for secure connections
 
 **Security Considerations:**
-- Private keys in environment variables only
-- Input validation for all user data  
-- Rate limiting for coin creation endpoints
-- Transaction validation and error handling
+- Input validation for all user data
+- Rate limiting for quiz submissions
+- Secure database connections
+- User data privacy protection
 
-## 🏆 Zora Coins Implementation
+## 🏆 Season 3 Features
 
-### How We Used Zora Coins
+### DailyWiser Season 3 Integration
 
-**Core Integration:**
-QuizDrop leverages Zora Coins SDK for two primary functions:
+**Key Components:**
+- **Daily Quizzes**: Personalized learning content
+- **Quest System**: Special challenges across subjects
+- **Leaderboards**: Real-time competitive rankings
+- **Point Conversion**: Season 3 points → Yuzu Points → EDU tokens
+- **Social Features**: Community engagement and sharing
 
-1. **Quiz Coin Creation**: When users create a quiz, we deploy a real ERC-20 token using `createCoin()` that represents their quiz. Each quiz becomes a tradeable creator coin on Base network.
-
-2. **Live Trading System**: Users can buy/sell quiz coins with ETH using Zora's `tradeCoin()` function, creating a marketplace where successful quiz creators can monetize their content through coin appreciation.
-
-**Technical Implementation:**
-- **Real Token Deployment**: Creates actual ERC-20 contracts (not mock tokens) 
-- **Gasless Trading**: Uses permit signatures for seamless user experience
-- **Creator Monetization**: Quiz creators earn from trading fees automatically
-- **Farcaster Integration**: Links coins to Farcaster user profiles (FID) for social discovery
-
-**Business Model**: Transforms educational content into tradeable assets, allowing creators to build sustainable quiz businesses through coin mechanics.
-
-### Technology Feedback & Experience
-
-**✅ Zora Coins SDK - Excellent**
-- **Documentation**: Comprehensive with clear examples for both coin creation and trading
-- **Developer Experience**: Intuitive API design, TypeScript support is excellent
-- **Reliability**: Consistent performance on Base mainnet, gas optimization works well
-- **Integration**: Seamless with existing Web3 stack (Wagmi/Viem)
-
-**✅ Farcaster Frame SDK - Outstanding**  
-- **Authentication**: One-click auth flow is incredibly smooth
-- **User Context**: Rich profile data (FID, username, avatar) readily available
-- **Frame Lifecycle**: Clear state management for Frame readiness
-- **Social Integration**: Natural fit for creator coin mechanics
-
-**🔧 Areas for Future Improvement**
-- **Zora SDK**: More granular fee configuration options for different creator tiers
-- **Trading**: Additional token pair support beyond ETH (USDC, ZORA)
-- **Analytics**: Built-in trading metrics and creator dashboard APIs
-- **Mobile**: Enhanced mobile wallet connection experience
-
-**Overall Assessment**: Both SDKs are production-ready with excellent documentation. The combination creates a powerful foundation for social-finance applications in the Farcaster ecosystem.
+**Season Timeline:**
+1. **Launch Phase**: New DailyWiser product release
+2. **Quest Period**: Special quests and daily challenges
+3. **Competition**: Leaderboard rankings and community engagement
+4. **Rewards**: Point conversion and EDU Chain integration
 
 ## 📖 Documentation
 
-- [Zora Coins SDK Docs](https://docs.zora.co/docs/smart-contracts/creator-tools/collect-premints)
-- [Farcaster Frame Docs](https://docs.farcaster.xyz/developers/frames/spec)
-- [Base Network Docs](https://docs.base.org/)
-- [Wagmi Docs](https://wagmi.sh/)
+- [Open Campus EDU Chain Docs](https://docs.opencampus.xyz/)
+- [Drizzle ORM Docs](https://orm.drizzle.team/)
+- [Vite Docs](https://vitejs.dev/)
+- [Tailwind CSS Docs](https://tailwindcss.com/)
 
 ---
 
-**Built for the Farcaster ecosystem with real Web3 functionality** 🚀
+**Built for the future of decentralized education** 🧠✨
