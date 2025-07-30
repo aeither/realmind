@@ -48,7 +48,7 @@ $ anvil
 ### Deploy
 
 ```shell
-$ forge script script/Counter.s.sol:CounterScript --rpc-url <your_rpc_url> --private-key <your_private_key>
+source .env && rm -rf cache out && forge build && forge script --chain 133717 script/QuizGame.s.sol:QuizGameScript --rpc-url https://hyperion-testnet.metisdevops.link --broadcast -vvvv --private-key ${PRIVATE_KEY}
 ```
 
 ### Cast
