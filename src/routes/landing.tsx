@@ -88,6 +88,33 @@ function LandingPage() {
           >
             🚀 Farcaster App
           </Link>
+
+          <Link
+            to="/contract"
+            style={{
+              display: "inline-block",
+              backgroundColor: "rgba(255,255,255,0.1)",
+              color: "white",
+              padding: "1rem 2rem",
+              borderRadius: "12px",
+              textDecoration: "none",
+              fontSize: "1rem",
+              fontWeight: "600",
+              border: "2px solid rgba(255,255,255,0.2)",
+              backdropFilter: "blur(10px)",
+              transition: "all 0.3s ease"
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.backgroundColor = "rgba(255,255,255,0.2)";
+              e.currentTarget.style.transform = "translateY(-2px)";
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.backgroundColor = "rgba(255,255,255,0.1)";
+              e.currentTarget.style.transform = "translateY(0)";
+            }}
+          >
+            🔧 Contract Debug
+          </Link>
         </div>
       </div>
 

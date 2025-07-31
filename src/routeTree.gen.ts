@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as QuizGameRouteImport } from './routes/quiz-game'
 import { Route as LandingRouteImport } from './routes/landing'
 import { Route as FarcasterRouteImport } from './routes/farcaster'
+import { Route as ContractRouteImport } from './routes/contract'
 import { Route as IndexRouteImport } from './routes/index'
 
 const QuizGameRoute = QuizGameRouteImport.update({
@@ -29,6 +30,11 @@ const FarcasterRoute = FarcasterRouteImport.update({
   path: '/farcaster',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ContractRoute = ContractRouteImport.update({
+  id: '/contract',
+  path: '/contract',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
@@ -37,12 +43,14 @@ const IndexRoute = IndexRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/contract': typeof ContractRoute
   '/farcaster': typeof FarcasterRoute
   '/landing': typeof LandingRoute
   '/quiz-game': typeof QuizGameRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/contract': typeof ContractRoute
   '/farcaster': typeof FarcasterRoute
   '/landing': typeof LandingRoute
   '/quiz-game': typeof QuizGameRoute
@@ -50,20 +58,22 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/contract': typeof ContractRoute
   '/farcaster': typeof FarcasterRoute
   '/landing': typeof LandingRoute
   '/quiz-game': typeof QuizGameRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/farcaster' | '/landing' | '/quiz-game'
+  fullPaths: '/' | '/contract' | '/farcaster' | '/landing' | '/quiz-game'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/farcaster' | '/landing' | '/quiz-game'
-  id: '__root__' | '/' | '/farcaster' | '/landing' | '/quiz-game'
+  to: '/' | '/contract' | '/farcaster' | '/landing' | '/quiz-game'
+  id: '__root__' | '/' | '/contract' | '/farcaster' | '/landing' | '/quiz-game'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  ContractRoute: typeof ContractRoute
   FarcasterRoute: typeof FarcasterRoute
   LandingRoute: typeof LandingRoute
   QuizGameRoute: typeof QuizGameRoute
@@ -92,6 +102,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof FarcasterRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/contract': {
+      id: '/contract'
+      path: '/contract'
+      fullPath: '/contract'
+      preLoaderRoute: typeof ContractRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -104,6 +121,7 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  ContractRoute: ContractRoute,
   FarcasterRoute: FarcasterRoute,
   LandingRoute: LandingRoute,
   QuizGameRoute: QuizGameRoute,
