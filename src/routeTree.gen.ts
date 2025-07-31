@@ -9,9 +9,15 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as QuizGameRouteImport } from './routes/quiz-game'
 import { Route as FarcasterRouteImport } from './routes/farcaster'
 import { Route as IndexRouteImport } from './routes/index'
 
+const QuizGameRoute = QuizGameRouteImport.update({
+  id: '/quiz-game',
+  path: '/quiz-game',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const FarcasterRoute = FarcasterRouteImport.update({
   id: '/farcaster',
   path: '/farcaster',
@@ -26,31 +32,42 @@ const IndexRoute = IndexRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/farcaster': typeof FarcasterRoute
+  '/quiz-game': typeof QuizGameRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/farcaster': typeof FarcasterRoute
+  '/quiz-game': typeof QuizGameRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/farcaster': typeof FarcasterRoute
+  '/quiz-game': typeof QuizGameRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/farcaster'
+  fullPaths: '/' | '/farcaster' | '/quiz-game'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/farcaster'
-  id: '__root__' | '/' | '/farcaster'
+  to: '/' | '/farcaster' | '/quiz-game'
+  id: '__root__' | '/' | '/farcaster' | '/quiz-game'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   FarcasterRoute: typeof FarcasterRoute
+  QuizGameRoute: typeof QuizGameRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/quiz-game': {
+      id: '/quiz-game'
+      path: '/quiz-game'
+      fullPath: '/quiz-game'
+      preLoaderRoute: typeof QuizGameRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/farcaster': {
       id: '/farcaster'
       path: '/farcaster'
@@ -71,6 +88,7 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   FarcasterRoute: FarcasterRoute,
+  QuizGameRoute: QuizGameRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

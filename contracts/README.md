@@ -51,6 +51,15 @@ $ anvil
 source .env && rm -rf cache out && forge build && forge script --chain 133717 script/QuizGame.s.sol:QuizGameScript --rpc-url https://hyperion-testnet.metisdevops.link --broadcast -vvvv --private-key ${PRIVATE_KEY}
 ```
 
+### Verify
+
+forge verify-contract \
+  --rpc-url https://hyperion-testnet.metisdevops.link \
+  --verifier blockscout \
+  --verifier-url 'https://hyperion-testnet-explorer-api.metisdevops.link/api/' \
+  0x7d063d7735861EB49b092A7430efa1ae3Ac4F6F5 \
+  script/QuizGame.s.sol:QuizGameScript
+
 ### Cast
 
 ```shell

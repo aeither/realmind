@@ -34,32 +34,61 @@ function HomePage() {
           Interactive learning platform that rewards users with Yuzu Points through 
           daily quizzes, quests, and challenges on the EDU Chain ecosystem.
         </p>
-        <Link
-          to="/farcaster"
-          style={{
-            display: "inline-block",
-            backgroundColor: "rgba(255,255,255,0.2)",
-            color: "white",
-            padding: "1rem 2rem",
-            borderRadius: "12px",
-            textDecoration: "none",
-            fontSize: "1.1rem",
-            fontWeight: "600",
-            border: "2px solid rgba(255,255,255,0.3)",
-            backdropFilter: "blur(10px)",
-            transition: "all 0.3s ease"
-          }}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.backgroundColor = "rgba(255,255,255,0.3)";
-            e.currentTarget.style.transform = "translateY(-2px)";
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.backgroundColor = "rgba(255,255,255,0.2)";
-            e.currentTarget.style.transform = "translateY(0)";
-          }}
-        >
-          🚀 Start Learning with Farcaster
-        </Link>
+        <div style={{ display: "flex", gap: "1rem", justifyContent: "center", flexWrap: "wrap" }}>
+          <Link
+            to="/quiz-game"
+            style={{
+              display: "inline-block",
+              backgroundColor: "rgba(255,255,255,0.2)",
+              color: "white",
+              padding: "1rem 2rem",
+              borderRadius: "12px",
+              textDecoration: "none",
+              fontSize: "1.1rem",
+              fontWeight: "600",
+              border: "2px solid rgba(255,255,255,0.3)",
+              backdropFilter: "blur(10px)",
+              transition: "all 0.3s ease"
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.backgroundColor = "rgba(255,255,255,0.3)";
+              e.currentTarget.style.transform = "translateY(-2px)";
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.backgroundColor = "rgba(255,255,255,0.2)";
+              e.currentTarget.style.transform = "translateY(0)";
+            }}
+          >
+            🎮 Play Quiz Game
+          </Link>
+          
+          <Link
+            to="/farcaster"
+            style={{
+              display: "inline-block",
+              backgroundColor: "rgba(255,255,255,0.2)",
+              color: "white",
+              padding: "1rem 2rem",
+              borderRadius: "12px",
+              textDecoration: "none",
+              fontSize: "1.1rem",
+              fontWeight: "600",
+              border: "2px solid rgba(255,255,255,0.3)",
+              backdropFilter: "blur(10px)",
+              transition: "all 0.3s ease"
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.backgroundColor = "rgba(255,255,255,0.3)";
+              e.currentTarget.style.transform = "translateY(-2px)";
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.backgroundColor = "rgba(255,255,255,0.2)";
+              e.currentTarget.style.transform = "translateY(0)";
+            }}
+          >
+            🚀 Farcaster App
+          </Link>
+        </div>
       </div>
 
       {/* Features Grid */}
@@ -70,14 +99,14 @@ function HomePage() {
         marginBottom: "3rem"
       }}>
         <FeatureCard
+          icon="🎮"
+          title="Onchain Quiz Game"
+          description="Play blockchain quizzes with real crypto rewards. Pay to play, earn up to 120% back based on performance!"
+        />
+        <FeatureCard
           icon="📚"
           title="Daily Learning"
           description="Take personalized daily quizzes to earn points and build your knowledge across various subjects."
-        />
-        <FeatureCard
-          icon="🗺️"
-          title="Quest System"
-          description="Complete special quests across Math, Science, History, and more to unlock achievements."
         />
         <FeatureCard
           icon="🏆"
@@ -163,33 +192,63 @@ function HomePage() {
         }}>
           Join thousands of learners already earning rewards through interactive education.
         </p>
-        <Link
-          to="/farcaster"
-          style={{
-            display: "inline-block",
-            backgroundColor: "#667eea",
-            color: "white",
-            padding: "1rem 2rem",
-            borderRadius: "12px",
-            textDecoration: "none",
-            fontSize: "1.1rem",
-            fontWeight: "600",
-            boxShadow: "0 4px 6px rgba(102, 126, 234, 0.3)",
-            transition: "all 0.3s ease"
-          }}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.backgroundColor = "#5a67d8";
-            e.currentTarget.style.transform = "translateY(-2px)";
-            e.currentTarget.style.boxShadow = "0 8px 12px rgba(102, 126, 234, 0.4)";
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.backgroundColor = "#667eea";
-            e.currentTarget.style.transform = "translateY(0)";
-            e.currentTarget.style.boxShadow = "0 4px 6px rgba(102, 126, 234, 0.3)";
-          }}
-        >
-          Launch Farcaster App →
-        </Link>
+        <div style={{ display: "flex", gap: "1rem", justifyContent: "center", flexWrap: "wrap" }}>
+          <Link
+            to="/quiz-game"
+            style={{
+              display: "inline-block",
+              backgroundColor: "#667eea",
+              color: "white",
+              padding: "1rem 2rem",
+              borderRadius: "12px",
+              textDecoration: "none",
+              fontSize: "1.1rem",
+              fontWeight: "600",
+              boxShadow: "0 4px 6px rgba(102, 126, 234, 0.3)",
+              transition: "all 0.3s ease"
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.backgroundColor = "#5a67d8";
+              e.currentTarget.style.transform = "translateY(-2px)";
+              e.currentTarget.style.boxShadow = "0 8px 12px rgba(102, 126, 234, 0.4)";
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.backgroundColor = "#667eea";
+              e.currentTarget.style.transform = "translateY(0)";
+              e.currentTarget.style.boxShadow = "0 4px 6px rgba(102, 126, 234, 0.3)";
+            }}
+          >
+            🎮 Play Quiz Game
+          </Link>
+
+          <Link
+            to="/farcaster"
+            style={{
+              display: "inline-block",
+              backgroundColor: "#8b5cf6",
+              color: "white",
+              padding: "1rem 2rem",
+              borderRadius: "12px",
+              textDecoration: "none",
+              fontSize: "1.1rem",
+              fontWeight: "600",
+              boxShadow: "0 4px 6px rgba(139, 92, 246, 0.3)",
+              transition: "all 0.3s ease"
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.backgroundColor = "#7c3aed";
+              e.currentTarget.style.transform = "translateY(-2px)";
+              e.currentTarget.style.boxShadow = "0 8px 12px rgba(139, 92, 246, 0.4)";
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.backgroundColor = "#8b5cf6";
+              e.currentTarget.style.transform = "translateY(0)";
+              e.currentTarget.style.boxShadow = "0 4px 6px rgba(139, 92, 246, 0.3)";
+            }}
+          >
+            Launch Farcaster App →
+          </Link>
+        </div>
       </div>
     </div>
   );

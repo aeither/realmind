@@ -59,6 +59,24 @@ export const Route = createRootRoute({
                   Home
                 </Link>
                 <Link 
+                  to="/quiz-game" 
+                  style={{
+                    textDecoration: "none",
+                    padding: "0.5rem 1rem",
+                    borderRadius: "6px",
+                    color: "#374151",
+                    fontWeight: "500"
+                  }}
+                  activeProps={{
+                    style: {
+                      backgroundColor: "#667eea",
+                      color: "white"
+                    }
+                  }}
+                >
+                  Quiz Game
+                </Link>
+                <Link 
                   to="/farcaster" 
                   style={{
                     textDecoration: "none",
