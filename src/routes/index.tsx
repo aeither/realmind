@@ -1,5 +1,6 @@
 import { createFileRoute, Link } from '@tanstack/react-router'
 import { useState } from 'react'
+import Header from '../components/Header'
 
 interface Quiz {
   id: string;
@@ -69,29 +70,13 @@ function HomePage() {
       justifyContent: "center"
     }}>
       {/* Hero Section */}
-      <div style={{
-        textAlign: "center",
-        marginBottom: "3rem",
-        color: "white"
-      }}>
-        <h1 style={{
-          fontSize: "3.5rem",
-          fontWeight: "bold",
-          marginBottom: "1rem",
-          textShadow: "0 2px 4px rgba(0,0,0,0.3)"
-        }}>
-          🧠 RealMind
-        </h1>
-        <p style={{
-          fontSize: "1.4rem",
-          marginBottom: "2rem",
-          opacity: 0.95,
-          maxWidth: "600px",
-          margin: "0 auto 2rem"
-        }}>
-          Choose your quiz and start earning rewards
-        </p>
-      </div>
+      <Header 
+        title="🧠 RealMind"
+        subtitle="Choose your quiz and start earning rewards"
+        showBackButton={true}
+        backTo="/landing"
+        backText="← Back to Landing"
+      />
 
       {/* Quiz Selection Cards */}
       <div style={{
@@ -180,31 +165,7 @@ function HomePage() {
         </div>
       )}
 
-      {/* Back to Landing */}
-      <div style={{
-        position: "absolute",
-        top: "2rem",
-        left: "2rem"
-      }}>
-        <Link
-          to="/landing"
-          style={{
-            color: "white",
-            textDecoration: "none",
-            fontSize: "1rem",
-            opacity: 0.8,
-            transition: "opacity 0.3s ease"
-          }}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.opacity = "1";
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.opacity = "0.8";
-          }}
-        >
-          ← Back to Landing
-        </Link>
-      </div>
+
     </div>
   );
 }
