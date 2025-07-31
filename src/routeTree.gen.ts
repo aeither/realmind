@@ -10,12 +10,18 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as QuizGameRouteImport } from './routes/quiz-game'
+import { Route as LandingRouteImport } from './routes/landing'
 import { Route as FarcasterRouteImport } from './routes/farcaster'
 import { Route as IndexRouteImport } from './routes/index'
 
 const QuizGameRoute = QuizGameRouteImport.update({
   id: '/quiz-game',
   path: '/quiz-game',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LandingRoute = LandingRouteImport.update({
+  id: '/landing',
+  path: '/landing',
   getParentRoute: () => rootRouteImport,
 } as any)
 const FarcasterRoute = FarcasterRouteImport.update({
@@ -32,30 +38,34 @@ const IndexRoute = IndexRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/farcaster': typeof FarcasterRoute
+  '/landing': typeof LandingRoute
   '/quiz-game': typeof QuizGameRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/farcaster': typeof FarcasterRoute
+  '/landing': typeof LandingRoute
   '/quiz-game': typeof QuizGameRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/farcaster': typeof FarcasterRoute
+  '/landing': typeof LandingRoute
   '/quiz-game': typeof QuizGameRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/farcaster' | '/quiz-game'
+  fullPaths: '/' | '/farcaster' | '/landing' | '/quiz-game'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/farcaster' | '/quiz-game'
-  id: '__root__' | '/' | '/farcaster' | '/quiz-game'
+  to: '/' | '/farcaster' | '/landing' | '/quiz-game'
+  id: '__root__' | '/' | '/farcaster' | '/landing' | '/quiz-game'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   FarcasterRoute: typeof FarcasterRoute
+  LandingRoute: typeof LandingRoute
   QuizGameRoute: typeof QuizGameRoute
 }
 
@@ -66,6 +76,13 @@ declare module '@tanstack/react-router' {
       path: '/quiz-game'
       fullPath: '/quiz-game'
       preLoaderRoute: typeof QuizGameRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/landing': {
+      id: '/landing'
+      path: '/landing'
+      fullPath: '/landing'
+      preLoaderRoute: typeof LandingRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/farcaster': {
@@ -88,6 +105,7 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   FarcasterRoute: FarcasterRoute,
+  LandingRoute: LandingRoute,
   QuizGameRoute: QuizGameRoute,
 }
 export const routeTree = rootRouteImport

@@ -15,7 +15,7 @@ function App() {
         const context = await sdk.context;
         if (context.user) {
           setUser(context.user);
-          const { token } = await sdk.quickAuth.getToken();
+        const { token } = await sdk.quickAuth.getToken();
           setAuthToken(token);
         }
       } catch (error) {

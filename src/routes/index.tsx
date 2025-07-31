@@ -1,20 +1,78 @@
 import { createFileRoute, Link } from '@tanstack/react-router'
+import { useState } from 'react'
+
+interface Quiz {
+  id: string;
+  title: string;
+  description: string;
+  icon: string;
+  difficulty: string;
+  questions: number;
+  estimatedTime: string;
+  category: string;
+}
+
+const AVAILABLE_QUIZZES: Quiz[] = [
+  {
+    id: "web3-basics",
+    title: "Web3 Fundamentals",
+    description: "Test your knowledge of blockchain, cryptocurrencies, and decentralized applications",
+    icon: "🔗",
+    difficulty: "Beginner",
+    questions: 10,
+    estimatedTime: "5-8 min",
+    category: "Web3"
+  },
+  {
+    id: "crypto-trading",
+    title: "Crypto Trading",
+    description: "Learn about trading strategies, market analysis, and risk management",
+    icon: "📈",
+    difficulty: "Intermediate",
+    questions: 12,
+    estimatedTime: "8-12 min",
+    category: "Finance"
+  },
+  {
+    id: "defi-protocols",
+    title: "DeFi Protocols",
+    description: "Explore decentralized finance protocols, yield farming, and liquidity pools",
+    icon: "🏦",
+    difficulty: "Advanced",
+    questions: 15,
+    estimatedTime: "10-15 min",
+    category: "DeFi"
+  }
+];
 
 function HomePage() {
+  const [selectedQuiz, setSelectedQuiz] = useState<string | null>(null);
+
+  const handleQuizSelect = (quizId: string) => {
+    setSelectedQuiz(quizId);
+  };
+
+  const handleRandomQuiz = () => {
+    const randomIndex = Math.floor(Math.random() * AVAILABLE_QUIZZES.length);
+    const randomQuiz = AVAILABLE_QUIZZES[randomIndex];
+    setSelectedQuiz(randomQuiz.id);
+  };
+
   return (
-    <div style={{ 
+    <div style={{
+      minHeight: "100vh",
+      background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
       padding: "2rem",
-      maxWidth: "1200px",
-      margin: "0 auto"
+      display: "flex",
+      flexDirection: "column",
+      alignItems: "center",
+      justifyContent: "center"
     }}>
       {/* Hero Section */}
       <div style={{
         textAlign: "center",
-        padding: "4rem 2rem",
-        background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
-        borderRadius: "16px",
-        color: "white",
-        marginBottom: "3rem"
+        marginBottom: "3rem",
+        color: "white"
       }}>
         <h1 style={{
           fontSize: "3.5rem",
@@ -22,7 +80,7 @@ function HomePage() {
           marginBottom: "1rem",
           textShadow: "0 2px 4px rgba(0,0,0,0.3)"
         }}>
-          🧠 Welcome to RealMind
+          🧠 RealMind
         </h1>
         <p style={{
           fontSize: "1.4rem",
@@ -31,318 +89,207 @@ function HomePage() {
           maxWidth: "600px",
           margin: "0 auto 2rem"
         }}>
-          Interactive learning platform that rewards users with Yuzu Points through 
-          daily quizzes, quests, and challenges on the EDU Chain ecosystem.
+          Choose your quiz and start earning rewards
         </p>
-        <div style={{ display: "flex", gap: "1rem", justifyContent: "center", flexWrap: "wrap" }}>
-          <Link
-            to="/quiz-game"
-            style={{
-              display: "inline-block",
-              backgroundColor: "rgba(255,255,255,0.2)",
-              color: "white",
-              padding: "1rem 2rem",
-              borderRadius: "12px",
-              textDecoration: "none",
-              fontSize: "1.1rem",
-              fontWeight: "600",
-              border: "2px solid rgba(255,255,255,0.3)",
-              backdropFilter: "blur(10px)",
-              transition: "all 0.3s ease"
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.backgroundColor = "rgba(255,255,255,0.3)";
-              e.currentTarget.style.transform = "translateY(-2px)";
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.backgroundColor = "rgba(255,255,255,0.2)";
-              e.currentTarget.style.transform = "translateY(0)";
-            }}
-          >
-            🎮 Play Quiz Game
-          </Link>
-          
-          <Link
-            to="/farcaster"
-            style={{
-              display: "inline-block",
-              backgroundColor: "rgba(255,255,255,0.2)",
-              color: "white",
-              padding: "1rem 2rem",
-              borderRadius: "12px",
-              textDecoration: "none",
-              fontSize: "1.1rem",
-              fontWeight: "600",
-              border: "2px solid rgba(255,255,255,0.3)",
-              backdropFilter: "blur(10px)",
-              transition: "all 0.3s ease"
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.backgroundColor = "rgba(255,255,255,0.3)";
-              e.currentTarget.style.transform = "translateY(-2px)";
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.backgroundColor = "rgba(255,255,255,0.2)";
-              e.currentTarget.style.transform = "translateY(0)";
-            }}
-          >
-            🚀 Farcaster App
-          </Link>
-        </div>
       </div>
 
-      {/* Features Grid */}
+      {/* Quiz Selection Cards */}
       <div style={{
         display: "grid",
         gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))",
         gap: "2rem",
-        marginBottom: "3rem"
+        maxWidth: "1000px",
+        width: "100%",
+        marginBottom: "2rem"
       }}>
-        <FeatureCard
-          icon="🎮"
-          title="Onchain Quiz Game"
-          description="Play blockchain quizzes with real crypto rewards. Pay to play, earn up to 120% back based on performance!"
-        />
-        <FeatureCard
-          icon="📚"
-          title="Daily Learning"
-          description="Take personalized daily quizzes to earn points and build your knowledge across various subjects."
-        />
-        <FeatureCard
-          icon="🏆"
-          title="Leaderboards"
-          description="Compete with other learners in seasonal competitions and track your progress."
-        />
-        <FeatureCard
-          icon="🍋"
-          title="Yuzu Points"
-          description="Earn points that convert to EDU tokens on the Open Campus EDU Chain ecosystem."
-        />
+        {AVAILABLE_QUIZZES.map((quiz) => (
+          <QuizCard
+            key={quiz.id}
+            quiz={quiz}
+            isSelected={selectedQuiz === quiz.id}
+            onSelect={() => handleQuizSelect(quiz.id)}
+          />
+        ))}
       </div>
 
-      {/* How It Works Section */}
-      <div style={{
-        background: "#f8fafc",
-        borderRadius: "16px",
-        padding: "3rem 2rem",
-        textAlign: "center"
-      }}>
-        <h2 style={{
-          fontSize: "2.5rem",
-          fontWeight: "bold",
-          color: "#1f2937",
-          marginBottom: "2rem"
-        }}>
-          How It Works
-        </h2>
-        <div style={{
-          display: "grid",
-          gridTemplateColumns: "repeat(auto-fit, minmax(250px, 1fr))",
-          gap: "2rem",
-          maxWidth: "1000px",
-          margin: "0 auto"
-        }}>
-          <StepCard
-            step="1"
-            title="Connect"
-            description="Sign in with your Farcaster account to get started"
-            color="#667eea"
-          />
-          <StepCard
-            step="2"
-            title="Learn"
-            description="Take daily quizzes and complete educational quests"
-            color="#22c55e"
-          />
-          <StepCard
-            step="3"
-            title="Earn"
-            description="Accumulate points and climb the leaderboards"
-            color="#f59e0b"
-          />
-          <StepCard
-            step="4"
-            title="Reward"
-            description="Convert points to Yuzu Points for EDU Chain rewards"
-            color="#8b5cf6"
-          />
-        </div>
-      </div>
-
-      {/* CTA Section */}
+      {/* Random Quiz Button */}
       <div style={{
         textAlign: "center",
-        padding: "3rem 2rem",
-        marginTop: "3rem"
+        marginBottom: "2rem"
       }}>
-        <h3 style={{
-          fontSize: "2rem",
-          fontWeight: "bold",
-          color: "#1f2937",
-          marginBottom: "1rem"
+        <button
+          onClick={handleRandomQuiz}
+          style={{
+            backgroundColor: "rgba(255,255,255,0.2)",
+            color: "white",
+            border: "2px solid rgba(255,255,255,0.3)",
+            padding: "1rem 2rem",
+            borderRadius: "12px",
+            fontSize: "1.1rem",
+            fontWeight: "600",
+            cursor: "pointer",
+            backdropFilter: "blur(10px)",
+            transition: "all 0.3s ease"
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.backgroundColor = "rgba(255,255,255,0.3)";
+            e.currentTarget.style.transform = "translateY(-2px)";
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.backgroundColor = "rgba(255,255,255,0.2)";
+            e.currentTarget.style.transform = "translateY(0)";
+          }}
+        >
+          🎲 Try Random Quiz
+        </button>
+      </div>
+
+      {/* Play Button */}
+      {selectedQuiz && (
+        <div style={{
+          textAlign: "center"
         }}>
-          Ready to Start Learning?
-        </h3>
-        <p style={{
-          fontSize: "1.1rem",
-          color: "#6b7280",
-          marginBottom: "2rem",
-          maxWidth: "500px",
-          margin: "0 auto 2rem"
-        }}>
-          Join thousands of learners already earning rewards through interactive education.
-        </p>
-        <div style={{ display: "flex", gap: "1rem", justifyContent: "center", flexWrap: "wrap" }}>
           <Link
             to="/quiz-game"
+            search={{ quiz: selectedQuiz }}
             style={{
               display: "inline-block",
-              backgroundColor: "#667eea",
+              backgroundColor: "#22c55e",
               color: "white",
-              padding: "1rem 2rem",
+              padding: "1.5rem 3rem",
               borderRadius: "12px",
               textDecoration: "none",
-              fontSize: "1.1rem",
-              fontWeight: "600",
-              boxShadow: "0 4px 6px rgba(102, 126, 234, 0.3)",
+              fontSize: "1.3rem",
+              fontWeight: "bold",
+              boxShadow: "0 8px 16px rgba(34, 197, 94, 0.3)",
               transition: "all 0.3s ease"
             }}
             onMouseEnter={(e) => {
-              e.currentTarget.style.backgroundColor = "#5a67d8";
+              e.currentTarget.style.backgroundColor = "#16a34a";
               e.currentTarget.style.transform = "translateY(-2px)";
-              e.currentTarget.style.boxShadow = "0 8px 12px rgba(102, 126, 234, 0.4)";
+              e.currentTarget.style.boxShadow = "0 12px 20px rgba(34, 197, 94, 0.4)";
             }}
             onMouseLeave={(e) => {
-              e.currentTarget.style.backgroundColor = "#667eea";
+              e.currentTarget.style.backgroundColor = "#22c55e";
               e.currentTarget.style.transform = "translateY(0)";
-              e.currentTarget.style.boxShadow = "0 4px 6px rgba(102, 126, 234, 0.3)";
+              e.currentTarget.style.boxShadow = "0 8px 16px rgba(34, 197, 94, 0.3)";
             }}
           >
-            🎮 Play Quiz Game
-          </Link>
-
-          <Link
-            to="/farcaster"
-            style={{
-              display: "inline-block",
-              backgroundColor: "#8b5cf6",
-              color: "white",
-              padding: "1rem 2rem",
-              borderRadius: "12px",
-              textDecoration: "none",
-              fontSize: "1.1rem",
-              fontWeight: "600",
-              boxShadow: "0 4px 6px rgba(139, 92, 246, 0.3)",
-              transition: "all 0.3s ease"
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.backgroundColor = "#7c3aed";
-              e.currentTarget.style.transform = "translateY(-2px)";
-              e.currentTarget.style.boxShadow = "0 8px 12px rgba(139, 92, 246, 0.4)";
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.backgroundColor = "#8b5cf6";
-              e.currentTarget.style.transform = "translateY(0)";
-              e.currentTarget.style.boxShadow = "0 4px 6px rgba(139, 92, 246, 0.3)";
-            }}
-          >
-            Launch Farcaster App →
+            🎮 Play Quiz
           </Link>
         </div>
+      )}
+
+      {/* Back to Landing */}
+      <div style={{
+        position: "absolute",
+        top: "2rem",
+        left: "2rem"
+      }}>
+        <Link
+          to="/landing"
+          style={{
+            color: "white",
+            textDecoration: "none",
+            fontSize: "1rem",
+            opacity: 0.8,
+            transition: "opacity 0.3s ease"
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.opacity = "1";
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.opacity = "0.8";
+          }}
+        >
+          ← Back to Landing
+        </Link>
       </div>
     </div>
   );
 }
 
-function FeatureCard({ icon, title, description }: { 
-  icon: string; 
-  title: string; 
-  description: string; 
+function QuizCard({ quiz, isSelected, onSelect }: {
+  quiz: Quiz;
+  isSelected: boolean;
+  onSelect: () => void;
 }) {
   return (
-    <div style={{
-      background: "white",
-      borderRadius: "12px",
-      padding: "2rem",
-      textAlign: "center",
-      boxShadow: "0 4px 6px rgba(0,0,0,0.05)",
-      border: "1px solid #e5e7eb",
-      transition: "all 0.3s ease"
-    }}
-    onMouseEnter={(e) => {
-      e.currentTarget.style.transform = "translateY(-4px)";
-      e.currentTarget.style.boxShadow = "0 8px 12px rgba(0,0,0,0.1)";
-    }}
-    onMouseLeave={(e) => {
-      e.currentTarget.style.transform = "translateY(0)";
-      e.currentTarget.style.boxShadow = "0 4px 6px rgba(0,0,0,0.05)";
-    }}
+    <div
+      onClick={onSelect}
+      style={{
+        background: isSelected ? "rgba(255,255,255,0.95)" : "rgba(255,255,255,0.1)",
+        borderRadius: "16px",
+        padding: "2rem",
+        cursor: "pointer",
+        border: isSelected ? "3px solid #22c55e" : "2px solid rgba(255,255,255,0.2)",
+        backdropFilter: "blur(10px)",
+        transition: "all 0.3s ease",
+        transform: isSelected ? "scale(1.02)" : "scale(1)",
+        color: isSelected ? "#1f2937" : "white"
+      }}
+      onMouseEnter={(e) => {
+        if (!isSelected) {
+          e.currentTarget.style.background = "rgba(255,255,255,0.15)";
+          e.currentTarget.style.transform = "scale(1.02)";
+        }
+      }}
+      onMouseLeave={(e) => {
+        if (!isSelected) {
+          e.currentTarget.style.background = "rgba(255,255,255,0.1)";
+          e.currentTarget.style.transform = "scale(1)";
+        }
+      }}
     >
-      <div style={{ fontSize: "3rem", marginBottom: "1rem" }}>{icon}</div>
-      <h3 style={{
-        fontSize: "1.5rem",
-        fontWeight: "bold",
-        color: "#1f2937",
-        marginBottom: "1rem"
-      }}>
-        {title}
-      </h3>
-      <p style={{
-        color: "#6b7280",
-        lineHeight: "1.6"
-      }}>
-        {description}
-      </p>
-    </div>
-  );
-}
-
-function StepCard({ step, title, description, color }: {
-  step: string;
-  title: string;
-  description: string;
-  color: string;
-}) {
-  return (
-    <div style={{
-      background: "white",
-      borderRadius: "12px",
-      padding: "2rem",
-      textAlign: "center",
-      position: "relative",
-      border: "1px solid #e5e7eb"
-    }}>
       <div style={{
-        width: "3rem",
-        height: "3rem",
-        backgroundColor: color,
-        color: "white",
-        borderRadius: "50%",
         display: "flex",
         alignItems: "center",
-        justifyContent: "center",
-        fontSize: "1.5rem",
-        fontWeight: "bold",
-        margin: "0 auto 1rem",
-        boxShadow: `0 4px 8px ${color}40`
+        marginBottom: "1rem"
       }}>
-        {step}
+        <div style={{
+          fontSize: "2.5rem",
+          marginRight: "1rem"
+        }}>
+          {quiz.icon}
+        </div>
+        <div>
+          <h3 style={{
+            fontSize: "1.5rem",
+            fontWeight: "bold",
+            marginBottom: "0.5rem"
+          }}>
+            {quiz.title}
+          </h3>
+          <span style={{
+            backgroundColor: isSelected ? "#22c55e" : "rgba(255,255,255,0.2)",
+            color: isSelected ? "white" : "white",
+            padding: "0.25rem 0.75rem",
+            borderRadius: "20px",
+            fontSize: "0.8rem",
+            fontWeight: "600"
+          }}>
+            {quiz.difficulty}
+          </span>
+        </div>
       </div>
-      <h4 style={{
-        fontSize: "1.25rem",
-        fontWeight: "bold",
-        color: "#1f2937",
-        marginBottom: "0.5rem"
-      }}>
-        {title}
-      </h4>
+      
       <p style={{
-        color: "#6b7280",
-        fontSize: "0.95rem",
-        lineHeight: "1.5"
+        marginBottom: "1.5rem",
+        lineHeight: "1.6",
+        opacity: isSelected ? 0.8 : 0.9
       }}>
-        {description}
+        {quiz.description}
       </p>
+      
+      <div style={{
+        display: "flex",
+        justifyContent: "space-between",
+        fontSize: "0.9rem",
+        opacity: 0.8
+      }}>
+        <span>📝 {quiz.questions} questions</span>
+        <span>⏱️ {quiz.estimatedTime}</span>
+      </div>
     </div>
   );
 }
