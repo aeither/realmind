@@ -5,7 +5,7 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 
 contract Token1 is ERC20, Ownable {
-    constructor() ERC20("Token1", "TK1") Ownable(msg.sender) {}
+    constructor(string memory name_, string memory symbol_) ERC20(name_, symbol_) Ownable(msg.sender) {}
 
     function mint(address to, uint256 amount) public onlyOwner {
         _mint(to, amount);
@@ -13,9 +13,7 @@ contract Token1 is ERC20, Ownable {
 }
 
 contract QuizGame is Ownable {
-    uint256 public playAmount;
     Token1 public token;
-    address payable public admin;
 
     // Mapping to track user quiz sessions
     mapping(address => QuizSession) public userSessions;
@@ -30,14 +28,8 @@ contract QuizGame is Ownable {
     event QuizStarted(address indexed user, uint256 userAnswer);
     event QuizCompleted(address indexed user, bool success, uint256 payout);
 
-    constructor(uint256 _playAmount, address tokenAddress) Ownable(msg.sender) {
-        playAmount = _playAmount;
-        admin = payable(msg.sender);
+    constructor(address tokenAddress) Ownable(msg.sender) {
         token = Token1(tokenAddress);
-    }
-
-    function setPlayAmount(uint256 _amount) external onlyOwner {
-        playAmount = _amount;
     }
 
     function setToken(address tokenAddress) external onlyOwner {
@@ -45,7 +37,7 @@ contract QuizGame is Ownable {
     }
 
     function startQuiz(uint256 userAnswer) external payable {
-        require(msg.value == playAmount, "Incorrect ETH sent");
+        require(msg.value > 0, "Must send ETH");
         require(!userSessions[msg.sender].active, "Quiz already active for user");
 
         // Create new quiz session
@@ -92,9 +84,15 @@ contract QuizGame is Ownable {
         return userSessions[user];
     }
 
-    // Allow admin to withdraw ETH collected
+    // Allow owner to mint tokens to any address
+    function mintToken(address to, uint256 amount) external onlyOwner {
+        token.mint(to, amount);
+    }
+
+    // Allow owner to withdraw ETH collected
     function withdraw() external onlyOwner {
-        payable(owner()).transfer(address(this).balance);
+        (bool sent, ) = owner().call{value: address(this).balance}("");
+        require(sent, "Withdrawal failed");
     }
 
     // Fallback to receive ETH

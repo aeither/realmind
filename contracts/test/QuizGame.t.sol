@@ -9,15 +9,17 @@ contract QuizGameTest is Test {
     Token1 public token;
     address public player = address(0x123);
     address public player2 = address(0x456);
+    address public owner;
 
     function setUp() public {
-        // Deploy Token1 first
-        token = new Token1();
+        owner = address(this);
+        // Deploy Token1 with custom name/symbol
+        token = new Token1("CustomToken", "CTK");
         
-        // Deploy QuizGame with 0.001 ETH play amount
-        quizGame = new QuizGame(0.001 ether, address(token));
+        // Deploy QuizGame
+        quizGame = new QuizGame(address(token));
         
-        // Transfer ownership of token to quizGame so it can mint
+        // Transfer token ownership to quizGame
         token.transferOwnership(address(quizGame));
     }
 
@@ -25,60 +27,54 @@ contract QuizGameTest is Test {
         vm.deal(player, 1 ether);
         uint256 initialBalance = player.balance;
         
-        // Step 1: Start quiz with answer 42
+        // Start quiz with custom amount
+        uint256 playAmount = 0.0015 ether;
         vm.prank(player);
-        quizGame.startQuiz{value: 0.001 ether}(42);
+        quizGame.startQuiz{value: playAmount}(42);
         
-        // Player should get tokens immediately
-        assertEq(token.balanceOf(player), 0.001 ether);
+        // Player gets tokens immediately (1:1 ratio)
+        assertEq(token.balanceOf(player), playAmount);
         
-        // Check quiz session is active
+        // Verify session
         QuizGame.QuizSession memory session = quizGame.getQuizSession(player);
         assertTrue(session.active);
         assertEq(session.userAnswer, 42);
-        assertEq(session.amountPaid, 0.001 ether);
+        assertEq(session.amountPaid, playAmount);
         
-        // Step 2: Complete quiz with same answer
+        // Complete quiz correctly
         vm.prank(player);
         quizGame.completeQuiz(42);
         
-        // Session should be inactive now
+        // Session should be inactive
         session = quizGame.getQuizSession(player);
         assertFalse(session.active);
         
-        // Player should get some ETH back (random payout between 10-120%)
-        assertTrue(player.balance >= initialBalance - 0.001 ether);
+        // Player should get some ETH back (random payout)
+        assertTrue(player.balance > initialBalance - playAmount);
     }
 
     function testCompleteQuizFlow_IncorrectAnswer() public {
         vm.deal(player, 1 ether);
         uint256 initialBalance = player.balance;
         
-        // Step 1: Start quiz with answer 42
+        // Start quiz
+        uint256 playAmount = 0.001 ether;
         vm.prank(player);
-        quizGame.startQuiz{value: 0.001 ether}(42);
+        quizGame.startQuiz{value: playAmount}(42);
         
-        // Player should get tokens immediately
-        assertEq(token.balanceOf(player), 0.001 ether);
-        
-        // Step 2: Complete quiz with different answer
+        // Complete with wrong answer
         vm.prank(player);
         quizGame.completeQuiz(999);
         
-        // Session should be inactive now
-        QuizGame.QuizSession memory session = quizGame.getQuizSession(player);
-        assertFalse(session.active);
-        
-        // Player should not get ETH back for wrong answer
-        assertEq(player.balance, initialBalance - 0.001 ether);
+        // Player loses all ETH
+        assertEq(player.balance, initialBalance - playAmount);
     }
 
-    function testStartQuiz_InsufficientETH() public {
+    function testStartQuiz_ZeroETH() public {
         vm.deal(player, 1 ether);
         vm.prank(player);
-        
-        vm.expectRevert("Incorrect ETH sent");
-        quizGame.startQuiz{value: 0.0005 ether}(42);
+        vm.expectRevert("Must send ETH");
+        quizGame.startQuiz{value: 0}(42);
     }
 
     function testStartQuiz_AlreadyActive() public {
@@ -88,7 +84,7 @@ contract QuizGameTest is Test {
         vm.prank(player);
         quizGame.startQuiz{value: 0.001 ether}(42);
         
-        // Try to start another quiz without completing the first
+        // Try to start another
         vm.prank(player);
         vm.expectRevert("Quiz already active for user");
         quizGame.startQuiz{value: 0.001 ether}(123);
@@ -107,10 +103,9 @@ contract QuizGameTest is Test {
         vm.prank(player);
         quizGame.startQuiz{value: 0.001 ether}(42);
         
-        // Fast forward more than 1 hour
+        // Fast forward 2 hours
         vm.warp(block.timestamp + 2 hours);
         
-        // Try to complete expired quiz
         vm.prank(player);
         vm.expectRevert("Quiz session expired");
         quizGame.completeQuiz(42);
@@ -124,13 +119,15 @@ contract QuizGameTest is Test {
         vm.prank(player);
         quizGame.startQuiz{value: 0.001 ether}(42);
         
-        // Player 2 starts quiz with different answer
+        // Player 2 starts quiz
         vm.prank(player2);
-        quizGame.startQuiz{value: 0.001 ether}(123);
+        quizGame.startQuiz{value: 0.002 ether}(123);
         
-        // Both should have active sessions
+        // Verify both sessions
         assertTrue(quizGame.getQuizSession(player).active);
         assertTrue(quizGame.getQuizSession(player2).active);
+        assertEq(token.balanceOf(player), 0.001 ether);
+        assertEq(token.balanceOf(player2), 0.002 ether);
         
         // Player 1 completes correctly
         vm.prank(player);
@@ -140,8 +137,23 @@ contract QuizGameTest is Test {
         vm.prank(player2);
         quizGame.completeQuiz(999);
         
-        // Both sessions should be inactive
+        // Verify outcomes
         assertFalse(quizGame.getQuizSession(player).active);
         assertFalse(quizGame.getQuizSession(player2).active);
+        assertTrue(player.balance > 0.999 ether); // Got some payout
+        assertEq(player2.balance, 0.998 ether);   // Lost full amount
+    }
+
+    function testOwnerMintToken() public {
+        // Owner mints tokens to player
+        quizGame.mintToken(player, 1000);
+        
+        assertEq(token.balanceOf(player), 1000);
+    }
+
+    function testNonOwnerCannotMint() public {
+        vm.prank(player);
+        vm.expectRevert(abi.encodeWithSignature("OwnableUnauthorizedAccount(address)", player));
+        quizGame.mintToken(player, 1000);
     }
 }

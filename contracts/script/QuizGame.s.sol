@@ -13,13 +13,13 @@ contract QuizGameScript is Script {
     function run() public {
         vm.startBroadcast();
 
-        // Deploy Token1 first
-        token = new Token1();
+        // Deploy Token1 with custom name/symbol
+        token = new Token1("Season3", "S3");
         
-        // Deploy QuizGame with 0.001 ETH play amount
-        quizGame = new QuizGame(0.001 ether, address(token));
+        // Deploy QuizGame
+        quizGame = new QuizGame(address(token));
         
-        // Transfer ownership of token to quizGame so it can mint
+        // Transfer token ownership to QuizGame
         token.transferOwnership(address(quizGame));
 
         vm.stopBroadcast();

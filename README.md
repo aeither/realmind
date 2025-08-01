@@ -1,5 +1,11 @@
 # 🧠 RealMind
 
+a game-like learning app where users earn rewards by answering quizzes and challenging others turning study into friendly competition, with real benefits for every correct answer
+
+## Overview
+
+We're building a fun, game-like learning app where you earn rewards for answering quizzes and challenging others. Think of it as studying meets competition, and every question you get right brings real benefits
+
 **The Future of Decentralized Learning & Earning**
 
 RealMind transforms education into a gamified experience where knowledge acquisition directly translates to real rewards. Built for the Open Campus EDU Chain ecosystem, we're bridging the gap between traditional learning and Web3 incentives.
