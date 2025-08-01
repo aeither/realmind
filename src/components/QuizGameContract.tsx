@@ -1,367 +1,253 @@
 import { useState, useEffect } from 'react';
-import { 
-  useAccount, 
-  useConnect, 
-  useDisconnect, 
-  useReadContract, 
-  useWriteContract,
-  useWaitForTransactionReceipt,
-  useSwitchChain,
-  useBalance
-} from 'wagmi';
-import { formatEther, parseEther } from 'viem';
-import { base } from 'wagmi/chains';
+import { useAccount, useReadContract, useWriteContract, useWaitForTransactionReceipt, useSwitchChain, useDisconnect } from 'wagmi';
+import { parseEther, formatEther } from 'viem';
 import { quizGameABI } from '../libs/quizGameABI';
 import { getContractAddresses } from '../libs/constants';
 import { hyperionTestnet, coreDaoTestnet } from '../wagmi';
-import GamifiedEndScreen from './GamifiedEndScreen';
 
-interface QuizQuestion {
-  id: number;
-  question: string;
-  options: string[];
-  correctAnswer: number;
-  explanation: string;
-}
-
-const ONCHAIN_QUESTIONS: QuizQuestion[] = [
-  {
-    id: 1,
-    question: "What is the gas fee used for in blockchain transactions?",
-    options: ["Storage costs", "Network security and computation", "Token creation", "Wallet maintenance"],
-    correctAnswer: 1,
-    explanation: "Gas fees compensate validators for the computational resources needed to process and validate transactions.",
+// Currency configuration for different chains
+const CURRENCY_CONFIG = {
+  133717: { // Hyperion Testnet
+    symbol: 'tMETIS',
+    multiplier: 1,
+    defaultAmounts: ['1', '5', '25']
   },
-  {
-    id: 2,
-    question: "What does 'DeFi' stand for?",
-    options: ["Decentralized Finance", "Digital Finance", "Distributed Finance", "Direct Finance"],
-    correctAnswer: 0,
-    explanation: "DeFi stands for Decentralized Finance, referring to financial services built on blockchain without traditional intermediaries.",
+  12345: { // EduChain
+    symbol: 'EDU',
+    multiplier: 1000, // EDU worth way less
+    defaultAmounts: ['1', '5', '25']
   },
-  {
-    id: 3,
-    question: "What is a smart contract?",
-    options: ["A legal document", "Self-executing code on blockchain", "A type of cryptocurrency", "A mining algorithm"],
-    correctAnswer: 1,
-    explanation: "A smart contract is self-executing code that automatically enforces the terms of an agreement when conditions are met.",
+  1114: { // Core DAO Testnet
+    symbol: 'tCORE',
+    multiplier: 1,
+    defaultAmounts: ['1', '5', '25']
   },
-  {
-    id: 4,
-    question: "What is the purpose of Layer 2 solutions?",
-    options: ["Add more tokens", "Increase scalability and reduce costs", "Create new blockchains", "Mine cryptocurrencies"],
-    correctAnswer: 1,
-    explanation: "Layer 2 solutions are built on top of main blockchains to increase transaction speed and reduce costs while maintaining security.",
-  },
-  {
-    id: 5,
-    question: "What does 'TVL' measure in DeFi?",
-    options: ["Transaction Volume Limit", "Total Value Locked", "Token Validation Level", "Trading Velocity Line"],
-    correctAnswer: 1,
-    explanation: "TVL (Total Value Locked) measures the total amount of assets deposited in DeFi protocols.",
+  default: { // All other chains (Sepolia, Base, etc.)
+    symbol: 'ETH',
+    multiplier: 1,
+    defaultAmounts: ['0.001', '0.005', '0.025']
   }
-];
+} as const;
 
 function QuizGameContract() {
-  const { address, isConnected, chain } = useAccount();
-  const { connect, connectors } = useConnect();
-  const { disconnect } = useDisconnect();
+  const { address, chain } = useAccount();
   const { switchChain } = useSwitchChain();
-  
-  const [gameState, setGameState] = useState<'idle' | 'playing' | 'submitting' | 'completed' | 'endScreen'>('idle');
-  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
-  const [selectedAnswer, setSelectedAnswer] = useState<number | null>(null);
-  const [userAnswers, setUserAnswers] = useState<number[]>([]);
-  const [score, setScore] = useState(0);
-  const [originalAnswer, setOriginalAnswer] = useState<number | null>(null);
-  const [selectedAmount, setSelectedAmount] = useState<number>(1);
-  const [customAmount, setCustomAmount] = useState<string>('');
+  const { disconnect } = useDisconnect();
 
   // Get contract addresses based on current chain
   const contractAddresses = chain ? getContractAddresses(chain.id) : getContractAddresses(hyperionTestnet.id);
-
-  // Get user balance
-  const { data: balance } = useBalance({
-    address,
-    chainId: chain?.id || hyperionTestnet.id,
-  });
-
-  const { data: userSession, refetch: refetchSession } = useReadContract({
-    abi: quizGameABI,
-    address: contractAddresses.quizGameContractAddress as `0x${string}`,
-    functionName: 'getQuizSession',
-    args: address ? [address] : undefined,
-    chainId: chain?.id || hyperionTestnet.id,
-  });
-
-  // Write contract hooks
-  const { 
-    data: startQuizHash, 
-    isPending: isStartPending,
-    writeContract: startQuiz,
-    error: startError,
-    reset: resetStart
-  } = useWriteContract();
-
-  const { 
-    data: completeQuizHash, 
-    isPending: isCompletePending,
-    writeContract: completeQuiz,
-    error: completeError,
-    reset: resetComplete
-  } = useWriteContract();
-
-  // Wait for transaction confirmations
-  const { isLoading: isStartConfirming, isSuccess: isStartConfirmed } = 
-    useWaitForTransactionReceipt({ hash: startQuizHash });
-
-  const { isLoading: isCompleteConfirming, isSuccess: isCompleteConfirmed } = 
-    useWaitForTransactionReceipt({ hash: completeQuizHash });
-
-  // Reset game state when starting new quiz
-  useEffect(() => {
-    if (isStartConfirmed) {
-      setGameState('playing');
-      setCurrentQuestionIndex(0);
-      setUserAnswers([]);
-      setScore(0);
-      refetchSession();
-    }
-  }, [isStartConfirmed, refetchSession]);
-
-  // Handle quiz completion
-  useEffect(() => {
-    if (isCompleteConfirmed) {
-      setGameState('completed');
-      refetchSession();
-    }
-  }, [isCompleteConfirmed, refetchSession]);
-
-  const currentQuestion = ONCHAIN_QUESTIONS[currentQuestionIndex];
-  const isLastQuestion = currentQuestionIndex === ONCHAIN_QUESTIONS.length - 1;
   
-  // Check if current chain is supported
-  const supportedChainIds = [133717, 11155111, 8453, 12345, 1114]; // From CONTRACT_ADDRESSES
-  const isCorrectChain = chain ? supportedChainIds.includes(chain.id) : false;
+  // Get currency config for current chain
+  const currencyConfig = chain ? (CURRENCY_CONFIG[chain.id as keyof typeof CURRENCY_CONFIG] || CURRENCY_CONFIG.default) : CURRENCY_CONFIG[133717];
 
-  // Get the actual amount to use (either selected quick amount or custom amount)
-  const getActualAmount = () => {
-    if (customAmount && customAmount !== '') {
-      const parsed = parseFloat(customAmount);
-      return isNaN(parsed) || parsed <= 0 ? selectedAmount : parsed;
+  // State for quiz interaction
+  const [selectedAmount, setSelectedAmount] = useState<string>(currencyConfig.defaultAmounts[0]);
+  const [customAmount, setCustomAmount] = useState('');
+  const [userAnswer, setUserAnswer] = useState('');
+  const [submittedAnswer, setSubmittedAnswer] = useState('');
+  const [showQuiz, setShowQuiz] = useState(false);
+  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
+  const [userAnswers, setUserAnswers] = useState<string[]>([]);
+  const [quizCompleted, setQuizCompleted] = useState(false);
+  const [score, setScore] = useState(0);
+
+  // Contract reads
+  const { data: userSession } = useReadContract({
+    address: contractAddresses.quizGameContractAddress as `0x${string}`,
+    abi: quizGameABI,
+    functionName: 'userSessions',
+    args: [address as `0x${string}`],
+    query: {
+      enabled: !!address,
+    },
+  });
+
+  // Contract writes
+  const { writeContract: startQuiz, isPending: isStartPending } = useWriteContract();
+  const { writeContract: completeQuiz, isPending: isCompletePending } = useWriteContract();
+
+  // Wait for transaction receipts
+  const { data: startReceipt, isSuccess: isStartSuccess } = useWaitForTransactionReceipt({
+    hash: undefined,
+  });
+
+  const { data: completeReceipt, isSuccess: isCompleteSuccess } = useWaitForTransactionReceipt({
+    hash: undefined,
+  });
+
+  // Quiz questions
+  const questions = [
+    {
+      question: "What is the primary purpose of a blockchain?",
+      options: ["To store data", "To create a decentralized, immutable ledger", "To process payments", "To host websites"],
+      correct: 1
+    },
+    {
+      question: "What does 'HODL' mean in cryptocurrency?",
+      options: ["Hold On for Dear Life", "Hold", "High Order Data Logic", "Hash of Digital Ledger"],
+      correct: 1
+    },
+    {
+      question: "What is a smart contract?",
+      options: ["A legal document", "Self-executing code on blockchain", "A cryptocurrency", "A wallet"],
+      correct: 1
+    },
+    {
+      question: "What is the 'blockchain trilemma'?",
+      options: ["Security, Speed, Cost", "Decentralization, Scalability, Security", "Privacy, Speed, Cost", "Security, Privacy, Speed"],
+      correct: 1
+    },
+    {
+      question: "What is a 'gas fee' in Ethereum?",
+      options: ["A tax", "Payment for computational work", "A transaction fee", "All of the above"],
+      correct: 3
     }
-    return selectedAmount;
-  };
+  ];
 
-  const handleStartQuiz = async () => {
-    if (!isConnected) return;
-    
-    // Calculate the final answer (sum of all answers)
-    const finalAnswer = Math.floor(Math.random() * 100) + 1; // Random number for demo
-    setOriginalAnswer(finalAnswer);
-    
-    const amountToPay = parseEther(getActualAmount().toString());
-    
-    resetStart();
-    startQuiz({
-      abi: quizGameABI,
-      address: contractAddresses.quizGameContractAddress as `0x${string}`,
-      functionName: 'startQuiz',
-      args: [BigInt(finalAnswer)],
-      value: amountToPay,
-      chainId: chain?.id || hyperionTestnet.id,
-    });
-  };
-
-  const handleAnswerSelect = (answerIndex: number) => {
-    if (selectedAnswer !== null) return;
-    
-    setSelectedAnswer(answerIndex);
-    const newAnswers = [...userAnswers, answerIndex];
-    setUserAnswers(newAnswers);
-    
-    if (answerIndex === currentQuestion.correctAnswer) {
-      setScore(score + 1);
-    }
-  };
-
-  const handleNextQuestion = () => {
-    if (isLastQuestion) {
-      setGameState('endScreen');
-    } else {
-      setCurrentQuestionIndex(currentQuestionIndex + 1);
-      setSelectedAnswer(null);
-    }
-  };
-
-  const handleCompleteQuiz = () => {
-    if (!originalAnswer) return;
-    
-    resetComplete();
-    setGameState('submitting');
-    
-    completeQuiz({
-      abi: quizGameABI,
-      address: contractAddresses.quizGameContractAddress as `0x${string}`,
-      functionName: 'completeQuiz',
-      args: [BigInt(originalAnswer)],
-      chainId: chain?.id || hyperionTestnet.id,
-    });
-  };
-
-  const handleRestart = () => {
-    setGameState('idle');
-    setCurrentQuestionIndex(0);
-    setSelectedAnswer(null);
-    setUserAnswers([]);
-    setScore(0);
-    setOriginalAnswer(null);
-    setCustomAmount('');
-    resetStart();
-    resetComplete();
-  };
-
-  const handleQuickAmountSelect = (amount: number) => {
+  // Handle amount selection
+  const handleAmountSelect = (amount: string) => {
     setSelectedAmount(amount);
-    setCustomAmount(''); // Clear custom amount when selecting quick amount
+    setCustomAmount('');
   };
 
+  // Handle custom amount input
   const handleCustomAmountChange = (value: string) => {
     setCustomAmount(value);
-    // Don't clear selected amount, just let custom amount take precedence
+    setSelectedAmount(value);
   };
 
-  if (!isConnected) {
-    return (
-      <div style={{ 
-        padding: "2rem",
-        maxWidth: "800px",
-        margin: "0 auto",
-        textAlign: "center"
-      }}>
-        <div style={{
-          background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
-          borderRadius: "16px",
-          padding: "3rem",
-          color: "white",
-          marginBottom: "3rem"
-        }}>
-          <h2 style={{ fontSize: "2rem", marginBottom: "1rem" }}>Play & Earn Real Crypto!</h2>
-          <p style={{ fontSize: "1.2rem", marginBottom: "2rem", opacity: 0.9 }}>
-            Answer blockchain questions correctly and earn cryptocurrency rewards. 
-            Each game costs a small entry fee and pays out based on your performance.
-          </p>
-          
-          <div style={{ display: "flex", gap: "1rem", justifyContent: "center", flexWrap: "wrap" }}>
-            {connectors.map((connector) => (
-              <button
-                key={connector.id}
-                onClick={() => connect({ connector })}
-                style={{
-                  backgroundColor: "rgba(255,255,255,0.2)",
-                  color: "white",
-                  border: "2px solid rgba(255,255,255,0.3)",
-                  borderRadius: "12px",
-                  padding: "1rem 2rem",
-                  fontSize: "1.1rem",
-                  fontWeight: "600",
-                  cursor: "pointer",
-                  backdropFilter: "blur(10px)",
-                  transition: "all 0.3s ease"
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.backgroundColor = "rgba(255,255,255,0.3)";
-                  e.currentTarget.style.transform = "translateY(-2px)";
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.backgroundColor = "rgba(255,255,255,0.2)";
-                  e.currentTarget.style.transform = "translateY(0)";
-                }}
-              >
-                Connect {connector.name}
-              </button>
-            ))}
-          </div>
-        </div>
+  // Get the actual amount to send (in ETH)
+  const getActualAmount = () => {
+    const amount = customAmount || selectedAmount;
+    const ethAmount = parseFloat(amount) / currencyConfig.multiplier;
+    return parseEther(ethAmount.toString());
+  };
 
-        <div style={{
-          background: "#f8fafc",
-          borderRadius: "12px",
-          padding: "2rem",
-          textAlign: "left"
-        }}>
-          <h3 style={{ fontSize: "1.5rem", marginBottom: "1rem", color: "#1f2937" }}>How It Works:</h3>
-          <ul style={{ fontSize: "1.1rem", lineHeight: "1.8", color: "#374151" }}>
-            <li>📝 Answer 5 blockchain knowledge questions</li>
-            <li>💰 Pay a small entry fee to start playing</li>
-            <li>🎲 Win 10% to 120% of your entry fee based on luck and skill</li>
-            <li>🪙 Get minted tokens as participation rewards</li>
-            <li>⚡ All transactions happen on supported testnets</li>
-          </ul>
-        </div>
-      </div>
-    );
-  }
+  // Handle start quiz
+  const handleStartQuiz = () => {
+    if (!address) return;
+    
+    const actualAmount = getActualAmount();
+    const userAnswerValue = BigInt(Math.floor(Math.random() * 100) + 1);
+    
+    startQuiz({
+      address: contractAddresses.quizGameContractAddress as `0x${string}`,
+      abi: quizGameABI,
+      functionName: 'startQuiz',
+      args: [userAnswerValue],
+      value: actualAmount,
+    });
+  };
 
+  // Handle complete quiz
+  const handleCompleteQuiz = (answer?: number) => {
+    if (!address) return;
+    
+    const answerToSubmit = BigInt(answer ?? Math.floor(Math.random() * 100) + 1);
+    
+    completeQuiz({
+      address: contractAddresses.quizGameContractAddress as `0x${string}`,
+      abi: quizGameABI,
+      functionName: 'completeQuiz',
+      args: [answerToSubmit],
+    });
+  };
+
+  // Handle quiz answer submission
+  const handleQuizAnswer = (answer: string) => {
+    const newAnswers = [...userAnswers];
+    newAnswers[currentQuestionIndex] = answer;
+    setUserAnswers(newAnswers);
+
+    if (currentQuestionIndex < questions.length - 1) {
+      setCurrentQuestionIndex(currentQuestionIndex + 1);
+    } else {
+      // Quiz completed
+      const finalScore = newAnswers.reduce((score, answer, index) => {
+        return score + (answer === questions[index].options[questions[index].correct] ? 1 : 0);
+      }, 0);
+      setScore(finalScore);
+      setQuizCompleted(true);
+    }
+  };
+
+  // Reset quiz state
+  const resetQuiz = () => {
+    setShowQuiz(false);
+    setCurrentQuestionIndex(0);
+    setUserAnswers([]);
+    setQuizCompleted(false);
+    setScore(0);
+    setUserAnswer('');
+    setSubmittedAnswer('');
+  };
+
+  // Check if user is on correct chain
+  const supportedChainIds = [133717, 11155111, 8453, 12345, 1114];
+  const isCorrectChain = chain ? supportedChainIds.includes(chain.id) : false;
+
+  // Check if user has active session
+  const hasActiveSession = userSession && userSession[0];
+
+  // If not on correct chain, show network switch options
   if (!isCorrectChain) {
     return (
-      <div style={{ 
-        padding: "2rem",
-        maxWidth: "600px",
+      <div style={{
+        maxWidth: "800px",
         margin: "0 auto",
+        padding: "2rem",
         textAlign: "center"
       }}>
-        <h2 style={{ fontSize: "2rem", marginBottom: "2rem", color: "#ef4444" }}>
-          ⚠️ Wrong Network
-        </h2>
-        <p style={{ fontSize: "1.2rem", marginBottom: "2rem", color: "#6b7280" }}>
+        <h2 style={{ color: "#1f2937", marginBottom: "1rem" }}>Wrong Network</h2>
+        <p style={{ color: "#6b7280", marginBottom: "2rem" }}>
           Please switch to one of the supported networks to play the quiz game.
         </p>
         <div style={{ display: "flex", gap: "1rem", justifyContent: "center", flexWrap: "wrap", marginBottom: "2rem" }}>
-          <button
+          <button 
             onClick={() => switchChain({ chainId: hyperionTestnet.id })}
             style={{
               backgroundColor: "#667eea",
               color: "white",
               border: "none",
-              borderRadius: "12px",
-              padding: "1rem 2rem",
-              fontSize: "1rem",
+              borderRadius: "8px",
+              padding: "0.75rem 1.5rem",
+              fontSize: "0.9rem",
               fontWeight: "600",
               cursor: "pointer",
-              boxShadow: "0 4px 6px rgba(102, 126, 234, 0.3)"
+              transition: "all 0.3s ease"
             }}
           >
             Switch to Hyperion Testnet
           </button>
-          <button
+          <button 
             onClick={() => switchChain({ chainId: coreDaoTestnet.id })}
             style={{
-              backgroundColor: "#22c55e",
+              backgroundColor: "#667eea",
               color: "white",
               border: "none",
-              borderRadius: "12px",
-              padding: "1rem 2rem",
-              fontSize: "1rem",
+              borderRadius: "8px",
+              padding: "0.75rem 1.5rem",
+              fontSize: "0.9rem",
               fontWeight: "600",
               cursor: "pointer",
-              boxShadow: "0 4px 6px rgba(34, 197, 94, 0.3)"
+              transition: "all 0.3s ease"
             }}
           >
             Switch to Core DAO Testnet
           </button>
         </div>
-        <button
+        <button 
           onClick={() => disconnect()}
           style={{
-            backgroundColor: "#6b7280",
+            backgroundColor: "#ef4444",
             color: "white",
             border: "none",
-            borderRadius: "12px",
-            padding: "1rem 2rem",
-            fontSize: "1rem",
+            borderRadius: "8px",
+            padding: "0.75rem 1.5rem",
+            fontSize: "0.9rem",
             fontWeight: "600",
-            cursor: "pointer"
+            cursor: "pointer",
+            transition: "all 0.3s ease"
           }}
         >
           Disconnect
@@ -370,454 +256,319 @@ function QuizGameContract() {
     );
   }
 
-  if (gameState === 'endScreen') {
+  // If user has active session, show warning
+  if (hasActiveSession) {
     return (
-      <GamifiedEndScreen
-        score={score}
-        totalQuestions={ONCHAIN_QUESTIONS.length}
-        onClaim={handleCompleteQuiz}
-        onPlayAgain={handleRestart}
-        onExit={() => disconnect()}
-        isClaiming={isCompletePending || isCompleteConfirming}
-        transactionHash={completeQuizHash}
-      />
-    );
-  }
-
-  if (gameState === 'completed') {
-    return (
-      <GamifiedEndScreen
-        score={score}
-        totalQuestions={ONCHAIN_QUESTIONS.length}
-        onClaim={() => {}} // Already claimed
-        onPlayAgain={handleRestart}
-        onExit={() => disconnect()}
-        isClaiming={false}
-        transactionHash={completeQuizHash}
-      />
-    );
-  }
-
-  if (gameState === 'playing') {
-    const progressPercent = ((currentQuestionIndex + 1) / ONCHAIN_QUESTIONS.length) * 100;
-
-    return (
-      <div style={{ 
-        padding: "2rem",
-        maxWidth: "700px",
-        margin: "0 auto"
-      }}>
-
-        {/* Progress Bar */}
-        <div style={{
-          width: "100%",
-          height: "12px",
-          backgroundColor: "#e5e7eb",
-          borderRadius: "6px",
-          marginBottom: "2rem",
-          overflow: "hidden"
-        }}>
-          <div style={{
-            width: `${progressPercent}%`,
-            height: "100%",
-            backgroundColor: "#667eea",
-            borderRadius: "6px",
-            transition: "width 0.3s ease"
-          }} />
-        </div>
-
-        {/* Question Card */}
-        <div style={{
-          background: "white",
-          borderRadius: "16px",
-          padding: "2rem",
-          boxShadow: "0 8px 16px rgba(0,0,0,0.1)",
-          marginBottom: "2rem"
-        }}>
-          <h3 style={{
-            fontSize: "1.5rem",
-            marginBottom: "2rem",
-            color: "#1f2937",
-            lineHeight: "1.6"
-          }}>
-            {currentQuestion.question}
-          </h3>
-
-          <div style={{ marginBottom: "2rem" }}>
-            {currentQuestion.options.map((option, index) => {
-              let backgroundColor = "#f9fafb";
-              let borderColor = "#d1d5db";
-              let color = "#374151";
-              
-              if (selectedAnswer !== null) {
-                if (index === currentQuestion.correctAnswer) {
-                  backgroundColor = "#d1fae5";
-                  borderColor = "#10b981";
-                  color = "#065f46";
-                } else if (index === selectedAnswer && selectedAnswer !== currentQuestion.correctAnswer) {
-                  backgroundColor = "#fee2e2";
-                  borderColor = "#ef4444";
-                  color = "#991b1b";
-                }
-              }
-              
-              return (
-                <button
-                  key={index}
-                  onClick={() => handleAnswerSelect(index)}
-                  disabled={selectedAnswer !== null}
-                  style={{
-                    display: "block",
-                    width: "100%",
-                    padding: "1rem",
-                    marginBottom: "1rem",
-                    backgroundColor,
-                    border: `2px solid ${borderColor}`,
-                    borderRadius: "12px",
-                    fontSize: "1rem",
-                    cursor: selectedAnswer !== null ? "default" : "pointer",
-                    textAlign: "left",
-                    color,
-                    fontWeight: "500",
-                    transition: "all 0.2s ease"
-                  }}
-                >
-                  {option}
-                </button>
-              );
-            })}
-          </div>
-
-          <div style={{
-            textAlign: "center",
-            fontSize: "0.9rem",
-            color: "#6b7280",
-            marginBottom: "1rem"
-          }}>
-            Question {currentQuestionIndex + 1} of {ONCHAIN_QUESTIONS.length}
-          </div>
-
-          {selectedAnswer !== null && (
-            <div style={{ 
-              margin: '1.5rem 0', 
-              color: '#0c4a6e', 
-              background: '#f0f9ff', 
-              border: '2px solid #0ea5e9', 
-              borderRadius: '12px', 
-              padding: '1.5rem' 
-            }}>
-              <strong>Explanation:</strong> {currentQuestion.explanation}
-            </div>
-          )}
-
-          {selectedAnswer !== null && (
-            <button
-              onClick={handleNextQuestion}
-              disabled={isCompletePending || isCompleteConfirming}
-              style={{
-                backgroundColor: "#667eea",
-                color: "white",
-                border: "none",
-                borderRadius: "12px",
-                padding: "1rem 2rem",
-                fontSize: "1rem",
-                fontWeight: "600",
-                cursor: "pointer",
-                width: "100%",
-                boxShadow: "0 4px 6px rgba(102, 126, 234, 0.3)"
-              }}
-            >
-              {isLastQuestion ? (
-                isCompletePending 
-                  ? 'Submitting...' 
-                  : isCompleteConfirming 
-                    ? 'Confirming...' 
-                    : 'Submit Quiz'
-              ) : 'Next Question →'}
-            </button>
-          )}
-        </div>
-
-        {/* Transaction Status */}
-        {(isCompletePending || isCompleteConfirming) && (
-          <div style={{
-            background: "#fef3c7",
-            border: "1px solid #f59e0b",
-            borderRadius: "8px",
-            padding: "1rem",
-            textAlign: "center",
-            marginBottom: "1rem"
-          }}>
-            <p style={{ margin: 0, color: "#92400e" }}>
-              {isCompletePending ? '⏳ Waiting for wallet confirmation...' : '🔄 Transaction confirming on blockchain...'}
-            </p>
-          </div>
-        )}
-
-        {completeError && (
-          <div style={{
-            background: "#fee2e2",
-            border: "1px solid #ef4444",
-            borderRadius: "8px",
-            padding: "1rem",
-            textAlign: "center",
-            marginBottom: "1rem"
-          }}>
-            <p style={{ margin: 0, color: "#991b1b" }}>
-              ❌ Error: {completeError.message}
-            </p>
-          </div>
-        )}
-      </div>
-    );
-  }
-
-  // Game state: 'idle' - Show game info and start button
-  return (
-    <div style={{ 
-      padding: "2rem",
-      maxWidth: "700px",
-      margin: "0 auto",
-      textAlign: "center"
-    }}>
       <div style={{
-        background: "white",
-        borderRadius: "16px",
+        maxWidth: "800px",
+        margin: "0 auto",
         padding: "2rem",
-        boxShadow: "0 8px 16px rgba(0,0,0,0.1)",
-        marginBottom: "2rem"
+        textAlign: "center"
       }}>
-        <div style={{ marginBottom: "2rem", textAlign: "left" }}>
-          <h4 style={{ fontSize: "1.3rem", marginBottom: "1rem", color: "#1f2937" }}>Game Rules:</h4>
-          <ul style={{ fontSize: "1rem", lineHeight: "1.8", color: "#374151" }}>
-            <li>📝 Answer 5 blockchain knowledge questions</li>
-            <li>🎲 Win 10% to 120% of your entry fee (randomly determined)</li>
-            <li>🪙 Receive Token1 tokens equal to your entry fee</li>
-            <li>⏰ Complete within 1 hour of starting</li>
-          </ul>
-        </div>
-
-        {/* Amount Selection */}
-        <div style={{ marginBottom: "2rem" }}>
-          <h4 style={{ fontSize: "1.3rem", marginBottom: "1rem", color: "#1f2937", textAlign: "center" }}>
-            💰 Select Entry Amount
-          </h4>
-          <div style={{
-            display: "grid",
-            gridTemplateColumns: "repeat(3, 1fr)",
-            gap: "1rem",
-            marginBottom: "1rem"
-          }}>
-            {[1, 5, 25].map((amount) => (
-              <button
-                key={amount}
-                onClick={() => handleQuickAmountSelect(amount)}
-                style={{
-                  padding: "1rem",
-                  borderRadius: "12px",
-                  border: selectedAmount === amount && customAmount === '' ? "3px solid #667eea" : "2px solid #e5e7eb",
-                  backgroundColor: selectedAmount === amount && customAmount === '' ? "#f0f8ff" : "white",
-                  color: selectedAmount === amount && customAmount === '' ? "#667eea" : "#374151",
-                  fontWeight: selectedAmount === amount && customAmount === '' ? "bold" : "normal",
-                  cursor: "pointer",
-                  transition: "all 0.3s ease",
-                  fontSize: "1rem"
-                }}
-                onMouseEnter={(e) => {
-                  if (selectedAmount !== amount || customAmount !== '') {
-                    e.currentTarget.style.backgroundColor = "#f9fafb";
-                  }
-                }}
-                onMouseLeave={(e) => {
-                  if (selectedAmount !== amount || customAmount !== '') {
-                    e.currentTarget.style.backgroundColor = "white";
-                  }
-                }}
-              >
-                {amount} tMETIS
-              </button>
-            ))}
-          </div>
-          
-          {/* Custom Amount Input */}
-          <div style={{ marginBottom: "1rem" }}>
-            <label style={{ 
-              display: "block", 
-              marginBottom: "0.5rem", 
-              fontWeight: "600",
-              color: "#374151",
-              textAlign: "left"
-            }}>
-              Custom Amount:
-            </label>
-            <input
-              type="number"
-              step="0.001"
-              min="0.001"
-              placeholder="Enter custom amount"
-              value={customAmount}
-              onChange={(e) => handleCustomAmountChange(e.target.value)}
-              style={{
-                width: "100%",
-                padding: "0.75rem",
-                borderRadius: "8px",
-                border: customAmount !== '' ? "3px solid #667eea" : "2px solid #e5e7eb",
-                fontSize: "1rem",
-                backgroundColor: customAmount !== '' ? "#f0f8ff" : "white"
-              }}
-            />
-          </div>
-          
-          <p style={{
-            fontSize: "0.9rem",
-            color: "#6b7280",
-            textAlign: "center"
-          }}>
-            Selected: {getActualAmount()} tMETIS
-          </p>
-          
-          {/* Balance Warning */}
-          {balance && parseFloat(formatEther(balance.value)) < getActualAmount() && (
-            <div style={{
-              background: "#fef3c7",
-              border: "1px solid #f59e0b",
-              borderRadius: "8px",
-              padding: "1rem",
-              marginTop: "1rem",
-              textAlign: "center"
-            }}>
-              <p style={{ margin: 0, color: "#92400e", fontSize: "0.9rem" }}>
-                ⚠️ Insufficient balance. You need {getActualAmount()} tMETIS but have {parseFloat(formatEther(balance.value)).toFixed(4)} tMETIS
-              </p>
-            </div>
-          )}
-        </div>
-
-        {userSession && userSession.active && (
-          <div style={{
-            background: "#fef3c7",
-            border: "1px solid #f59e0b",
-            borderRadius: "8px",
-            padding: "1rem",
-            marginBottom: "2rem",
-            textAlign: "left"
-          }}>
-            <h4 style={{ margin: "0 0 0.5rem 0", color: "#92400e" }}>⚠️ Active Session Found</h4>
-            <p style={{ margin: "0 0 1rem 0", color: "#92400e", fontSize: "0.9rem" }}>
-              You have an active quiz session. Complete it before starting a new one.
-            </p>
-            <button
-              onClick={handleCompleteQuiz}
-              disabled={isCompletePending || isCompleteConfirming}
-              style={{
-                backgroundColor: isCompletePending || isCompleteConfirming ? "#9ca3af" : "#f59e0b",
-                color: "white",
-                border: "none",
-                borderRadius: "8px",
-                padding: "0.75rem 1rem",
-                fontSize: "0.9rem",
-                fontWeight: "600",
-                cursor: isCompletePending || isCompleteConfirming ? "not-allowed" : "pointer",
-                transition: "all 0.3s ease"
-              }}
-            >
-              {isCompletePending ? "Confirming..." : isCompleteConfirming ? "Completing..." : "Complete Previous Session"}
-            </button>
-          </div>
-        )}
-
-        <button
-          onClick={handleStartQuiz}
-          disabled={
-            !balance || 
-            parseFloat(formatEther(balance.value)) < getActualAmount() ||
-            isStartPending || 
-            isStartConfirming || 
-            (userSession && userSession.active) // Disable if active session
-          }
-          style={{
-            backgroundColor: (userSession && userSession.active) || (balance && parseFloat(formatEther(balance.value)) < getActualAmount()) ? "#9ca3af" : "#667eea",
-            color: "white",
-            border: "none",
-            borderRadius: "12px",
-            padding: "1rem 2rem",
-            fontSize: "1.2rem",
-            fontWeight: "600",
-            cursor: (userSession && userSession.active) || (balance && parseFloat(formatEther(balance.value)) < getActualAmount()) ? "not-allowed" : "pointer",
-            boxShadow: (userSession && userSession.active) || (balance && parseFloat(formatEther(balance.value)) < getActualAmount()) ? "none" : "0 4px 6px rgba(102, 126, 234, 0.3)",
-            transition: "all 0.3s ease",
-            marginBottom: "1rem",
-            opacity: (userSession && userSession.active) || (balance && parseFloat(formatEther(balance.value)) < getActualAmount()) ? 0.6 : 1
-          }}
-        >
-          {isStartPending 
-            ? 'Confirming...' 
-            : isStartConfirming 
-              ? 'Starting Game...' 
-              : `Play Quiz (${getActualAmount()} tMETIS)`
-          }
-        </button>
-      </div>
-
-      {/* Transaction Status */}
-      {(isStartPending || isStartConfirming) && (
         <div style={{
           background: "#fef3c7",
           border: "1px solid #f59e0b",
           borderRadius: "8px",
           padding: "1rem",
-          textAlign: "center",
-          marginBottom: "1rem"
+          marginBottom: "2rem",
+          textAlign: "left"
         }}>
-          <p style={{ margin: 0, color: "#92400e" }}>
-            {isStartPending ? '⏳ Waiting for wallet confirmation...' : '🔄 Transaction confirming on blockchain...'}
+          <h4 style={{ margin: "0 0 0.5rem 0", color: "#92400e" }}>⚠️ Active Session Found</h4>
+          <p style={{ margin: "0 0 1rem 0", color: "#92400e", fontSize: "0.9rem" }}>
+            You have an active quiz session. Complete it before starting a new one.
           </p>
-        </div>
-      )}
-
-      {startQuizHash && (
-        <div style={{
-          background: "#e6f7ff",
-          border: "1px solid #0ea5e9",
-          borderRadius: "8px",
-          padding: "1rem",
-          textAlign: "center",
-          marginBottom: "1rem"
-        }}>
-          <p style={{ margin: "0 0 0.5rem 0", color: "#0c4a6e", fontWeight: "600" }}>
-            🔗 Transaction Hash:
-          </p>
-          <p style={{ 
-            margin: "0 0 0.5rem 0", 
-            fontSize: "0.8rem", 
-            wordBreak: "break-all", 
-            fontFamily: "monospace",
-            color: "#0c4a6e"
-          }}>
-            {startQuizHash}
-          </p>
-          <a 
-            href={`${hyperionTestnet.blockExplorers.default.url}/tx/${startQuizHash}`} 
-            target="_blank" 
-            rel="noopener noreferrer"
-            style={{ color: "#0ea5e9", textDecoration: "none", fontSize: "0.9rem" }}
+          <button
+            onClick={() => handleCompleteQuiz()}
+            disabled={isCompletePending}
+            style={{
+              backgroundColor: isCompletePending ? "#9ca3af" : "#f59e0b",
+              color: "white",
+              border: "none",
+              borderRadius: "8px",
+              padding: "0.75rem 1rem",
+              fontSize: "0.9rem",
+              fontWeight: "600",
+              cursor: isCompletePending ? "not-allowed" : "pointer",
+              transition: "all 0.3s ease"
+            }}
           >
-            View on Block Explorer →
-          </a>
+            {isCompletePending ? "Confirming..." : "Complete Previous Session"}
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  // If quiz is completed, show results
+  if (quizCompleted) {
+    return (
+      <div style={{
+        maxWidth: "800px",
+        margin: "0 auto",
+        padding: "2rem",
+        textAlign: "center"
+      }}>
+        <h2 style={{ color: "#1f2937", marginBottom: "1rem" }}>Quiz Completed!</h2>
+        <p style={{ color: "#6b7280", marginBottom: "2rem" }}>
+          You scored {score} out of {questions.length} questions correctly.
+        </p>
+        <button
+          onClick={resetQuiz}
+          style={{
+            backgroundColor: "#667eea",
+            color: "white",
+            border: "none",
+            borderRadius: "8px",
+            padding: "0.75rem 1.5rem",
+            fontSize: "1rem",
+            fontWeight: "600",
+            cursor: "pointer",
+            transition: "all 0.3s ease"
+          }}
+        >
+          Play Again
+        </button>
+      </div>
+    );
+  }
+
+  // If quiz is active, show current question
+  if (showQuiz) {
+    const currentQuestion = questions[currentQuestionIndex];
+    return (
+      <div style={{
+        maxWidth: "800px",
+        margin: "0 auto",
+        padding: "2rem",
+        textAlign: "center"
+      }}>
+        <h2 style={{ color: "#1f2937", marginBottom: "2rem" }}>
+          Question {currentQuestionIndex + 1} of {questions.length}
+        </h2>
+        <div style={{
+          background: "white",
+          borderRadius: "12px",
+          padding: "2rem",
+          boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
+          marginBottom: "2rem"
+        }}>
+          <h3 style={{ color: "#1f2937", marginBottom: "1.5rem" }}>{currentQuestion.question}</h3>
+          <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
+            {currentQuestion.options.map((option, index) => (
+              <button
+                key={index}
+                onClick={() => handleQuizAnswer(option)}
+                style={{
+                  backgroundColor: "#f8fafc",
+                  border: "2px solid #e2e8f0",
+                  borderRadius: "8px",
+                  padding: "1rem",
+                  fontSize: "1rem",
+                  cursor: "pointer",
+                  transition: "all 0.3s ease",
+                  textAlign: "left"
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundColor = "#f1f5f9";
+                  e.currentTarget.style.borderColor = "#cbd5e1";
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = "#f8fafc";
+                  e.currentTarget.style.borderColor = "#e2e8f0";
+                }}
+              >
+                {option}
+              </button>
+            ))}
+          </div>
+        </div>
+        <button
+          onClick={resetQuiz}
+          style={{
+            backgroundColor: "#6b7280",
+            color: "white",
+            border: "none",
+            borderRadius: "8px",
+            padding: "0.75rem 1.5rem",
+            fontSize: "0.9rem",
+            fontWeight: "600",
+            cursor: "pointer",
+            transition: "all 0.3s ease"
+          }}
+        >
+          Cancel Quiz
+        </button>
+      </div>
+    );
+  }
+
+  // Main quiz interface
+  return (
+    <div style={{
+      maxWidth: "800px",
+      margin: "0 auto",
+      padding: "2rem"
+    }}>
+      <h1 style={{ 
+        color: "#1f2937", 
+        textAlign: "center", 
+        marginBottom: "2rem",
+        fontSize: "2.5rem",
+        fontWeight: "bold"
+      }}>
+        🧠 RealMind Quiz Game
+      </h1>
+
+      {/* Game Rules */}
+      <div style={{
+        background: "#f8fafc",
+        borderRadius: "12px",
+        padding: "1.5rem",
+        marginBottom: "2rem",
+        border: "1px solid #e2e8f0"
+      }}>
+        <h3 style={{ color: "#1f2937", marginBottom: "1rem" }}>📋 Game Rules:</h3>
+        <ul style={{ 
+          color: "#4b5563", 
+          lineHeight: "1.6",
+          paddingLeft: "1.5rem",
+          margin: 0
+        }}>
+          <li>📝 Answer 5 blockchain knowledge questions</li>
+          <li>✅ Answer correctly to earn extra bonus tokens (10-90% bonus)</li>
+          <li>🪙 Receive base Token1 tokens equal to your entry fee × 100</li>
+          <li>⏰ Complete within 1 hour of starting</li>
+        </ul>
+      </div>
+
+      {/* Entry Amount Selection */}
+      <div style={{
+        background: "white",
+        borderRadius: "12px",
+        padding: "2rem",
+        boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
+        marginBottom: "2rem"
+      }}>
+        <h3 style={{ color: "#1f2937", marginBottom: "1.5rem", textAlign: "center" }}>
+          💰 Select Entry Amount
+        </h3>
+        
+        {/* Predefined amounts */}
+        <div style={{ 
+          display: "flex", 
+          gap: "1rem", 
+          justifyContent: "center", 
+          marginBottom: "1.5rem",
+          flexWrap: "wrap"
+        }}>
+          {currencyConfig.defaultAmounts.map((amount) => (
+            <button
+              key={amount}
+              onClick={() => handleAmountSelect(amount)}
+              style={{
+                backgroundColor: selectedAmount === amount ? "#667eea" : "white",
+                color: selectedAmount === amount ? "white" : "#374151",
+                border: `2px solid ${selectedAmount === amount ? "#667eea" : "#d1d5db"}`,
+                borderRadius: "8px",
+                padding: "0.75rem 1.5rem",
+                fontSize: "1rem",
+                fontWeight: "600",
+                cursor: "pointer",
+                transition: "all 0.3s ease"
+              }}
+            >
+              {amount} {currencyConfig.symbol}
+            </button>
+          ))}
+        </div>
+
+        {/* Custom amount */}
+        <div style={{ textAlign: "center" }}>
+          <label style={{ 
+            display: "block", 
+            color: "#374151", 
+            marginBottom: "0.5rem",
+            fontWeight: "500"
+          }}>
+            Custom Amount:
+          </label>
+          <input
+            type="number"
+            value={customAmount}
+            onChange={(e) => handleCustomAmountChange(e.target.value)}
+            placeholder={`Enter custom amount in ${currencyConfig.symbol}`}
+            style={{
+              width: "200px",
+              padding: "0.75rem",
+              border: "2px solid #d1d5db",
+              borderRadius: "8px",
+              fontSize: "1rem",
+              textAlign: "center"
+            }}
+          />
+        </div>
+
+        {/* Selected amount display */}
+        <div style={{ 
+          textAlign: "center", 
+          marginTop: "1rem",
+          color: "#6b7280",
+          fontSize: "0.9rem"
+        }}>
+          Selected: {selectedAmount} {currencyConfig.symbol}
+        </div>
+      </div>
+
+      {/* Start Quiz Button */}
+      <div style={{ textAlign: "center" }}>
+        <button
+          onClick={handleStartQuiz}
+          disabled={isStartPending || !address}
+          style={{
+            backgroundColor: isStartPending || !address ? "#9ca3af" : "#667eea",
+            color: "white",
+            border: "none",
+            borderRadius: "12px",
+            padding: "1rem 2rem",
+            fontSize: "1.1rem",
+            fontWeight: "bold",
+            cursor: isStartPending || !address ? "not-allowed" : "pointer",
+            transition: "all 0.3s ease",
+            width: "100%",
+            maxWidth: "300px"
+          }}
+        >
+          {isStartPending ? "Confirming..." : `Play Quiz (${selectedAmount} ${currencyConfig.symbol})`}
+        </button>
+      </div>
+
+      {/* Success/Error Messages */}
+      {isStartSuccess && (
+        <div style={{
+          background: "#ecfdf5",
+          border: "1px solid #10b981",
+          borderRadius: "8px",
+          padding: "1rem",
+          marginTop: "1rem",
+          textAlign: "center"
+        }}>
+          <p style={{ margin: 0, color: "#065f46" }}>
+            ✅ Quiz started successfully! Check your wallet for Token1 tokens.
+          </p>
         </div>
       )}
 
-      {startError && (
+      {isCompleteSuccess && (
         <div style={{
-          background: "#fee2e2",
-          border: "1px solid #ef4444",
+          background: "#ecfdf5",
+          border: "1px solid #10b981",
           borderRadius: "8px",
           padding: "1rem",
-          textAlign: "center",
-          marginBottom: "1rem"
+          marginTop: "1rem",
+          textAlign: "center"
         }}>
-          <p style={{ margin: 0, color: "#991b1b" }}>
-            ❌ Error: {startError.message}
+          <p style={{ margin: 0, color: "#065f46" }}>
+            ✅ Previous session completed! You can now start a new quiz.
           </p>
         </div>
       )}
