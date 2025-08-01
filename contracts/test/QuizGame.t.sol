@@ -26,14 +26,16 @@ contract QuizGameTest is Test {
     function testCompleteQuizFlow_CorrectAnswer() public {
         vm.deal(player, 1 ether);
         uint256 initialBalance = player.balance;
+        uint256 initialTokens = token.balanceOf(player);
         
         // Start quiz with custom amount
         uint256 playAmount = 0.0015 ether;
         vm.prank(player);
         quizGame.startQuiz{value: playAmount}(42);
         
-        // Player gets tokens immediately (1:1 ratio)
-        assertEq(token.balanceOf(player), playAmount);
+        // Player gets initial tokens (100x the amount paid)
+        uint256 expectedInitialTokens = playAmount * 100;
+        assertEq(token.balanceOf(player), expectedInitialTokens);
         
         // Verify session
         QuizGame.QuizSession memory session = quizGame.getQuizSession(player);
@@ -49,8 +51,10 @@ contract QuizGameTest is Test {
         session = quizGame.getQuizSession(player);
         assertFalse(session.active);
         
-        // Player should get some ETH back (random payout)
-        assertTrue(player.balance > initialBalance - playAmount);
+        // Player should get bonus tokens (10% to 90% of initial tokens)
+        uint256 finalTokens = token.balanceOf(player);
+        assertTrue(finalTokens > expectedInitialTokens); // Should have more tokens than initial
+        assertTrue(finalTokens <= expectedInitialTokens * 190 / 100); // Max 190% of initial (100% + 90% bonus)
     }
 
     function testCompleteQuizFlow_IncorrectAnswer() public {
@@ -62,12 +66,16 @@ contract QuizGameTest is Test {
         vm.prank(player);
         quizGame.startQuiz{value: playAmount}(42);
         
+        // Player gets initial tokens
+        uint256 expectedInitialTokens = playAmount * 100;
+        assertEq(token.balanceOf(player), expectedInitialTokens);
+        
         // Complete with wrong answer
         vm.prank(player);
         quizGame.completeQuiz(999);
         
-        // Player loses all ETH
-        assertEq(player.balance, initialBalance - playAmount);
+        // Player keeps initial tokens but gets no bonus
+        assertEq(token.balanceOf(player), expectedInitialTokens);
     }
 
     function testStartQuiz_ZeroETH() public {
@@ -126,8 +134,8 @@ contract QuizGameTest is Test {
         // Verify both sessions
         assertTrue(quizGame.getQuizSession(player).active);
         assertTrue(quizGame.getQuizSession(player2).active);
-        assertEq(token.balanceOf(player), 0.001 ether);
-        assertEq(token.balanceOf(player2), 0.002 ether);
+        assertEq(token.balanceOf(player), 0.001 ether * 100);
+        assertEq(token.balanceOf(player2), 0.002 ether * 100);
         
         // Player 1 completes correctly
         vm.prank(player);
@@ -140,8 +148,12 @@ contract QuizGameTest is Test {
         // Verify outcomes
         assertFalse(quizGame.getQuizSession(player).active);
         assertFalse(quizGame.getQuizSession(player2).active);
-        assertTrue(player.balance > 0.999 ether); // Got some payout
-        assertEq(player2.balance, 0.998 ether);   // Lost full amount
+        
+        // Player 1 should have more tokens than initial (got bonus)
+        assertTrue(token.balanceOf(player) > 0.001 ether * 100);
+        
+        // Player 2 should have exactly initial tokens (no bonus for wrong answer)
+        assertEq(token.balanceOf(player2), 0.002 ether * 100);
     }
 
     function testOwnerMintToken() public {
@@ -155,5 +167,26 @@ contract QuizGameTest is Test {
         vm.prank(player);
         vm.expectRevert(abi.encodeWithSignature("OwnableUnauthorizedAccount(address)", player));
         quizGame.mintToken(player, 1000);
+    }
+
+    function testTokenRewardCalculation() public {
+        vm.deal(player, 1 ether);
+        
+        // Start quiz with 0.01 ETH
+        uint256 playAmount = 0.01 ether;
+        vm.prank(player);
+        quizGame.startQuiz{value: playAmount}(42);
+        
+        // Should get 1 token (0.01 ETH * 100 = 1 token)
+        assertEq(token.balanceOf(player), 1 ether);
+        
+        // Complete correctly
+        vm.prank(player);
+        quizGame.completeQuiz(42);
+        
+        // Should get bonus tokens (10% to 90% of 1 token)
+        uint256 finalTokens = token.balanceOf(player);
+        assertTrue(finalTokens > 1 ether); // More than initial 1 token
+        assertTrue(finalTokens <= 1.9 ether); // Max 1.9 tokens (1 + 0.9 bonus)
     }
 }

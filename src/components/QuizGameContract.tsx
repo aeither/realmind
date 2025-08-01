@@ -13,7 +13,7 @@ import { formatEther, parseEther } from 'viem';
 import { base } from 'wagmi/chains';
 import { quizGameABI } from '../libs/quizGameABI';
 import { getContractAddresses } from '../libs/constants';
-import { hyperionTestnet } from '../wagmi';
+import { hyperionTestnet, coreDaoTestnet } from '../wagmi';
 import GamifiedEndScreen from './GamifiedEndScreen';
 
 interface QuizQuestion {
@@ -139,7 +139,10 @@ function QuizGameContract() {
 
   const currentQuestion = ONCHAIN_QUESTIONS[currentQuestionIndex];
   const isLastQuestion = currentQuestionIndex === ONCHAIN_QUESTIONS.length - 1;
-  const isCorrectChain = chain?.id === hyperionTestnet.id;
+  
+  // Check if current chain is supported
+  const supportedChainIds = [133717, 11155111, 8453, 12345, 1114]; // From CONTRACT_ADDRESSES
+  const isCorrectChain = chain ? supportedChainIds.includes(chain.id) : false;
 
   // Get the actual amount to use (either selected quick amount or custom amount)
   const getActualAmount = () => {
@@ -293,7 +296,7 @@ function QuizGameContract() {
             <li>💰 Pay a small entry fee to start playing</li>
             <li>🎲 Win 10% to 120% of your entry fee based on luck and skill</li>
             <li>🪙 Get minted tokens as participation rewards</li>
-            <li>⚡ All transactions happen on Hyperion Testnet</li>
+            <li>⚡ All transactions happen on supported testnets</li>
           </ul>
         </div>
       </div>
@@ -312,24 +315,42 @@ function QuizGameContract() {
           ⚠️ Wrong Network
         </h2>
         <p style={{ fontSize: "1.2rem", marginBottom: "2rem", color: "#6b7280" }}>
-          Please switch to Hyperion Testnet to play the quiz game.
+          Please switch to one of the supported networks to play the quiz game.
         </p>
-        <button
-          onClick={() => switchChain({ chainId: hyperionTestnet.id })}
-          style={{
-            backgroundColor: "#667eea",
-            color: "white",
-            border: "none",
-            borderRadius: "12px",
-            padding: "1rem 2rem",
-            fontSize: "1.1rem",
-            fontWeight: "600",
-            cursor: "pointer",
-            boxShadow: "0 4px 6px rgba(102, 126, 234, 0.3)"
-          }}
-        >
-          Switch to Hyperion Testnet
-        </button>
+        <div style={{ display: "flex", gap: "1rem", justifyContent: "center", flexWrap: "wrap", marginBottom: "2rem" }}>
+          <button
+            onClick={() => switchChain({ chainId: hyperionTestnet.id })}
+            style={{
+              backgroundColor: "#667eea",
+              color: "white",
+              border: "none",
+              borderRadius: "12px",
+              padding: "1rem 2rem",
+              fontSize: "1rem",
+              fontWeight: "600",
+              cursor: "pointer",
+              boxShadow: "0 4px 6px rgba(102, 126, 234, 0.3)"
+            }}
+          >
+            Switch to Hyperion Testnet
+          </button>
+          <button
+            onClick={() => switchChain({ chainId: coreDaoTestnet.id })}
+            style={{
+              backgroundColor: "#22c55e",
+              color: "white",
+              border: "none",
+              borderRadius: "12px",
+              padding: "1rem 2rem",
+              fontSize: "1rem",
+              fontWeight: "600",
+              cursor: "pointer",
+              boxShadow: "0 4px 6px rgba(34, 197, 94, 0.3)"
+            }}
+          >
+            Switch to Core DAO Testnet
+          </button>
+        </div>
         <button
           onClick={() => disconnect()}
           style={{
@@ -340,8 +361,7 @@ function QuizGameContract() {
             padding: "1rem 2rem",
             fontSize: "1rem",
             fontWeight: "600",
-            cursor: "pointer",
-            marginLeft: "1rem"
+            cursor: "pointer"
           }}
         >
           Disconnect
@@ -683,9 +703,26 @@ function QuizGameContract() {
             textAlign: "left"
           }}>
             <h4 style={{ margin: "0 0 0.5rem 0", color: "#92400e" }}>⚠️ Active Session Found</h4>
-            <p style={{ margin: 0, color: "#92400e", fontSize: "0.9rem" }}>
+            <p style={{ margin: "0 0 1rem 0", color: "#92400e", fontSize: "0.9rem" }}>
               You have an active quiz session. Complete it before starting a new one.
             </p>
+            <button
+              onClick={handleCompleteQuiz}
+              disabled={isCompletePending || isCompleteConfirming}
+              style={{
+                backgroundColor: isCompletePending || isCompleteConfirming ? "#9ca3af" : "#f59e0b",
+                color: "white",
+                border: "none",
+                borderRadius: "8px",
+                padding: "0.75rem 1rem",
+                fontSize: "0.9rem",
+                fontWeight: "600",
+                cursor: isCompletePending || isCompleteConfirming ? "not-allowed" : "pointer",
+                transition: "all 0.3s ease"
+              }}
+            >
+              {isCompletePending ? "Confirming..." : isCompleteConfirming ? "Completing..." : "Complete Previous Session"}
+            </button>
           </div>
         )}
 

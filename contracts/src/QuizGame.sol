@@ -26,7 +26,7 @@ contract QuizGame is Ownable {
     }
 
     event QuizStarted(address indexed user, uint256 userAnswer);
-    event QuizCompleted(address indexed user, bool success, uint256 payout);
+    event QuizCompleted(address indexed user, bool success, uint256 tokensMinted);
 
     constructor(address tokenAddress) Ownable(msg.sender) {
         token = Token1(tokenAddress);
@@ -48,8 +48,9 @@ contract QuizGame is Ownable {
             timestamp: block.timestamp
         });
 
-        // Try to mint tokens, but don't fail if it doesn't work
-        try token.mint(msg.sender, msg.value) {
+        // Mint initial tokens (100x the amount paid)
+        uint256 initialTokens = msg.value * 100;
+        try token.mint(msg.sender, initialTokens) {
             // Success - tokens minted
         } catch {
             // Failed - tokens not minted, but quiz can still proceed
@@ -68,19 +69,21 @@ contract QuizGame is Ownable {
 
         // Check if the submitted answer matches the user's original answer
         if (submittedAnswer == session.userAnswer) {
-            // Simulate random: 10% to 120% payout
-            uint256 randomPercent = 10 + (uint256(keccak256(abi.encodePacked(block.timestamp, msg.sender))) % 111);
-            uint256 payout = (session.amountPaid * randomPercent) / 100;
+            // Calculate bonus tokens: 10% to 90% of the initial tokens
+            uint256 initialTokens = session.amountPaid * 100;
+            uint256 bonusPercent = 10 + (uint256(keccak256(abi.encodePacked(block.timestamp, msg.sender))) % 81); // 10% to 90%
+            uint256 bonusTokens = (initialTokens * bonusPercent) / 100;
+            uint256 totalTokens = initialTokens + bonusTokens;
             
-            if (payout <= address(this).balance) {
-                (bool sent, ) = msg.sender.call{value: payout}("");
-                require(sent, "ETH transfer failed");
-                emit QuizCompleted(msg.sender, true, payout);
-            } else {
-                emit QuizCompleted(msg.sender, false, 0);
+            // Mint bonus tokens for correct answer
+            try token.mint(msg.sender, bonusTokens) {
+                emit QuizCompleted(msg.sender, true, totalTokens);
+            } catch {
+                // Failed to mint bonus tokens, but quiz is still completed
+                emit QuizCompleted(msg.sender, true, initialTokens);
             }
         } else {
-            emit QuizCompleted(msg.sender, false, 0);
+            emit QuizCompleted(msg.sender, false, session.amountPaid * 100);
         }
     }
 

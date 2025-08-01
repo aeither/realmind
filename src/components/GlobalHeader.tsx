@@ -2,6 +2,7 @@ import { Link } from '@tanstack/react-router';
 import { ConnectButton } from '@rainbow-me/rainbowkit';
 import { useAccount, useBalance } from 'wagmi';
 import { formatEther } from 'viem';
+import { getContractAddresses } from '../libs/constants';
 
 interface GlobalHeaderProps {
   showBackButton?: boolean;
@@ -14,9 +15,16 @@ function GlobalHeader({
   backTo = "/", 
   backText = "← Back" 
 }: GlobalHeaderProps) {
-  const { address } = useAccount();
-  const { data: balance } = useBalance({
+  const { address, chain } = useAccount();
+  
+  // Get contract addresses based on current chain
+  const contractAddresses = chain ? getContractAddresses(chain.id) : getContractAddresses(133717); // Default to Hyperion
+
+  // Get Token1 balance
+  const { data: tokenBalance } = useBalance({
     address,
+    token: contractAddresses.token1ContractAddress as `0x${string}`,
+    chainId: chain?.id,
   });
 
   return (
@@ -135,10 +143,10 @@ function GlobalHeader({
         </Link>
       </nav>
 
-      {/* Right side - Balance and Connect Button */}
+      {/* Right side - Token Balance and Connect Button */}
       <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
-        {/* Balance Display */}
-        {address && balance && (
+        {/* Token Balance Display */}
+        {address && tokenBalance && (
           <div style={{
             background: "rgba(102, 126, 234, 0.1)",
             borderRadius: "8px",
@@ -153,8 +161,8 @@ function GlobalHeader({
               alignItems: "center",
               gap: "0.5rem"
             }}>
-              <span>💰</span>
-              <span>{parseFloat(formatEther(balance.value)).toFixed(4)} {balance.symbol}</span>
+              <span>🪙</span>
+              <span>{parseFloat(tokenBalance.formatted).toFixed(2)} {tokenBalance.symbol}</span>
             </div>
           </div>
         )}

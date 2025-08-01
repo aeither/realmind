@@ -7,12 +7,13 @@ import {
   useReadContract, 
   useWriteContract,
   useWaitForTransactionReceipt,
-  useSwitchChain
+  useSwitchChain,
+  useBalance
 } from 'wagmi'
 import { formatEther, parseEther } from 'viem'
 import { quizGameABI } from '../libs/quizGameABI'
 import { getContractAddresses } from '../libs/constants'
-import { hyperionTestnet } from '../wagmi'
+import { hyperionTestnet, coreDaoTestnet } from '../wagmi'
 import Header from '../components/Header'
 
 function ContractDebugPage() {
@@ -27,6 +28,12 @@ function ContractDebugPage() {
 
   // Get contract addresses based on current chain
   const contractAddresses = chain ? getContractAddresses(chain.id) : getContractAddresses(hyperionTestnet.id);
+
+  // Get user balance
+  const { data: balance } = useBalance({
+    address,
+    chainId: chain?.id || hyperionTestnet.id,
+  });
 
   // Read contract data
   const { data: owner, refetch: refetchOwner } = useReadContract({
@@ -97,7 +104,9 @@ function ContractDebugPage() {
   const { isLoading: isMintTokenConfirming, isSuccess: isMintTokenConfirmed } = 
     useWaitForTransactionReceipt({ hash: mintTokenHash });
 
-  const isCorrectChain = chain?.id === hyperionTestnet.id;
+  // Check if current chain is supported
+  const supportedChainIds = [133717, 11155111, 8453, 12345, 1114]; // From CONTRACT_ADDRESSES
+  const isCorrectChain = chain ? supportedChainIds.includes(chain.id) : false;
 
   const handleStartQuiz = () => {
     if (!isConnected) return;
@@ -156,6 +165,25 @@ function ContractDebugPage() {
     refetchToken();
     refetchSession();
   };
+
+  // Calculate token rewards
+  const calculateTokenRewards = () => {
+    const initialTokens = selectedAmount * 100; // 100x multiplier
+    const minBonus = initialTokens * 0.1; // 10% bonus
+    const maxBonus = initialTokens * 0.9; // 90% bonus
+    const minTotal = initialTokens + minBonus;
+    const maxTotal = initialTokens + maxBonus;
+    
+    return {
+      initialTokens,
+      minBonus,
+      maxBonus,
+      minTotal,
+      maxTotal
+    };
+  };
+
+  const rewards = calculateTokenRewards();
 
   if (!isConnected) {
     return (
@@ -255,24 +283,42 @@ function ContractDebugPage() {
             ⚠️ Wrong Network
           </h2>
           <p style={{ fontSize: "1.2rem", marginBottom: "2rem", color: "#6b7280" }}>
-            Please switch to Hyperion Testnet to debug the contract.
+            Please switch to one of the supported networks to debug the contract.
           </p>
-          <button
-            onClick={() => switchChain({ chainId: hyperionTestnet.id })}
-            style={{
-              backgroundColor: "#667eea",
-              color: "white",
-              border: "none",
-              borderRadius: "12px",
-              padding: "1rem 2rem",
-              fontSize: "1.1rem",
-              fontWeight: "600",
-              cursor: "pointer",
-              boxShadow: "0 4px 6px rgba(102, 126, 234, 0.3)"
-            }}
-          >
-            Switch to Hyperion Testnet
-          </button>
+          <div style={{ display: "flex", gap: "1rem", justifyContent: "center", flexWrap: "wrap", marginBottom: "2rem" }}>
+            <button
+              onClick={() => switchChain({ chainId: hyperionTestnet.id })}
+              style={{
+                backgroundColor: "#667eea",
+                color: "white",
+                border: "none",
+                borderRadius: "12px",
+                padding: "1rem 2rem",
+                fontSize: "1rem",
+                fontWeight: "600",
+                cursor: "pointer",
+                boxShadow: "0 4px 6px rgba(102, 126, 234, 0.3)"
+              }}
+            >
+              Switch to Hyperion Testnet
+            </button>
+            <button
+              onClick={() => switchChain({ chainId: coreDaoTestnet.id })}
+              style={{
+                backgroundColor: "#22c55e",
+                color: "white",
+                border: "none",
+                borderRadius: "12px",
+                padding: "1rem 2rem",
+                fontSize: "1rem",
+                fontWeight: "600",
+                cursor: "pointer",
+                boxShadow: "0 4px 6px rgba(34, 197, 94, 0.3)"
+              }}
+            >
+              Switch to Core DAO Testnet
+            </button>
+          </div>
         </div>
       </div>
     );
@@ -362,6 +408,20 @@ function ContractDebugPage() {
           </div>
 
           <div style={{ marginBottom: "1rem" }}>
+            <strong>Wallet Balance:</strong>
+            <p style={{ 
+              fontFamily: "monospace", 
+              fontSize: "0.9rem", 
+              color: "#6b7280",
+              backgroundColor: "#f3f4f6",
+              padding: "0.5rem",
+              borderRadius: "6px"
+            }}>
+              {balance ? formatEther(balance.value) : "Loading..."} {chain?.nativeCurrency?.symbol || "ETH"}
+            </p>
+          </div>
+
+          <div style={{ marginBottom: "1rem" }}>
             <strong>Owner:</strong>
             <p style={{ 
               fontFamily: "monospace", 
@@ -406,6 +466,77 @@ function ContractDebugPage() {
           </button>
         </div>
 
+        {/* Token Rewards Calculator */}
+        <div style={{
+          background: "rgba(255, 255, 255, 0.95)",
+          borderRadius: "16px",
+          padding: "2rem",
+          boxShadow: "0 20px 40px rgba(0,0,0,0.2)"
+        }}>
+          <h3 style={{ fontSize: "1.5rem", marginBottom: "1.5rem", color: "#1f2937" }}>
+            🪙 Token Rewards Calculator
+          </h3>
+
+          <div style={{ marginBottom: "1rem" }}>
+            <label style={{ display: "block", marginBottom: "0.5rem", fontWeight: "600" }}>
+              Entry Amount (ETH):
+            </label>
+            <input
+              type="number"
+              step="0.001"
+              value={selectedAmount}
+              onChange={(e) => setSelectedAmount(parseFloat(e.target.value) || 0)}
+              style={{
+                width: "100%",
+                padding: "0.5rem",
+                borderRadius: "6px",
+                border: "1px solid #d1d5db",
+                fontSize: "1rem"
+              }}
+            />
+          </div>
+
+          <div style={{ 
+            background: "#f0f9ff", 
+            border: "2px solid #0ea5e9", 
+            borderRadius: "12px", 
+            padding: "1rem",
+            marginBottom: "1rem"
+          }}>
+            <h4 style={{ margin: "0 0 0.5rem 0", color: "#0c4a6e", fontSize: "1.1rem" }}>
+              💰 Reward Breakdown
+            </h4>
+            <div style={{ fontSize: "0.9rem", color: "#0c4a6e" }}>
+              <p style={{ margin: "0.25rem 0" }}>
+                <strong>Initial Tokens:</strong> {rewards.initialTokens.toFixed(2)} TK1 (100x entry)
+              </p>
+              <p style={{ margin: "0.25rem 0" }}>
+                <strong>Bonus Range:</strong> {rewards.minBonus.toFixed(2)} - {rewards.maxBonus.toFixed(2)} TK1 (10-90%)
+              </p>
+              <p style={{ margin: "0.25rem 0" }}>
+                <strong>Total Range:</strong> {rewards.minTotal.toFixed(2)} - {rewards.maxTotal.toFixed(2)} TK1
+              </p>
+            </div>
+          </div>
+
+          <div style={{ 
+            background: "#fef3c7", 
+            border: "2px solid #f59e0b", 
+            borderRadius: "12px", 
+            padding: "1rem"
+          }}>
+            <h4 style={{ margin: "0 0 0.5rem 0", color: "#92400e", fontSize: "1.1rem" }}>
+              🎯 How It Works
+            </h4>
+            <ul style={{ margin: 0, paddingLeft: "1rem", fontSize: "0.9rem", color: "#92400e" }}>
+              <li>Pay ETH to start quiz</li>
+              <li>Get 100x tokens immediately</li>
+              <li>Answer correctly for 10-90% bonus</li>
+              <li>Keep tokens even if wrong!</li>
+            </ul>
+          </div>
+        </div>
+
         {/* Quiz Functions */}
         <div style={{
           background: "rgba(255, 255, 255, 0.95)",
@@ -419,7 +550,7 @@ function ContractDebugPage() {
 
           <div style={{ marginBottom: "1rem" }}>
             <label style={{ display: "block", marginBottom: "0.5rem", fontWeight: "600" }}>
-              Amount (tMETIS):
+              Amount (ETH):
             </label>
             <input
               type="number"
@@ -577,7 +708,10 @@ function ContractDebugPage() {
                 <strong>User Answer:</strong> {userSession.userAnswer.toString()}
               </div>
               <div style={{ marginBottom: "1rem" }}>
-                <strong>Amount Paid:</strong> {formatEther(userSession.amountPaid)} tMETIS
+                <strong>Amount Paid:</strong> {formatEther(userSession.amountPaid)} ETH
+              </div>
+              <div style={{ marginBottom: "1rem" }}>
+                <strong>Initial Tokens:</strong> {formatEther(userSession.amountPaid * BigInt(100))} TK1
               </div>
               <div style={{ marginBottom: "1rem" }}>
                 <strong>Timestamp:</strong> {new Date(Number(userSession.timestamp) * 1000).toLocaleString()}
@@ -654,8 +788,8 @@ function ContractDebugPage() {
             ✅ Transaction Successful
           </p>
           <p style={{ margin: 0, color: "#065f46", fontSize: "0.9rem" }}>
-            {isStartConfirmed ? "Quiz started successfully!" :
-             isCompleteConfirmed ? "Quiz completed successfully!" :
+            {isStartConfirmed ? "Quiz started successfully! Tokens minted!" :
+             isCompleteConfirmed ? "Quiz completed successfully! Bonus tokens minted!" :
              isWithdrawConfirmed ? "Funds withdrawn successfully!" :
              isMintTokenConfirmed ? "Tokens minted successfully!" : ""}
           </p>
