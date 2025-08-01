@@ -15,6 +15,11 @@ const CONTRACT_ADDRESSES = {
     token1ContractAddress: "0x0000000000000000000000000000000000000000", // Placeholder
     quizGameContractAddress: "0x0000000000000000000000000000000000000000"  // Placeholder
   },
+  // Base Sepolia
+  84532: {
+    token1ContractAddress: "0x7e9532d025b0d0c06e5913170d5271851b37cf39", // Placeholder
+    quizGameContractAddress: "0xc0ee7f9763f414d82c1b59441a6338999eafa80e"  // Placeholder
+  },
   // EduChain
   12345: {
     token1ContractAddress: "0x0000000000000000000000000000000000000000", // Placeholder

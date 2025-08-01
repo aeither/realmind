@@ -235,7 +235,7 @@ const quizGameABI = [
                 "internalType": "bool"
             },
             {
-                "name": "payout",
+                "name": "tokensMinted",
                 "type": "uint256",
                 "indexed": false,
                 "internalType": "uint256"
