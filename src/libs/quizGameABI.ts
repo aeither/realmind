@@ -3,11 +3,6 @@ const quizGameABI = [
         "type": "constructor",
         "inputs": [
             {
-                "name": "_playAmount",
-                "type": "uint256",
-                "internalType": "uint256"
-            },
-            {
                 "name": "tokenAddress",
                 "type": "address",
                 "internalType": "address"
@@ -18,19 +13,6 @@ const quizGameABI = [
     {
         "type": "receive",
         "stateMutability": "payable"
-    },
-    {
-        "type": "function",
-        "name": "admin",
-        "inputs": [],
-        "outputs": [
-            {
-                "name": "",
-                "type": "address",
-                "internalType": "address payable"
-            }
-        ],
-        "stateMutability": "view"
     },
     {
         "type": "function",
@@ -88,6 +70,24 @@ const quizGameABI = [
     },
     {
         "type": "function",
+        "name": "mintToken",
+        "inputs": [
+            {
+                "name": "to",
+                "type": "address",
+                "internalType": "address"
+            },
+            {
+                "name": "amount",
+                "type": "uint256",
+                "internalType": "uint256"
+            }
+        ],
+        "outputs": [],
+        "stateMutability": "nonpayable"
+    },
+    {
+        "type": "function",
         "name": "owner",
         "inputs": [],
         "outputs": [
@@ -101,34 +101,8 @@ const quizGameABI = [
     },
     {
         "type": "function",
-        "name": "playAmount",
-        "inputs": [],
-        "outputs": [
-            {
-                "name": "",
-                "type": "uint256",
-                "internalType": "uint256"
-            }
-        ],
-        "stateMutability": "view"
-    },
-    {
-        "type": "function",
         "name": "renounceOwnership",
         "inputs": [],
-        "outputs": [],
-        "stateMutability": "nonpayable"
-    },
-    {
-        "type": "function",
-        "name": "setPlayAmount",
-        "inputs": [
-            {
-                "name": "_amount",
-                "type": "uint256",
-                "internalType": "uint256"
-            }
-        ],
         "outputs": [],
         "stateMutability": "nonpayable"
     },

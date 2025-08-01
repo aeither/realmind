@@ -75,18 +75,11 @@ function QuizGameContract() {
   const [score, setScore] = useState(0);
   const [originalAnswer, setOriginalAnswer] = useState<number | null>(null);
   const [selectedAmount, setSelectedAmount] = useState<number>(1);
+  const [customAmount, setCustomAmount] = useState<string>('');
 
   // Get user balance
   const { data: balance } = useBalance({
     address,
-    chainId: hyperionTestnet.id,
-  });
-
-  // Read contract data
-  const { data: playAmount } = useReadContract({
-    abi: quizGameABI,
-    address: quizGameContractAddress as `0x${string}`,
-    functionName: 'playAmount',
     chainId: hyperionTestnet.id,
   });
 
@@ -145,6 +138,15 @@ function QuizGameContract() {
   const isLastQuestion = currentQuestionIndex === ONCHAIN_QUESTIONS.length - 1;
   const isCorrectChain = chain?.id === hyperionTestnet.id;
 
+  // Get the actual amount to use (either selected quick amount or custom amount)
+  const getActualAmount = () => {
+    if (customAmount && customAmount !== '') {
+      const parsed = parseFloat(customAmount);
+      return isNaN(parsed) || parsed <= 0 ? selectedAmount : parsed;
+    }
+    return selectedAmount;
+  };
+
   const handleStartQuiz = async () => {
     if (!isConnected) return;
     
@@ -152,7 +154,7 @@ function QuizGameContract() {
     const finalAnswer = Math.floor(Math.random() * 100) + 1; // Random number for demo
     setOriginalAnswer(finalAnswer);
     
-    const amountToPay = parseEther(selectedAmount.toString());
+    const amountToPay = parseEther(getActualAmount().toString());
     
     resetStart();
     startQuiz({
@@ -208,8 +210,19 @@ function QuizGameContract() {
     setUserAnswers([]);
     setScore(0);
     setOriginalAnswer(null);
+    setCustomAmount('');
     resetStart();
     resetComplete();
+  };
+
+  const handleQuickAmountSelect = (amount: number) => {
+    setSelectedAmount(amount);
+    setCustomAmount(''); // Clear custom amount when selecting quick amount
+  };
+
+  const handleCustomAmountChange = (value: string) => {
+    setCustomAmount(value);
+    // Don't clear selected amount, just let custom amount take precedence
   };
 
   if (!isConnected) {
@@ -220,10 +233,6 @@ function QuizGameContract() {
         margin: "0 auto",
         textAlign: "center"
       }}>
-        <h1 style={{ fontSize: "2.5rem", marginBottom: "2rem", color: "#667eea" }}>
-          🎮 Onchain Quiz Game
-        </h1>
-        
         <div style={{
           background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
           borderRadius: "16px",
@@ -376,7 +385,6 @@ function QuizGameContract() {
         margin: "0 auto"
       }}>
 
-
         {/* Progress Bar */}
         <div style={{
           width: "100%",
@@ -482,7 +490,7 @@ function QuizGameContract() {
           {selectedAnswer !== null && (
             <button
               onClick={handleNextQuestion}
-              disabled={gameState === 'submitting' || isCompletePending || isCompleteConfirming}
+              disabled={isCompletePending || isCompleteConfirming}
               style={{
                 backgroundColor: "#667eea",
                 color: "white",
@@ -497,7 +505,7 @@ function QuizGameContract() {
               }}
             >
               {isLastQuestion ? (
-                gameState === 'submitting' || isCompletePending 
+                isCompletePending 
                   ? 'Submitting...' 
                   : isCompleteConfirming 
                     ? 'Confirming...' 
@@ -549,10 +557,6 @@ function QuizGameContract() {
       margin: "0 auto",
       textAlign: "center"
     }}>
-      <h1 style={{ fontSize: "2.5rem", marginBottom: "2rem", color: "#667eea" }}>
-        🎮 Onchain Quiz Game
-      </h1>
-
       <div style={{
         background: "white",
         borderRadius: "16px",
@@ -560,23 +564,6 @@ function QuizGameContract() {
         boxShadow: "0 8px 16px rgba(0,0,0,0.1)",
         marginBottom: "2rem"
       }}>
-        <div style={{ marginBottom: "2rem" }}>
-          <h3 style={{ fontSize: "1.5rem", marginBottom: "1rem" }}>Connected Wallet</h3>
-          <p style={{ 
-            fontFamily: "monospace", 
-            fontSize: "1rem", 
-            color: "#6b7280",
-            backgroundColor: "#f3f4f6",
-            padding: "0.5rem",
-            borderRadius: "6px"
-          }}>
-            {address}
-          </p>
-          <p style={{ fontSize: "0.9rem", color: "#6b7280", marginTop: "0.5rem" }}>
-            Network: {chain?.name}
-          </p>
-        </div>
-
         <div style={{ marginBottom: "2rem", textAlign: "left" }}>
           <h4 style={{ fontSize: "1.3rem", marginBottom: "1rem", color: "#1f2937" }}>Game Rules:</h4>
           <ul style={{ fontSize: "1rem", lineHeight: "1.8", color: "#374151" }}>
@@ -598,28 +585,28 @@ function QuizGameContract() {
             gap: "1rem",
             marginBottom: "1rem"
           }}>
-            {[0.01, 0.1, 1, 5, 10, 25, 50, 100].map((amount) => (
+            {[1, 5, 25].map((amount) => (
               <button
                 key={amount}
-                onClick={() => setSelectedAmount(amount)}
+                onClick={() => handleQuickAmountSelect(amount)}
                 style={{
                   padding: "1rem",
                   borderRadius: "12px",
-                  border: selectedAmount === amount ? "3px solid #667eea" : "2px solid #e5e7eb",
-                  backgroundColor: selectedAmount === amount ? "#f0f8ff" : "white",
-                  color: selectedAmount === amount ? "#667eea" : "#374151",
-                  fontWeight: selectedAmount === amount ? "bold" : "normal",
+                  border: selectedAmount === amount && customAmount === '' ? "3px solid #667eea" : "2px solid #e5e7eb",
+                  backgroundColor: selectedAmount === amount && customAmount === '' ? "#f0f8ff" : "white",
+                  color: selectedAmount === amount && customAmount === '' ? "#667eea" : "#374151",
+                  fontWeight: selectedAmount === amount && customAmount === '' ? "bold" : "normal",
                   cursor: "pointer",
                   transition: "all 0.3s ease",
                   fontSize: "1rem"
                 }}
                 onMouseEnter={(e) => {
-                  if (selectedAmount !== amount) {
+                  if (selectedAmount !== amount || customAmount !== '') {
                     e.currentTarget.style.backgroundColor = "#f9fafb";
                   }
                 }}
                 onMouseLeave={(e) => {
-                  if (selectedAmount !== amount) {
+                  if (selectedAmount !== amount || customAmount !== '') {
                     e.currentTarget.style.backgroundColor = "white";
                   }
                 }}
@@ -628,16 +615,46 @@ function QuizGameContract() {
               </button>
             ))}
           </div>
+          
+          {/* Custom Amount Input */}
+          <div style={{ marginBottom: "1rem" }}>
+            <label style={{ 
+              display: "block", 
+              marginBottom: "0.5rem", 
+              fontWeight: "600",
+              color: "#374151",
+              textAlign: "left"
+            }}>
+              Custom Amount:
+            </label>
+            <input
+              type="number"
+              step="0.001"
+              min="0.001"
+              placeholder="Enter custom amount"
+              value={customAmount}
+              onChange={(e) => handleCustomAmountChange(e.target.value)}
+              style={{
+                width: "100%",
+                padding: "0.75rem",
+                borderRadius: "8px",
+                border: customAmount !== '' ? "3px solid #667eea" : "2px solid #e5e7eb",
+                fontSize: "1rem",
+                backgroundColor: customAmount !== '' ? "#f0f8ff" : "white"
+              }}
+            />
+          </div>
+          
           <p style={{
             fontSize: "0.9rem",
             color: "#6b7280",
             textAlign: "center"
           }}>
-            Selected: {selectedAmount} tMETIS
+            Selected: {getActualAmount()} tMETIS
           </p>
           
           {/* Balance Warning */}
-          {balance && parseFloat(formatEther(balance.value)) < selectedAmount && (
+          {balance && parseFloat(formatEther(balance.value)) < getActualAmount() && (
             <div style={{
               background: "#fef3c7",
               border: "1px solid #f59e0b",
@@ -647,13 +664,13 @@ function QuizGameContract() {
               textAlign: "center"
             }}>
               <p style={{ margin: 0, color: "#92400e", fontSize: "0.9rem" }}>
-                ⚠️ Insufficient balance. You need {selectedAmount} tMETIS but have {parseFloat(formatEther(balance.value)).toFixed(4)} tMETIS
+                ⚠️ Insufficient balance. You need {getActualAmount()} tMETIS but have {parseFloat(formatEther(balance.value)).toFixed(4)} tMETIS
               </p>
             </div>
           )}
         </div>
 
-        {userSession && userSession[0] && (
+        {userSession && userSession.active && (
           <div style={{
             background: "#fef3c7",
             border: "1px solid #f59e0b",
@@ -673,50 +690,33 @@ function QuizGameContract() {
           onClick={handleStartQuiz}
           disabled={
             !balance || 
-            parseFloat(formatEther(balance.value)) < selectedAmount ||
+            parseFloat(formatEther(balance.value)) < getActualAmount() ||
             isStartPending || 
             isStartConfirming || 
-            (userSession && userSession[0]) // Disable if active session
+            (userSession && userSession.active) // Disable if active session
           }
           style={{
-            backgroundColor: (userSession && userSession[0]) || (balance && parseFloat(formatEther(balance.value)) < selectedAmount) ? "#9ca3af" : "#667eea",
+            backgroundColor: (userSession && userSession.active) || (balance && parseFloat(formatEther(balance.value)) < getActualAmount()) ? "#9ca3af" : "#667eea",
             color: "white",
             border: "none",
             borderRadius: "12px",
             padding: "1rem 2rem",
             fontSize: "1.2rem",
             fontWeight: "600",
-            cursor: (userSession && userSession[0]) || (balance && parseFloat(formatEther(balance.value)) < selectedAmount) ? "not-allowed" : "pointer",
-            boxShadow: (userSession && userSession[0]) || (balance && parseFloat(formatEther(balance.value)) < selectedAmount) ? "none" : "0 4px 6px rgba(102, 126, 234, 0.3)",
+            cursor: (userSession && userSession.active) || (balance && parseFloat(formatEther(balance.value)) < getActualAmount()) ? "not-allowed" : "pointer",
+            boxShadow: (userSession && userSession.active) || (balance && parseFloat(formatEther(balance.value)) < getActualAmount()) ? "none" : "0 4px 6px rgba(102, 126, 234, 0.3)",
             transition: "all 0.3s ease",
             marginBottom: "1rem",
-            opacity: (userSession && userSession[0]) || (balance && parseFloat(formatEther(balance.value)) < selectedAmount) ? 0.6 : 1
+            opacity: (userSession && userSession.active) || (balance && parseFloat(formatEther(balance.value)) < getActualAmount()) ? 0.6 : 1
           }}
         >
           {isStartPending 
             ? 'Confirming...' 
             : isStartConfirming 
               ? 'Starting Game...' 
-              : `Play Quiz (${selectedAmount} tMETIS)`
+              : `Play Quiz (${getActualAmount()} tMETIS)`
           }
         </button>
-
-        <div style={{ display: "flex", gap: "1rem", justifyContent: "center" }}>
-          <button
-            onClick={() => disconnect()}
-            style={{
-              backgroundColor: "#6b7280",
-              color: "white",
-              border: "none",
-              borderRadius: "8px",
-              padding: "0.5rem 1rem",
-              fontSize: "0.9rem",
-              cursor: "pointer"
-            }}
-          >
-            Disconnect
-          </button>
-        </div>
       </div>
 
       {/* Transaction Status */}

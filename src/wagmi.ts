@@ -1,5 +1,5 @@
 import { getDefaultConfig } from '@rainbow-me/rainbowkit';
-import { mainnet, polygon, optimism, arbitrum, base, eduChain } from 'wagmi/chains';
+import { mainnet, polygon, optimism, arbitrum, base, eduChain, sepolia } from 'wagmi/chains';
 
 // Hyperion Testnet configuration
 export const hyperionTestnet = {
@@ -25,6 +25,7 @@ const config = getDefaultConfig({
   appName: 'RealMind',
   projectId: import.meta.env.VITE_WALLETCONNECT_PROJECT_ID || 'YOUR_WALLETCONNECT_PROJECT_ID',
   chains: [
+    sepolia,
     base,
     eduChain,
     hyperionTestnet,

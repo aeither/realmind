@@ -7,7 +7,6 @@ interface Quiz {
   title: string;
   description: string;
   icon: string;
-  difficulty: string;
   questions: number;
   estimatedTime: string;
   category: string;
@@ -19,9 +18,8 @@ const AVAILABLE_QUIZZES: Quiz[] = [
     title: "Web3 Fundamentals",
     description: "Test your knowledge of blockchain, cryptocurrencies, and decentralized applications",
     icon: "🔗",
-    difficulty: "Beginner",
-    questions: 10,
-    estimatedTime: "5-8 min",
+    questions: 5,
+    estimatedTime: "3-5 min",
     category: "Web3"
   },
   {
@@ -29,9 +27,8 @@ const AVAILABLE_QUIZZES: Quiz[] = [
     title: "Crypto Trading",
     description: "Learn about trading strategies, market analysis, and risk management",
     icon: "📈",
-    difficulty: "Intermediate",
-    questions: 12,
-    estimatedTime: "8-12 min",
+    questions: 5,
+    estimatedTime: "3-5 min",
     category: "Finance"
   },
   {
@@ -39,9 +36,8 @@ const AVAILABLE_QUIZZES: Quiz[] = [
     title: "DeFi Protocols",
     description: "Explore decentralized finance protocols, yield farming, and liquidity pools",
     icon: "🏦",
-    difficulty: "Advanced",
-    questions: 15,
-    estimatedTime: "10-15 min",
+    questions: 5,
+    estimatedTime: "3-5 min",
     category: "DeFi"
   }
 ];
@@ -215,16 +211,6 @@ function QuizCard({ quiz, isSelected, onSelect }: {
           }}>
             {quiz.title}
           </h3>
-          <span style={{
-            backgroundColor: isSelected ? "#22c55e" : "rgba(255,255,255,0.2)",
-            color: isSelected ? "white" : "white",
-            padding: "0.25rem 0.75rem",
-            borderRadius: "20px",
-            fontSize: "0.8rem",
-            fontWeight: "600"
-          }}>
-            {quiz.difficulty}
-          </span>
         </div>
       </div>
       
