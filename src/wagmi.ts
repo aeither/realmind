@@ -21,6 +21,26 @@ export const hyperionTestnet = {
   },
 } as const;
 
+// Core DAO Testnet configuration
+export const coreDaoTestnet = {
+  id: 1114,
+  name: 'Core Blockchain TestNet',
+  network: 'core-dao-testnet',
+  nativeCurrency: {
+    decimals: 18,
+    name: 'tCORE2',
+    symbol: 'tCORE2',
+  },
+  rpcUrls: {
+    public: { http: ['https://rpc.test2.btcs.network'] },
+    default: { http: ['https://rpc.test2.btcs.network'] },
+  },
+  blockExplorers: {
+    etherscan: { name: 'Core DAO Explorer', url: 'https://scan.test2.btcs.network' },
+    default: { name: 'Core DAO Explorer', url: 'https://scan.test2.btcs.network' },
+  },
+} as const;
+
 const config = getDefaultConfig({
   appName: 'RealMind',
   projectId: import.meta.env.VITE_WALLETCONNECT_PROJECT_ID || 'YOUR_WALLETCONNECT_PROJECT_ID',
@@ -29,6 +49,7 @@ const config = getDefaultConfig({
     base,
     eduChain,
     hyperionTestnet,
+    coreDaoTestnet,
   ],
   ssr: true,
 });

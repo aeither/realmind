@@ -12,7 +12,7 @@ import {
 import { formatEther, parseEther } from 'viem';
 import { base } from 'wagmi/chains';
 import { quizGameABI } from '../libs/quizGameABI';
-import { quizGameContractAddress } from '../libs/constants';
+import { getContractAddresses } from '../libs/constants';
 import { hyperionTestnet } from '../wagmi';
 import GamifiedEndScreen from './GamifiedEndScreen';
 
@@ -77,18 +77,21 @@ function QuizGameContract() {
   const [selectedAmount, setSelectedAmount] = useState<number>(1);
   const [customAmount, setCustomAmount] = useState<string>('');
 
+  // Get contract addresses based on current chain
+  const contractAddresses = chain ? getContractAddresses(chain.id) : getContractAddresses(hyperionTestnet.id);
+
   // Get user balance
   const { data: balance } = useBalance({
     address,
-    chainId: hyperionTestnet.id,
+    chainId: chain?.id || hyperionTestnet.id,
   });
 
   const { data: userSession, refetch: refetchSession } = useReadContract({
     abi: quizGameABI,
-    address: quizGameContractAddress as `0x${string}`,
+    address: contractAddresses.quizGameContractAddress as `0x${string}`,
     functionName: 'getQuizSession',
     args: address ? [address] : undefined,
-    chainId: hyperionTestnet.id,
+    chainId: chain?.id || hyperionTestnet.id,
   });
 
   // Write contract hooks
@@ -159,11 +162,11 @@ function QuizGameContract() {
     resetStart();
     startQuiz({
       abi: quizGameABI,
-      address: quizGameContractAddress as `0x${string}`,
+      address: contractAddresses.quizGameContractAddress as `0x${string}`,
       functionName: 'startQuiz',
       args: [BigInt(finalAnswer)],
       value: amountToPay,
-      chainId: hyperionTestnet.id,
+      chainId: chain?.id || hyperionTestnet.id,
     });
   };
 
@@ -196,10 +199,10 @@ function QuizGameContract() {
     
     completeQuiz({
       abi: quizGameABI,
-      address: quizGameContractAddress as `0x${string}`,
+      address: contractAddresses.quizGameContractAddress as `0x${string}`,
       functionName: 'completeQuiz',
       args: [BigInt(originalAnswer)],
-      chainId: hyperionTestnet.id,
+      chainId: chain?.id || hyperionTestnet.id,
     });
   };
 

@@ -11,7 +11,7 @@ import {
 } from 'wagmi'
 import { formatEther, parseEther } from 'viem'
 import { quizGameABI } from '../libs/quizGameABI'
-import { quizGameContractAddress } from '../libs/constants'
+import { getContractAddresses } from '../libs/constants'
 import { hyperionTestnet } from '../wagmi'
 import Header from '../components/Header'
 
@@ -21,39 +21,34 @@ function ContractDebugPage() {
   const { disconnect } = useDisconnect();
   const { switchChain } = useSwitchChain();
   
-  const [selectedAmount, setSelectedAmount] = useState<number>(1);
+  const [selectedAmount, setSelectedAmount] = useState<number>(0.001);
   const [userAnswer, setUserAnswer] = useState<number>(42);
   const [submittedAnswer, setSubmittedAnswer] = useState<number>(42);
-  const [playAmount, setPlayAmount] = useState<string>('0.001');
+
+  // Get contract addresses based on current chain
+  const contractAddresses = chain ? getContractAddresses(chain.id) : getContractAddresses(hyperionTestnet.id);
 
   // Read contract data
-  const { data: contractPlayAmount, refetch: refetchPlayAmount } = useReadContract({
-    abi: quizGameABI,
-    address: quizGameContractAddress as `0x${string}`,
-    functionName: 'playAmount',
-    chainId: hyperionTestnet.id,
-  });
-
   const { data: owner, refetch: refetchOwner } = useReadContract({
     abi: quizGameABI,
-    address: quizGameContractAddress as `0x${string}`,
+    address: contractAddresses.quizGameContractAddress as `0x${string}`,
     functionName: 'owner',
-    chainId: hyperionTestnet.id,
+    chainId: chain?.id,
   });
 
   const { data: tokenAddress, refetch: refetchToken } = useReadContract({
     abi: quizGameABI,
-    address: quizGameContractAddress as `0x${string}`,
+    address: contractAddresses.quizGameContractAddress as `0x${string}`,
     functionName: 'token',
-    chainId: hyperionTestnet.id,
+    chainId: chain?.id,
   });
 
   const { data: userSession, refetch: refetchSession } = useReadContract({
     abi: quizGameABI,
-    address: quizGameContractAddress as `0x${string}`,
+    address: contractAddresses.quizGameContractAddress as `0x${string}`,
     functionName: 'getQuizSession',
     args: address ? [address] : undefined,
-    chainId: hyperionTestnet.id,
+    chainId: chain?.id,
   });
 
   // Write contract hooks
@@ -82,11 +77,11 @@ function ContractDebugPage() {
   } = useWriteContract();
 
   const { 
-    data: setPlayAmountHash, 
-    isPending: isSetPlayAmountPending,
-    writeContract: setPlayAmountFunc,
-    error: setPlayAmountError,
-    reset: resetSetPlayAmount
+    data: mintTokenHash, 
+    isPending: isMintTokenPending,
+    writeContract: mintToken,
+    error: mintTokenError,
+    reset: resetMintToken
   } = useWriteContract();
 
   // Wait for transaction confirmations
@@ -99,8 +94,8 @@ function ContractDebugPage() {
   const { isLoading: isWithdrawConfirming, isSuccess: isWithdrawConfirmed } = 
     useWaitForTransactionReceipt({ hash: withdrawHash });
 
-  const { isLoading: isSetPlayAmountConfirming, isSuccess: isSetPlayAmountConfirmed } = 
-    useWaitForTransactionReceipt({ hash: setPlayAmountHash });
+  const { isLoading: isMintTokenConfirming, isSuccess: isMintTokenConfirmed } = 
+    useWaitForTransactionReceipt({ hash: mintTokenHash });
 
   const isCorrectChain = chain?.id === hyperionTestnet.id;
 
@@ -110,11 +105,11 @@ function ContractDebugPage() {
     resetStart();
     startQuiz({
       abi: quizGameABI,
-      address: quizGameContractAddress as `0x${string}`,
+      address: contractAddresses.quizGameContractAddress as `0x${string}`,
       functionName: 'startQuiz',
       args: [BigInt(userAnswer)],
       value: parseEther(selectedAmount.toString()),
-      chainId: hyperionTestnet.id,
+      chainId: chain?.id,
     });
   };
 
@@ -124,10 +119,10 @@ function ContractDebugPage() {
     resetComplete();
     completeQuiz({
       abi: quizGameABI,
-      address: quizGameContractAddress as `0x${string}`,
+      address: contractAddresses.quizGameContractAddress as `0x${string}`,
       functionName: 'completeQuiz',
       args: [BigInt(submittedAnswer)],
-      chainId: hyperionTestnet.id,
+      chainId: chain?.id,
     });
   };
 
@@ -137,27 +132,26 @@ function ContractDebugPage() {
     resetWithdraw();
     withdraw({
       abi: quizGameABI,
-      address: quizGameContractAddress as `0x${string}`,
+      address: contractAddresses.quizGameContractAddress as `0x${string}`,
       functionName: 'withdraw',
-      chainId: hyperionTestnet.id,
+      chainId: chain?.id,
     });
   };
 
-  const handleSetPlayAmount = () => {
-    if (!isConnected) return;
+  const handleMintToken = () => {
+    if (!isConnected || !address) return;
     
-    resetSetPlayAmount();
-    setPlayAmountFunc({
+    resetMintToken();
+    mintToken({
       abi: quizGameABI,
-      address: quizGameContractAddress as `0x${string}`,
-      functionName: 'setPlayAmount',
-      args: [parseEther(playAmount)],
-      chainId: hyperionTestnet.id,
+      address: contractAddresses.quizGameContractAddress as `0x${string}`,
+      functionName: 'mintToken',
+      args: [address, parseEther("100")], // Mint 100 tokens
+      chainId: chain?.id,
     });
   };
 
   const handleRefetchAll = () => {
-    refetchPlayAmount();
     refetchOwner();
     refetchToken();
     refetchSession();
@@ -291,7 +285,6 @@ function ContractDebugPage() {
       padding: "2rem"
     }}>
 
-
       <div style={{
         maxWidth: "1200px",
         margin: "0 auto",
@@ -311,7 +304,21 @@ function ContractDebugPage() {
           </h3>
           
           <div style={{ marginBottom: "1rem" }}>
-            <strong>Contract Address:</strong>
+            <strong>Current Chain:</strong>
+            <p style={{ 
+              fontFamily: "monospace", 
+              fontSize: "0.9rem", 
+              color: "#6b7280",
+              backgroundColor: "#f3f4f6",
+              padding: "0.5rem",
+              borderRadius: "6px"
+            }}>
+              {chain?.name} (ID: {chain?.id})
+            </p>
+          </div>
+
+          <div style={{ marginBottom: "1rem" }}>
+            <strong>QuizGame Contract:</strong>
             <p style={{ 
               fontFamily: "monospace", 
               fontSize: "0.9rem", 
@@ -321,7 +328,22 @@ function ContractDebugPage() {
               borderRadius: "6px",
               wordBreak: "break-all"
             }}>
-              {quizGameContractAddress}
+              {contractAddresses.quizGameContractAddress}
+            </p>
+          </div>
+
+          <div style={{ marginBottom: "1rem" }}>
+            <strong>Token1 Contract:</strong>
+            <p style={{ 
+              fontFamily: "monospace", 
+              fontSize: "0.9rem", 
+              color: "#6b7280",
+              backgroundColor: "#f3f4f6",
+              padding: "0.5rem",
+              borderRadius: "6px",
+              wordBreak: "break-all"
+            }}>
+              {contractAddresses.token1ContractAddress}
             </p>
           </div>
 
@@ -350,20 +372,6 @@ function ContractDebugPage() {
               borderRadius: "6px"
             }}>
               {owner || "Loading..."}
-            </p>
-          </div>
-
-          <div style={{ marginBottom: "1rem" }}>
-            <strong>Current Play Amount:</strong>
-            <p style={{ 
-              fontFamily: "monospace", 
-              fontSize: "0.9rem", 
-              color: "#6b7280",
-              backgroundColor: "#f3f4f6",
-              padding: "0.5rem",
-              borderRadius: "6px"
-            }}>
-              {contractPlayAmount ? formatEther(contractPlayAmount) : "Loading..."} tMETIS
             </p>
           </div>
 
@@ -415,6 +423,7 @@ function ContractDebugPage() {
             </label>
             <input
               type="number"
+              step="0.001"
               value={selectedAmount}
               onChange={(e) => setSelectedAmount(parseFloat(e.target.value) || 0)}
               style={{
@@ -511,41 +520,22 @@ function ContractDebugPage() {
             👑 Admin Functions
           </h3>
 
-          <div style={{ marginBottom: "1rem" }}>
-            <label style={{ display: "block", marginBottom: "0.5rem", fontWeight: "600" }}>
-              New Play Amount (tMETIS):
-            </label>
-            <input
-              type="number"
-              step="0.001"
-              value={playAmount}
-              onChange={(e) => setPlayAmount(e.target.value)}
-              style={{
-                width: "100%",
-                padding: "0.5rem",
-                borderRadius: "6px",
-                border: "1px solid #d1d5db",
-                fontSize: "1rem"
-              }}
-            />
-          </div>
-
           <button
-            onClick={handleSetPlayAmount}
-            disabled={isSetPlayAmountPending || isSetPlayAmountConfirming}
+            onClick={handleMintToken}
+            disabled={isMintTokenPending || isMintTokenConfirming}
             style={{
-              backgroundColor: isSetPlayAmountPending || isSetPlayAmountConfirming ? "#9ca3af" : "#f59e0b",
+              backgroundColor: isMintTokenPending || isMintTokenConfirming ? "#9ca3af" : "#f59e0b",
               color: "white",
               border: "none",
               borderRadius: "8px",
               padding: "0.75rem 1rem",
               fontSize: "1rem",
-              cursor: isSetPlayAmountPending || isSetPlayAmountConfirming ? "not-allowed" : "pointer",
+              cursor: isMintTokenPending || isMintTokenConfirming ? "not-allowed" : "pointer",
               width: "100%",
               marginBottom: "1rem"
             }}
           >
-            {isSetPlayAmountPending ? "Confirming..." : isSetPlayAmountConfirming ? "Setting Amount..." : "💰 Set Play Amount"}
+            {isMintTokenPending ? "Confirming..." : isMintTokenConfirming ? "Minting Tokens..." : "🪙 Mint 100 Tokens"}
           </button>
 
           <button
@@ -601,7 +591,7 @@ function ContractDebugPage() {
 
       {/* Transaction Status */}
       {(isStartPending || isStartConfirming || isCompletePending || isCompleteConfirming || 
-        isWithdrawPending || isWithdrawConfirming || isSetPlayAmountPending || isSetPlayAmountConfirming) && (
+        isWithdrawPending || isWithdrawConfirming || isMintTokenPending || isMintTokenConfirming) && (
         <div style={{
           position: "fixed",
           bottom: "2rem",
@@ -620,13 +610,13 @@ function ContractDebugPage() {
             {isStartPending || isStartConfirming ? "Starting quiz..." :
              isCompletePending || isCompleteConfirming ? "Completing quiz..." :
              isWithdrawPending || isWithdrawConfirming ? "Withdrawing funds..." :
-             isSetPlayAmountPending || isSetPlayAmountConfirming ? "Setting play amount..." : ""}
+             isMintTokenPending || isMintTokenConfirming ? "Minting tokens..." : ""}
           </p>
         </div>
       )}
 
       {/* Error Messages */}
-      {(startError || completeError || withdrawError || setPlayAmountError) && (
+      {(startError || completeError || withdrawError || mintTokenError) && (
         <div style={{
           position: "fixed",
           bottom: "2rem",
@@ -642,13 +632,13 @@ function ContractDebugPage() {
             ❌ Transaction Error
           </p>
           <p style={{ margin: 0, color: "#991b1b", fontSize: "0.9rem" }}>
-            {startError?.message || completeError?.message || withdrawError?.message || setPlayAmountError?.message}
+            {startError?.message || completeError?.message || withdrawError?.message || mintTokenError?.message}
           </p>
         </div>
       )}
 
       {/* Success Messages */}
-      {(isStartConfirmed || isCompleteConfirmed || isWithdrawConfirmed || isSetPlayAmountConfirmed) && (
+      {(isStartConfirmed || isCompleteConfirmed || isWithdrawConfirmed || isMintTokenConfirmed) && (
         <div style={{
           position: "fixed",
           bottom: "2rem",
@@ -667,7 +657,7 @@ function ContractDebugPage() {
             {isStartConfirmed ? "Quiz started successfully!" :
              isCompleteConfirmed ? "Quiz completed successfully!" :
              isWithdrawConfirmed ? "Funds withdrawn successfully!" :
-             isSetPlayAmountConfirmed ? "Play amount updated successfully!" : ""}
+             isMintTokenConfirmed ? "Tokens minted successfully!" : ""}
           </p>
         </div>
       )}

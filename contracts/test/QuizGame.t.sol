@@ -14,7 +14,7 @@ contract QuizGameTest is Test {
     function setUp() public {
         owner = address(this);
         // Deploy Token1 with custom name/symbol
-        token = new Token1("CustomToken", "CTK");
+        token = new Token1();
         
         // Deploy QuizGame
         quizGame = new QuizGame(address(token));
