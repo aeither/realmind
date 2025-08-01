@@ -375,15 +375,7 @@ function QuizGameContract() {
         maxWidth: "700px",
         margin: "0 auto"
       }}>
-        {/* Header */}
-        <div style={{ textAlign: "center", marginBottom: "2rem" }}>
-          <h2 style={{ fontSize: "2rem", marginBottom: "1rem", color: "#667eea" }}>
-            🎮 Onchain Quiz Game
-          </h2>
-          <p style={{ color: "#6b7280", fontSize: "1.1rem" }}>
-            Connected: {address?.substring(0, 6)}...{address?.substring(address.length - 4)}
-          </p>
-        </div>
+
 
         {/* Progress Bar */}
         <div style={{

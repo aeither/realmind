@@ -70,13 +70,7 @@ function HomePage() {
       justifyContent: "center"
     }}>
       {/* Hero Section */}
-      <Header 
-        title="🧠 RealMind"
-        subtitle="Choose your quiz and start earning rewards"
-        showBackButton={true}
-        backTo="/landing"
-        backText="← Back to Landing"
-      />
+      
 
       {/* Quiz Selection Cards */}
       <div style={{

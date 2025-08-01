@@ -290,13 +290,7 @@ function ContractDebugPage() {
       background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
       padding: "2rem"
     }}>
-      <Header 
-        title="🔧 Contract Debug"
-        subtitle="Debug and test smart contract functions"
-        showBackButton={true}
-        backTo="/"
-        backText="← Back to Home"
-      />
+
 
       <div style={{
         maxWidth: "1200px",

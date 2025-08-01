@@ -1,44 +1,38 @@
-import { farcasterFrame } from "@farcaster/frame-wagmi-connector";
-import { injected } from "wagmi/connectors";
-import { defineChain } from "viem";
-import { http, createConfig } from "wagmi";
-import { base } from "wagmi/chains";
+import { getDefaultConfig } from '@rainbow-me/rainbowkit';
+import { mainnet, polygon, optimism, arbitrum, base, eduChain } from 'wagmi/chains';
 
-// Define Hyperion Testnet chain
-export const hyperionTestnet = defineChain({
+// Hyperion Testnet configuration
+export const hyperionTestnet = {
   id: 133717,
   name: 'Hyperion Testnet',
+  network: 'hyperion-testnet',
   nativeCurrency: {
     decimals: 18,
     name: 'tMETIS',
     symbol: 'tMETIS',
   },
   rpcUrls: {
-    default: {
-      http: ['https://hyperion-testnet.metisdevops.link'],
-    },
+    public: { http: ['https://hyperion-testnet.metisdevops.link'] },
+    default: { http: ['https://hyperion-testnet.metisdevops.link'] },
   },
   blockExplorers: {
-    default: {
-      name: 'Hyperion Testnet Explorer',
-      url: 'https://hyperion-testnet-explorer.metisdevops.link',
-    },
+    etherscan: { name: 'Hyperion Explorer', url: 'https://hyperion-testnet-explorer.metisdevops.link' },
+    default: { name: 'Hyperion Explorer', url: 'https://hyperion-testnet-explorer.metisdevops.link' },
   },
-  testnet: true,
-});
+} as const;
 
-export const config = createConfig({
-  chains: [base, hyperionTestnet],
-  connectors: [
-    farcasterFrame(),
-    injected({ shimDisconnect: true })
+const config = getDefaultConfig({
+  appName: 'RealMind',
+  projectId: import.meta.env.VITE_WALLETCONNECT_PROJECT_ID || 'YOUR_WALLETCONNECT_PROJECT_ID',
+  chains: [
+    base,
+    eduChain,
+    hyperionTestnet,
   ],
-  transports: {
-    [base.id]: http(),
-    [hyperionTestnet.id]: http(),
-  },
   ssr: true,
 });
+
+export { config };
 
 declare module "wagmi" {
   interface Register {
