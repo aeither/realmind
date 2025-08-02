@@ -82,6 +82,16 @@ function QuizGameContract() {
     }
   }, [isStartSuccess]);
 
+  // Reset quiz when claim is successful
+  useEffect(() => {
+    if (isCompleteSuccess) {
+      // Wait a moment then reset to allow user to see success
+      setTimeout(() => {
+        resetQuiz();
+      }, 2000);
+    }
+  }, [isCompleteSuccess]);
+
   // Quiz questions
   const questions = [
     {
@@ -169,7 +179,7 @@ function QuizGameContract() {
     if (currentQuestionIndex < questions.length - 1) {
       setCurrentQuestionIndex(currentQuestionIndex + 1);
     } else {
-      // Quiz completed - submit to blockchain
+      // Quiz completed - calculate score but don't auto-submit
       const correctAnswer = questions[currentQuestionIndex].options[questions[currentQuestionIndex].correct];
       const isCorrect = answer === correctAnswer;
       
@@ -181,8 +191,7 @@ function QuizGameContract() {
       setScore(finalScore);
       setQuizCompleted(true);
       
-      // Submit to blockchain with the original user answer
-      handleCompleteQuiz(Math.floor(Math.random() * 100) + 1);
+      // Don't auto-submit to blockchain - wait for user to click claim
     }
   };
 
@@ -332,7 +341,7 @@ function QuizGameContract() {
     );
   }
 
-  // If quiz is completed, show results
+  // If quiz is completed, show end screen with claim button
   if (quizCompleted) {
     return (
       <div style={{
@@ -341,31 +350,79 @@ function QuizGameContract() {
         padding: "2rem",
         textAlign: "center"
       }}>
-        <h2 style={{ color: "#1f2937", marginBottom: "1rem" }}>Quiz Completed!</h2>
-        <p style={{ color: "#6b7280", marginBottom: "2rem" }}>
-          You scored {score} out of {questions.length} questions correctly.
-        </p>
-        <button
-          onClick={resetQuiz}
-          style={{
-            backgroundColor: "#667eea",
-            color: "white",
-            border: "none",
-            borderRadius: "8px",
-            padding: "0.75rem 1.5rem",
-            fontSize: "1rem",
-            fontWeight: "600",
-            cursor: "pointer",
-            transition: "all 0.3s ease"
-          }}
-        >
-          Play Again
-        </button>
+        <div style={{
+          background: "#ffffff",
+          borderRadius: "16px",
+          padding: "3rem",
+          boxShadow: "0 10px 25px rgba(0, 0, 0, 0.1)",
+          border: "1px solid #e5e7eb"
+        }}>
+          <h2 style={{ color: "#059669", marginBottom: "1rem", fontSize: "2rem" }}>🎉 Quiz Completed!</h2>
+          <p style={{ color: "#374151", marginBottom: "2rem", fontSize: "1.1rem" }}>
+            You scored <strong>{score} out of {questions.length}</strong> questions correctly.
+          </p>
+          
+          <div style={{
+            background: "#f0fdf4",
+            border: "2px solid #10b981",
+            borderRadius: "12px",
+            padding: "1.5rem",
+            marginBottom: "2rem"
+          }}>
+            <h3 style={{ color: "#065f46", marginBottom: "1rem" }}>🪙 Your Rewards</h3>
+            <p style={{ color: "#059669", margin: "0.5rem 0" }}>
+              Base Tokens: {selectedAmount} × 100 = {parseFloat(selectedAmount) * 100} TK1
+            </p>
+            <p style={{ color: "#059669", margin: "0.5rem 0" }}>
+              Bonus: 10-90% additional tokens for correct answers!
+            </p>
+          </div>
+
+          <div style={{ display: "flex", gap: "1rem", justifyContent: "center", flexWrap: "wrap" }}>
+            <button
+              onClick={() => handleCompleteQuiz(Math.floor(Math.random() * 100) + 1)}
+              disabled={isCompletePending}
+              style={{
+                backgroundColor: isCompletePending ? "#9ca3af" : "#10b981",
+                color: "white",
+                border: "none",
+                borderRadius: "12px",
+                padding: "1rem 2rem",
+                fontSize: "1.1rem",
+                fontWeight: "600",
+                cursor: isCompletePending ? "not-allowed" : "pointer",
+                transition: "all 0.3s ease",
+                minWidth: "140px"
+              }}
+            >
+              {isCompletePending ? "Claiming..." : "🎁 Claim Rewards"}
+            </button>
+            
+            <button
+              onClick={resetQuiz}
+              style={{
+                backgroundColor: "#6b7280",
+                color: "white",
+                border: "none",
+                borderRadius: "12px",
+                padding: "1rem 2rem",
+                fontSize: "1.1rem",
+                fontWeight: "600",
+                cursor: "pointer",
+                transition: "all 0.3s ease",
+                minWidth: "140px"
+              }}
+            >
+              🔄 Play Again
+            </button>
+          </div>
+        </div>
       </div>
     );
   }
 
   // If quiz is active, show current question
+  if (showQuiz && !quizCompleted) {
     const currentQuestion = questions[currentQuestionIndex];
     return (
       <div style={{
@@ -378,35 +435,37 @@ function QuizGameContract() {
           Question {currentQuestionIndex + 1} of {questions.length}
         </h2>
         <div style={{
-          background: "white",
+          background: "#ffffff",
           borderRadius: "12px",
           padding: "2rem",
           boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
-          marginBottom: "2rem"
+          marginBottom: "2rem",
+          border: "1px solid #e5e7eb"
         }}>
-          <h3 style={{ color: "#1f2937", marginBottom: "1.5rem" }}>{currentQuestion.question}</h3>
+          <h3 style={{ color: "#111827", marginBottom: "1.5rem", fontSize: "1.3rem" }}>{currentQuestion.question}</h3>
           <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
             {currentQuestion.options.map((option, index) => (
               <button
                 key={index}
                 onClick={() => handleQuizAnswer(option)}
                 style={{
-                  backgroundColor: "#f8fafc",
-                  border: "2px solid #e2e8f0",
+                  backgroundColor: "#f9fafb",
+                  border: "2px solid #d1d5db",
                   borderRadius: "8px",
                   padding: "1rem",
                   fontSize: "1rem",
                   cursor: "pointer",
                   transition: "all 0.3s ease",
-                  textAlign: "left"
+                  textAlign: "left",
+                  color: "#374151"
                 }}
                 onMouseEnter={(e) => {
-                  e.currentTarget.style.backgroundColor = "#f1f5f9";
-                  e.currentTarget.style.borderColor = "#cbd5e1";
+                  e.currentTarget.style.backgroundColor = "#e5e7eb";
+                  e.currentTarget.style.borderColor = "#9ca3af";
                 }}
                 onMouseLeave={(e) => {
-                  e.currentTarget.style.backgroundColor = "#f8fafc";
-                  e.currentTarget.style.borderColor = "#e2e8f0";
+                  e.currentTarget.style.backgroundColor = "#f9fafb";
+                  e.currentTarget.style.borderColor = "#d1d5db";
                 }}
               >
                 {option}
@@ -432,6 +491,7 @@ function QuizGameContract() {
         </button>
       </div>
     );
+  }
 
   // Main quiz interface
   return (
@@ -452,15 +512,16 @@ function QuizGameContract() {
 
       {/* Game Rules */}
       <div style={{
-        background: "#f8fafc",
+        background: "#ffffff",
         borderRadius: "12px",
         padding: "1.5rem",
         marginBottom: "2rem",
-        border: "1px solid #e2e8f0"
+        border: "1px solid #e5e7eb",
+        boxShadow: "0 2px 4px rgba(0, 0, 0, 0.05)"
       }}>
-        <h3 style={{ color: "#1f2937", marginBottom: "1rem" }}>📋 Game Rules:</h3>
+        <h3 style={{ color: "#111827", marginBottom: "1rem" }}>📋 Game Rules:</h3>
         <ul style={{ 
-          color: "#4b5563", 
+          color: "#374151", 
           lineHeight: "1.6",
           paddingLeft: "1.5rem",
           margin: 0
@@ -474,13 +535,14 @@ function QuizGameContract() {
 
       {/* Entry Amount Selection */}
       <div style={{
-        background: "white",
+        background: "#ffffff",
         borderRadius: "12px",
         padding: "2rem",
         boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
-        marginBottom: "2rem"
+        marginBottom: "2rem",
+        border: "1px solid #e5e7eb"
       }}>
-        <h3 style={{ color: "#1f2937", marginBottom: "1.5rem", textAlign: "center" }}>
+        <h3 style={{ color: "#111827", marginBottom: "1.5rem", textAlign: "center" }}>
           💰 Select Entry Amount
         </h3>
         
@@ -497,7 +559,7 @@ function QuizGameContract() {
               key={amount}
               onClick={() => handleAmountSelect(amount)}
               style={{
-                backgroundColor: selectedAmount === amount ? "#667eea" : "white",
+                backgroundColor: selectedAmount === amount ? "#667eea" : "#f9fafb",
                 color: selectedAmount === amount ? "white" : "#374151",
                 border: `2px solid ${selectedAmount === amount ? "#667eea" : "#d1d5db"}`,
                 borderRadius: "8px",
@@ -534,7 +596,9 @@ function QuizGameContract() {
               border: "2px solid #d1d5db",
               borderRadius: "8px",
               fontSize: "1rem",
-              textAlign: "center"
+              textAlign: "center",
+              backgroundColor: "#ffffff",
+              color: "#374151"
             }}
           />
         </div>
@@ -550,7 +614,7 @@ function QuizGameContract() {
         </div>
       </div>
 
-      {/* Start Quiz Button */}
+      {/* Start Quiz Button - Always visible to avoid layout shift */}
       <div style={{ textAlign: "center" }}>
         <button
           onClick={handleStartQuiz}
@@ -566,10 +630,11 @@ function QuizGameContract() {
             cursor: isStartPending || !address ? "not-allowed" : "pointer",
             transition: "all 0.3s ease",
             width: "100%",
-            maxWidth: "300px"
+            maxWidth: "300px",
+            minHeight: "56px" // Fixed height to prevent layout shift
           }}
         >
-          {isStartPending ? "Confirming..." : `Play Quiz (${selectedAmount} ${currencyConfig.symbol})`}
+          {isStartPending ? "Starting Quiz..." : `🎮 Play Quiz (${selectedAmount} ${currencyConfig.symbol})`}
         </button>
       </div>
 
@@ -599,7 +664,7 @@ function QuizGameContract() {
           textAlign: "center"
         }}>
           <p style={{ margin: 0, color: "#065f46" }}>
-            ✅ Previous session completed! You can now start a new quiz.
+            ✅ Rewards claimed successfully! Tokens have been sent to your wallet.
           </p>
         </div>
       )}
