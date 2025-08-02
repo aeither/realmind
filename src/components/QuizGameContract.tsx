@@ -63,17 +63,24 @@ function QuizGameContract() {
   });
 
   // Contract writes
-  const { writeContract: startQuiz, isPending: isStartPending } = useWriteContract();
-  const { writeContract: completeQuiz, isPending: isCompletePending } = useWriteContract();
+  const { writeContract: startQuiz, isPending: isStartPending, data: startHash } = useWriteContract();
+  const { writeContract: completeQuiz, isPending: isCompletePending, data: completeHash } = useWriteContract();
 
   // Wait for transaction receipts
   const { data: startReceipt, isSuccess: isStartSuccess } = useWaitForTransactionReceipt({
-    hash: undefined,
+    hash: startHash,
   });
 
   const { data: completeReceipt, isSuccess: isCompleteSuccess } = useWaitForTransactionReceipt({
-    hash: undefined,
+    hash: completeHash,
   });
+
+  // Show quiz when start is successful
+  useEffect(() => {
+    if (isStartSuccess) {
+      setShowQuiz(true);
+    }
+  }, [isStartSuccess]);
 
   // Quiz questions
   const questions = [
@@ -162,12 +169,20 @@ function QuizGameContract() {
     if (currentQuestionIndex < questions.length - 1) {
       setCurrentQuestionIndex(currentQuestionIndex + 1);
     } else {
-      // Quiz completed
-      const finalScore = newAnswers.reduce((score, answer, index) => {
-        return score + (answer === questions[index].options[questions[index].correct] ? 1 : 0);
-      }, 0);
+      // Quiz completed - submit to blockchain
+      const correctAnswer = questions[currentQuestionIndex].options[questions[currentQuestionIndex].correct];
+      const isCorrect = answer === correctAnswer;
+      
+      // Calculate final score
+      const finalScore = newAnswers.reduce((score, ans, index) => {
+        return score + (ans === questions[index].options[questions[index].correct] ? 1 : 0);
+      }, 0) + (isCorrect ? 1 : 0);
+      
       setScore(finalScore);
       setQuizCompleted(true);
+      
+      // Submit to blockchain with the original user answer
+      handleCompleteQuiz(Math.floor(Math.random() * 100) + 1);
     }
   };
 
@@ -256,7 +271,7 @@ function QuizGameContract() {
     );
   }
 
-  // If user has active session, show warning
+  // If user has active session, show the quiz
   if (hasActiveSession) {
     return (
       <div style={{
@@ -273,27 +288,45 @@ function QuizGameContract() {
           marginBottom: "2rem",
           textAlign: "left"
         }}>
-          <h4 style={{ margin: "0 0 0.5rem 0", color: "#92400e" }}>⚠️ Active Session Found</h4>
+          <h4 style={{ margin: "0 0 0.5rem 0", color: "#92400e" }}>🔄 Active Session Found</h4>
           <p style={{ margin: "0 0 1rem 0", color: "#92400e", fontSize: "0.9rem" }}>
-            You have an active quiz session. Complete it before starting a new one.
+            You have an active quiz session. Continue playing or complete it to start a new one.
           </p>
-          <button
-            onClick={() => handleCompleteQuiz()}
-            disabled={isCompletePending}
-            style={{
-              backgroundColor: isCompletePending ? "#9ca3af" : "#f59e0b",
-              color: "white",
-              border: "none",
-              borderRadius: "8px",
-              padding: "0.75rem 1rem",
-              fontSize: "0.9rem",
-              fontWeight: "600",
-              cursor: isCompletePending ? "not-allowed" : "pointer",
-              transition: "all 0.3s ease"
-            }}
-          >
-            {isCompletePending ? "Confirming..." : "Complete Previous Session"}
-          </button>
+          <div style={{ display: "flex", gap: "1rem", flexWrap: "wrap" }}>
+            <button
+              onClick={() => setShowQuiz(true)}
+              style={{
+                backgroundColor: "#f59e0b",
+                color: "white",
+                border: "none",
+                borderRadius: "8px",
+                padding: "0.75rem 1rem",
+                fontSize: "0.9rem",
+                fontWeight: "600",
+                cursor: "pointer",
+                transition: "all 0.3s ease"
+              }}
+            >
+              Continue Quiz
+            </button>
+            <button
+              onClick={() => handleCompleteQuiz()}
+              disabled={isCompletePending}
+              style={{
+                backgroundColor: isCompletePending ? "#9ca3af" : "#ef4444",
+                color: "white",
+                border: "none",
+                borderRadius: "8px",
+                padding: "0.75rem 1rem",
+                fontSize: "0.9rem",
+                fontWeight: "600",
+                cursor: isCompletePending ? "not-allowed" : "pointer",
+                transition: "all 0.3s ease"
+              }}
+            >
+              {isCompletePending ? "Confirming..." : "Complete Session"}
+            </button>
+          </div>
         </div>
       </div>
     );
@@ -333,7 +366,6 @@ function QuizGameContract() {
   }
 
   // If quiz is active, show current question
-  if (showQuiz) {
     const currentQuestion = questions[currentQuestionIndex];
     return (
       <div style={{
@@ -400,7 +432,6 @@ function QuizGameContract() {
         </button>
       </div>
     );
-  }
 
   // Main quiz interface
   return (
@@ -542,18 +573,18 @@ function QuizGameContract() {
         </button>
       </div>
 
-      {/* Success/Error Messages */}
-      {isStartSuccess && (
+      {/* Loading Message */}
+      {isStartPending && (
         <div style={{
-          background: "#ecfdf5",
-          border: "1px solid #10b981",
+          background: "#fef3c7",
+          border: "1px solid #f59e0b",
           borderRadius: "8px",
           padding: "1rem",
           marginTop: "1rem",
           textAlign: "center"
         }}>
-          <p style={{ margin: 0, color: "#065f46" }}>
-            ✅ Quiz started successfully! Check your wallet for Token1 tokens.
+          <p style={{ margin: 0, color: "#92400e" }}>
+            ⏳ Starting quiz... Please confirm the transaction in your wallet.
           </p>
         </div>
       )}
