@@ -62,8 +62,32 @@ const quizGameABI = [
                         "name": "timestamp",
                         "type": "uint256",
                         "internalType": "uint256"
+                    },
+                    {
+                        "name": "quizId",
+                        "type": "string",
+                        "internalType": "string"
                     }
                 ]
+            }
+        ],
+        "stateMutability": "view"
+    },
+    {
+        "type": "function",
+        "name": "hasActiveQuiz",
+        "inputs": [
+            {
+                "name": "user",
+                "type": "address",
+                "internalType": "address"
+            }
+        ],
+        "outputs": [
+            {
+                "name": "",
+                "type": "bool",
+                "internalType": "bool"
             }
         ],
         "stateMutability": "view"
@@ -123,6 +147,11 @@ const quizGameABI = [
         "type": "function",
         "name": "startQuiz",
         "inputs": [
+            {
+                "name": "quizId",
+                "type": "string",
+                "internalType": "string"
+            },
             {
                 "name": "userAnswer",
                 "type": "uint256",
@@ -229,6 +258,12 @@ const quizGameABI = [
                 "internalType": "address"
             },
             {
+                "name": "quizId",
+                "type": "string",
+                "indexed": false,
+                "internalType": "string"
+            },
+            {
                 "name": "success",
                 "type": "bool",
                 "indexed": false,
@@ -252,6 +287,12 @@ const quizGameABI = [
                 "type": "address",
                 "indexed": true,
                 "internalType": "address"
+            },
+            {
+                "name": "quizId",
+                "type": "string",
+                "indexed": false,
+                "internalType": "string"
             },
             {
                 "name": "userAnswer",

@@ -15,7 +15,7 @@ contract Token1 is ERC20, Ownable {
 contract QuizGame is Ownable {
     Token1 public token;
 
-    // Mapping to track user quiz sessions
+    // Mapping: user address => active quiz session (only one allowed at a time)
     mapping(address => QuizSession) public userSessions;
 
     struct QuizSession {
@@ -23,10 +23,11 @@ contract QuizGame is Ownable {
         uint256 userAnswer;
         uint256 amountPaid;
         uint256 timestamp;
+        string quizId;
     }
 
-    event QuizStarted(address indexed user, uint256 userAnswer);
-    event QuizCompleted(address indexed user, bool success, uint256 tokensMinted);
+    event QuizStarted(address indexed user, string quizId, uint256 userAnswer);
+    event QuizCompleted(address indexed user, string quizId, bool success, uint256 tokensMinted);
 
     constructor(address tokenAddress) Ownable(msg.sender) {
         token = Token1(tokenAddress);
@@ -36,72 +37,79 @@ contract QuizGame is Ownable {
         token = Token1(tokenAddress);
     }
 
-    function startQuiz(uint256 userAnswer) external payable {
+    function startQuiz(string memory quizId, uint256 userAnswer) external payable {
         require(msg.value > 0, "Must send ETH");
-        require(!userSessions[msg.sender].active, "Quiz already active for user");
+        require(bytes(quizId).length > 0, "Quiz ID cannot be empty");
 
-        // Create new quiz session
-        userSessions[msg.sender] = QuizSession({
-            active: true,
-            userAnswer: userAnswer,
-            amountPaid: msg.value,
-            timestamp: block.timestamp
-        });
+        QuizSession storage session = userSessions[msg.sender];
+        require(!session.active, "Active quiz in progress. Complete it first.");
 
-        // Mint initial tokens (100x the amount paid)
+        // Start new session
+        session.active = true;
+        session.userAnswer = userAnswer;
+        session.amountPaid = msg.value;
+        session.timestamp = block.timestamp;
+        session.quizId = quizId;
+
+        // Mint initial tokens: 100x ETH paid
         uint256 initialTokens = msg.value * 100;
         try token.mint(msg.sender, initialTokens) {
-            // Success - tokens minted
+            // Success - ignore failure to avoid blocking quiz
         } catch {
-            // Failed - tokens not minted, but quiz can still proceed
+            // Log or handle silently
         }
 
-        emit QuizStarted(msg.sender, userAnswer);
+        emit QuizStarted(msg.sender, quizId, userAnswer);
     }
 
     function completeQuiz(uint256 submittedAnswer) external {
         QuizSession storage session = userSessions[msg.sender];
         require(session.active, "No active quiz session");
-        require(block.timestamp <= session.timestamp + 1 hours, "Quiz session expired");
 
-        // Mark session as completed
+        // Mark as inactive first
         session.active = false;
 
-        // Check if the submitted answer matches the user's original answer
-        if (submittedAnswer == session.userAnswer) {
-            // Calculate bonus tokens: 10% to 90% of the initial tokens
-            uint256 initialTokens = session.amountPaid * 100;
-            uint256 bonusPercent = 10 + (uint256(keccak256(abi.encodePacked(block.timestamp, msg.sender))) % 81); // 10% to 90%
+        bool correct = (submittedAnswer == session.userAnswer);
+        uint256 initialTokens = session.amountPaid * 100;
+        uint256 totalTokens = initialTokens;
+
+        if (correct) {
+            // Random bonus: 10% to 90%
+            uint256 bonusPercent = 10 + (uint256(keccak256(abi.encodePacked(block.timestamp, msg.sender))) % 81);
             uint256 bonusTokens = (initialTokens * bonusPercent) / 100;
-            uint256 totalTokens = initialTokens + bonusTokens;
-            
-            // Mint bonus tokens for correct answer
+            totalTokens += bonusTokens;
+
             try token.mint(msg.sender, bonusTokens) {
-                emit QuizCompleted(msg.sender, true, totalTokens);
+                emit QuizCompleted(msg.sender, session.quizId, true, totalTokens);
             } catch {
-                // Failed to mint bonus tokens, but quiz is still completed
-                emit QuizCompleted(msg.sender, true, initialTokens);
+                emit QuizCompleted(msg.sender, session.quizId, true, initialTokens);
             }
         } else {
-            emit QuizCompleted(msg.sender, false, session.amountPaid * 100);
+            emit QuizCompleted(msg.sender, session.quizId, false, initialTokens);
         }
     }
 
+    // View function to get user's current quiz session
     function getQuizSession(address user) external view returns (QuizSession memory) {
         return userSessions[user];
     }
 
-    // Allow owner to mint tokens to any address
+    // Check if user has an active quiz
+    function hasActiveQuiz(address user) external view returns (bool) {
+        return userSessions[user].active;
+    }
+
+    // Owner-only token minting
     function mintToken(address to, uint256 amount) external onlyOwner {
         token.mint(to, amount);
     }
 
-    // Allow owner to withdraw ETH collected
+    // Withdraw ETH collected
     function withdraw() external onlyOwner {
         (bool sent, ) = owner().call{value: address(this).balance}("");
         require(sent, "Withdrawal failed");
     }
 
-    // Fallback to receive ETH
+    // Allow receiving ETH
     receive() external payable {}
-} 
+}

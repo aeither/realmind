@@ -56,180 +56,109 @@ function HomePage() {
   };
 
   return (
-    <div style={{
-      minHeight: "100vh",
-      background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
-      padding: "2rem",
-      display: "flex",
-      flexDirection: "column",
-      alignItems: "center",
-      justifyContent: "center"
-    }}>
-      {/* Hero Section */}
+    <div className="min-h-screen bg-background">
+      <Header />
       
-
-      {/* Quiz Selection Cards */}
-      <div style={{
-        display: "grid",
-        gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))",
-        gap: "2rem",
-        maxWidth: "1000px",
-        width: "100%",
-        marginBottom: "2rem"
-      }}>
-        {AVAILABLE_QUIZZES.map((quiz) => (
-          <QuizCard
-            key={quiz.id}
-            quiz={quiz}
-            isSelected={selectedQuiz === quiz.id}
-            onSelect={() => handleQuizSelect(quiz.id)}
-          />
-        ))}
-      </div>
-
-      {/* Random Quiz Button */}
-      <div style={{
-        textAlign: "center",
-        marginBottom: "2rem"
-      }}>
-        <button
-          onClick={handleRandomQuiz}
-          style={{
-            backgroundColor: "rgba(255,255,255,0.2)",
-            color: "white",
-            border: "2px solid rgba(255,255,255,0.3)",
-            padding: "1rem 2rem",
-            borderRadius: "12px",
-            fontSize: "1.1rem",
-            fontWeight: "600",
-            cursor: "pointer",
-            backdropFilter: "blur(10px)",
-            transition: "all 0.3s ease"
-          }}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.backgroundColor = "rgba(255,255,255,0.3)";
-            e.currentTarget.style.transform = "translateY(-2px)";
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.backgroundColor = "rgba(255,255,255,0.2)";
-            e.currentTarget.style.transform = "translateY(0)";
-          }}
-        >
-          🎲 Try Random Quiz
-        </button>
-      </div>
-
-      {/* Play Button */}
-      {selectedQuiz && (
-        <div style={{
-          textAlign: "center"
-        }}>
-          <Link
-            to="/quiz-game"
-            search={{ quiz: selectedQuiz }}
-            style={{
-              display: "inline-block",
-              backgroundColor: "#22c55e",
-              color: "white",
-              padding: "1.5rem 3rem",
-              borderRadius: "12px",
-              textDecoration: "none",
-              fontSize: "1.3rem",
-              fontWeight: "bold",
-              boxShadow: "0 8px 16px rgba(34, 197, 94, 0.3)",
-              transition: "all 0.3s ease"
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.backgroundColor = "#16a34a";
-              e.currentTarget.style.transform = "translateY(-2px)";
-              e.currentTarget.style.boxShadow = "0 12px 20px rgba(34, 197, 94, 0.4)";
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.backgroundColor = "#22c55e";
-              e.currentTarget.style.transform = "translateY(0)";
-              e.currentTarget.style.boxShadow = "0 8px 16px rgba(34, 197, 94, 0.3)";
-            }}
-          >
-            🎮 Play Quiz
-          </Link>
+      <div className="max-w-6xl mx-auto p-8 pt-24">
+        {/* Hero Section */}
+        <div className="text-center mb-16 animate-bounce-in">
+          <div className="text-7xl mb-6 animate-pulse-glow">🎮</div>
+          <h1 className="text-5xl font-bold mb-4 bg-gradient-primary bg-clip-text text-transparent">
+            Choose Your Challenge
+          </h1>
+          <p className="text-xl text-muted-foreground mb-8 max-w-2xl mx-auto">
+            Select a quiz topic and test your knowledge. Earn up to 190% returns for perfect scores!
+          </p>
         </div>
-      )}
 
+        {/* Quiz Selection Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
+          {AVAILABLE_QUIZZES.map((quiz, index) => (
+            <QuizCard
+              key={quiz.id}
+              quiz={quiz}
+              isSelected={selectedQuiz === quiz.id}
+              onSelect={() => handleQuizSelect(quiz.id)}
+              delay={`${index * 200}ms`}
+            />
+          ))}
+        </div>
 
+        {/* Action Buttons */}
+        <div className="text-center space-y-6">
+          <button
+            onClick={handleRandomQuiz}
+            className="px-8 py-4 bg-secondary text-secondary-foreground border-2 border-primary/30 
+                       rounded-2xl text-lg font-semibold hover:bg-primary hover:text-primary-foreground 
+                       hover:scale-105 transition-all duration-300 animate-bounce-in"
+            style={{ animationDelay: '600ms' }}
+          >
+            🎲 Try Random Quiz
+          </button>
+
+          {selectedQuiz && (
+            <div className="animate-bounce-in" style={{ animationDelay: '200ms' }}>
+              <Link
+                to="/quiz-game"
+                search={{ quiz: selectedQuiz }}
+                className="inline-block px-12 py-6 bg-gradient-primary text-primary-foreground 
+                           rounded-3xl text-xl font-bold quiz-button-glow hover:scale-110 
+                           transition-all duration-300 animate-pulse-glow"
+              >
+                🚀 Start Quiz
+              </Link>
+            </div>
+          )}
+        </div>
+      </div>
     </div>
   );
 }
 
-function QuizCard({ quiz, isSelected, onSelect }: {
+function QuizCard({ quiz, isSelected, onSelect, delay }: {
   quiz: Quiz;
   isSelected: boolean;
   onSelect: () => void;
+  delay: string;
 }) {
   return (
     <div
       onClick={onSelect}
-      style={{
-        background: isSelected ? "rgba(255,255,255,0.95)" : "rgba(255,255,255,0.1)",
-        borderRadius: "16px",
-        padding: "2rem",
-        cursor: "pointer",
-        border: isSelected ? "3px solid #22c55e" : "2px solid rgba(255,255,255,0.2)",
-        backdropFilter: "blur(10px)",
-        transition: "all 0.3s ease",
-        transform: isSelected ? "scale(1.02)" : "scale(1)",
-        color: isSelected ? "#1f2937" : "white"
-      }}
-      onMouseEnter={(e) => {
-        if (!isSelected) {
-          e.currentTarget.style.background = "rgba(255,255,255,0.15)";
-          e.currentTarget.style.transform = "scale(1.02)";
-        }
-      }}
-      onMouseLeave={(e) => {
-        if (!isSelected) {
-          e.currentTarget.style.background = "rgba(255,255,255,0.1)";
-          e.currentTarget.style.transform = "scale(1)";
-        }
-      }}
+      className={`quiz-card rounded-2xl p-6 cursor-pointer transition-all duration-300 animate-bounce-in group
+                  ${isSelected 
+                    ? 'ring-2 ring-primary quiz-glow scale-105' 
+                    : 'hover:scale-105 hover:quiz-button-glow'
+                  }`}
+      style={{ animationDelay: delay }}
     >
-      <div style={{
-        display: "flex",
-        alignItems: "center",
-        marginBottom: "1rem"
-      }}>
-        <div style={{
-          fontSize: "2.5rem",
-          marginRight: "1rem"
-        }}>
+      <div className="flex items-center mb-4">
+        <div className="text-4xl mr-4 group-hover:animate-celebrate">
           {quiz.icon}
         </div>
         <div>
-          <h3 style={{
-            fontSize: "1.5rem",
-            fontWeight: "bold",
-            marginBottom: "0.5rem"
-          }}>
+          <h3 className="text-xl font-bold text-primary mb-1">
             {quiz.title}
           </h3>
+          <div className={`inline-block px-2 py-1 rounded-full text-xs font-medium
+                          ${isSelected ? 'bg-primary text-primary-foreground' : 'bg-secondary text-secondary-foreground'}`}>
+            {quiz.category}
+          </div>
         </div>
       </div>
       
-      <p style={{
-        marginBottom: "1.5rem",
-        lineHeight: "1.6",
-        opacity: isSelected ? 0.8 : 0.9
-      }}>
+      <p className="text-muted-foreground mb-4 leading-relaxed text-sm">
         {quiz.description}
       </p>
       
-      <div style={{
-        display: "flex",
-        justifyContent: "space-between",
-        fontSize: "0.9rem",
-        opacity: 0.8
-      }}>
-        <span>📝 {quiz.questions} questions</span>
-        <span>⏱️ {quiz.estimatedTime}</span>
+      <div className="flex justify-between text-sm text-muted-foreground">
+        <span className="flex items-center">
+          <span className="mr-1">📝</span>
+          {quiz.questions} questions
+        </span>
+        <span className="flex items-center">
+          <span className="mr-1">⏱️</span>
+          {quiz.estimatedTime}
+        </span>
       </div>
     </div>
   );

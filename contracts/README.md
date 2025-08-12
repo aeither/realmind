@@ -49,23 +49,11 @@ $ anvil
 
 The deployment script uses CREATE2 to deploy contracts to the same deterministic address across all blockchains.
 
-#### Deploy to Multiple Blockchains
+#### Deploy to Core Testnet2
 
 ```shell
-# Hyperion Testnet (Metis)
-source .env && rm -rf cache out && forge build && forge script --chain 133717 script/QuizGame.s.sol:QuizGameScript --rpc-url https://hyperion-testnet.metisdevops.link --broadcast -vvvv --private-key ${PRIVATE_KEY}
-
-# Sepolia Testnet (Ethereum)
-source .env && rm -rf cache out && forge build && forge script --chain 11155111 script/QuizGame.s.sol:QuizGameScript --rpc-url https://rpc.sepolia.org --broadcast -vvvv --private-key ${PRIVATE_KEY}
-
-# Polygon Mumbai Testnet
-source .env && rm -rf cache out && forge build && forge script --chain 80001 script/QuizGame.s.sol:QuizGameScript --rpc-url https://rpc-mumbai.maticvigil.com --broadcast -vvvv --private-key ${PRIVATE_KEY}
-
-# Arbitrum Sepolia Testnet
-source .env && rm -rf cache out && forge build && forge script --chain 421614 script/QuizGame.s.sol:QuizGameScript --rpc-url https://sepolia-rollup.arbitrum.io/rpc --broadcast -vvvv --private-key ${PRIVATE_KEY}
-
-# Base Sepolia Testnet
-source .env && rm -rf cache out && forge build && forge script --chain 84532 script/QuizGame.s.sol:QuizGameScript --rpc-url https://sepolia.base.org --broadcast -vvvv --private-key ${PRIVATE_KEY}
+# Core Testnet2
+source .env && rm -rf cache out && forge build && forge script --chain 1114 script/QuizGame.s.sol:QuizGameScript --rpc-url https://rpc.test2.btcs.network --broadcast -vvvv --private-key ${PRIVATE_KEY}
 ```
 
 #### Predict Addresses (Without Deploying)
@@ -73,38 +61,21 @@ source .env && rm -rf cache out && forge build && forge script --chain 84532 scr
 You can predict the contract addresses before deployment:
 
 ```shell
-# Predict addresses for any chain
-forge script script/QuizGame.s.sol:QuizGameScript --sig "predictAddresses()" --rpc-url https://hyperion-testnet.metisdevops.link
-```
-
-#### Legacy Deployment (Old Method)
-
-```shell
-# Hyperion Testnet
-source .env && rm -rf cache out && forge build && forge script --chain 133717 script/QuizGame.s.sol:QuizGameScript --rpc-url https://hyperion-testnet.metisdevops.link --broadcast -vvvv --private-key ${PRIVATE_KEY}
-
-# Sepolia Testnet
-source .env && rm -rf cache out && forge build && forge script --chain 11155111 script/QuizGame.s.sol:QuizGameScript --rpc-url https://rpc.sepolia.org --broadcast -vvvv --private-key ${PRIVATE_KEY}
+# Predict addresses for Core Testnet2
+forge script script/QuizGame.s.sol:QuizGameScript --sig "predictAddresses()" --rpc-url https://rpc.test2.btcs.network
 ```
 
 ### Verify
 
 ```shell
-# Hyperion Testnet
+# Core Testnet2
 forge verify-contract \
-  --rpc-url https://hyperion-testnet.metisdevops.link \
+  --chain-id 1114 \
+  --rpc-url https://rpc.test2.btcs.network \
   --verifier blockscout \
-  --verifier-url 'https://hyperion-testnet-explorer-api.metisdevops.link/api/' \
-  0x7d063d7735861EB49b092A7430efa1ae3Ac4F6F5 \
-  script/QuizGame.s.sol:QuizGameScript
-
-# Sepolia Testnet
-forge verify-contract \
-  --rpc-url https://rpc.sepolia.org \
-  --verifier etherscan \
-  --etherscan-api-key ${ETHERSCAN_API_KEY} \
-  0x7d063d7735861EB49b092A7430efa1ae3Ac4F6F5 \
-  script/QuizGame.s.sol:QuizGameScript
+  --verifier-url 'https://scan.test2.btcs.network/api/' \
+  <CONTRACT_ADDRESS> \
+  src/QuizGame.sol:QuizGame
 ```
 
 ### Cast

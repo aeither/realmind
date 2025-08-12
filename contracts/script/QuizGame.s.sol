@@ -15,14 +15,14 @@ contract QuizGameScript is Script {
         vm.startBroadcast(deployerPrivateKey);
 
         // Use deterministic CREATE2 with a fixed salt
-        bytes32 salt = bytes32(abi.encodePacked("my_unique_salt_12345"));
+        // bytes32 salt = bytes32(abi.encodePacked("my_unique_salt_123456"));
 
         // Deploy Token1
-        token = new Token1{salt: salt}();
+        token = new Token1();
         console.log("Token1 deployed at:", address(token));
 
         // Deploy QuizGame
-        quizGame = new QuizGame{salt: salt}(address(token));
+        quizGame = new QuizGame(address(token));
         console.log("QuizGame deployed at:", address(quizGame));
 
         console.log("All contracts deployed successfully!");

@@ -1,32 +1,57 @@
 
 ## 🚀 Deployment Commands
 
-### 1. Hyperion Testnet (Metis) - Chain ID: 133717
-```bash
-source .env && rm -rf cache out && forge build && forge script --chain 133717 script/QuizGame.s.sol:QuizGameScript --rpc-url https://hyperion-testnet.metisdevops.link --broadcast -vvvv --private-key ${PRIVATE_KEY}
-```
-
-### 2. Sepolia Testnet (Ethereum) - Chain ID: 11155111
-```bash
-source .env && rm -rf cache out && forge build && forge script --chain 11155111 script/QuizGame.s.sol:QuizGameScript --rpc-url https://eth-sepolia.public.blastapi.io --broadcast -vvvv --private-key ${PRIVATE_KEY}
-```
-
-### 3. Polygon Mumbai Testnet - Chain ID: 80001
-```bash
-source .env && rm -rf cache out && forge build && forge script --chain 80001 script/QuizGame.s.sol:QuizGameScript --rpc-url https://rpc-mumbai.maticvigil.com --broadcast -vvvv --private-key ${PRIVATE_KEY}
-```
-
-### 4. Arbitrum Sepolia Testnet - Chain ID: 421614
-```bash
-source .env && rm -rf cache out && forge build && forge script --chain 421614 script/QuizGame.s.sol:QuizGameScript --rpc-url https://sepolia-rollup.arbitrum.io/rpc --broadcast -vvvv --private-key ${PRIVATE_KEY}
-```
-
-### 5. Base Sepolia Testnet - Chain ID: 84532
-```bash
-source .env && rm -rf cache out && forge build && forge script --chain 84532 script/QuizGame.s.sol:QuizGameScript --rpc-url https://sepolia.base.org --broadcast -vvvv --private-key ${PRIVATE_KEY}
-```
-
-### 6. Core DAO Testnet - Chain ID: 1114
+### Core Testnet2 - Chain ID: 1114
 ```bash
 source .env && rm -rf cache out && forge build && forge script --chain 1114 script/QuizGame.s.sol:QuizGameScript --rpc-url https://rpc.test2.btcs.network --broadcast -vvvv --private-key ${PRIVATE_KEY}
 ```
+
+## 🌐 Core Testnet2 Network Details
+
+| Parameter | Value |
+|-----------|-------|
+| **Network Name** | Core Testnet2 |
+| **Chain ID** | 1114 (0x45a) |
+| **RPC Endpoint** | https://rpc.test2.btcs.network |
+| **Archive Node RPC** | https://rpcar.test2.btcs.network |
+| **WebSocket Endpoint** | wss://rpc.test2.btcs.network/wsp |
+| **Currency Symbol** | tCORE |
+| **Block Explorer URL** | https://scan.test2.btcs.network/ |
+| **Faucet** | Available through Core DAO testnet faucet |
+
+**Note**: This is the latest and officially supported testnet for the Core blockchain. The previous testnet (chain ID 1115) is now deprecated and no longer maintained.
+
+## 📋 Contract Verification
+
+### Core Testnet2 Verification
+
+After deployment, verify your contracts on the Core Testnet2 block explorer:
+
+```bash
+# Verify QuizGame contract on Core Testnet2
+forge verify-contract \
+--chain-id 1114 \
+--rpc-url https://rpc.test2.btcs.network \
+--verifier-url 'https://scan.test2.btcs.network/api/' \
+--verifier blockscout \
+<CONTRACT_ADDRESS> \
+src/QuizGame.sol:QuizGame
+
+# Verify Token1 contract on Core Testnet2
+forge verify-contract \
+--chain-id 1114 \
+--rpc-url https://rpc.test2.btcs.network \
+--verifier-url 'https://scan.test2.btcs.network/api/' \
+--verifier blockscout \
+<TOKEN_CONTRACT_ADDRESS> \
+src/QuizGame.sol:Token1
+```
+
+## 🔗 Useful Resources
+
+### Core Blockchain Resources
+- **Core DAO Documentation**: https://docs.coredao.org/
+- **Core Testnet2 Block Explorer**: https://scan.test2.btcs.network/
+- **Core DAO Testnet Faucet**: https://scan.test2.btcs.network/faucet
+- **Core DAO Official Website**: https://coredao.org/
+- **Core DAO GitHub**: https://github.com/coredao-org
