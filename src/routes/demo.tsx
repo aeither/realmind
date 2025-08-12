@@ -120,7 +120,7 @@ function Step1SoloQuiz({ onNext }: { onNext: () => void }) {
   const { address, chain } = useAccount()
 
   // Smart contract integration
-  const contractAddresses = chain ? getContractAddresses(chain.id) : getContractAddresses(1114)
+  const contractAddresses = chain ? getContractAddresses(chain.id) : getContractAddresses(133717)
   const { writeContract: startQuiz, isPending: isStartPending, data: startHash } = useWriteContract()
   const { writeContract: completeQuiz, isPending: isCompletePending, data: completeHash } = useWriteContract()
   
@@ -153,7 +153,7 @@ function Step1SoloQuiz({ onNext }: { onNext: () => void }) {
       abi: quizGameABI,
       functionName: 'startQuiz',
       args: ['solo-quiz-demo', BigInt(42)], // quiz ID and initial answer
-      value: parseEther('0.01'), // Entry fee
+      value: parseEther('0.01'), // Entry fee (tMETIS)
     })
   }
 
@@ -173,13 +173,13 @@ function Step1SoloQuiz({ onNext }: { onNext: () => void }) {
 
   const questions = [
     {
-      question: "What is the native token of Core?",
-      options: ["CORE", "ETH", "BTC", "LINK"],
+      question: "What is the native token of Hyperion (Testnet)?",
+      options: ["tMETIS", "ETH", "BTC", "LINK"],
       correct: 0,
       reward: 0.05
     },
     {
-      question: "Which consensus mechanism does Core use?",
+      question: "Which consensus mechanism does Hyperion use?",
       options: ["Proof of Work", "Proof of Stake", "Delegated PoS", "Proof of Authority"],
       correct: 1,
       reward: 0.05
@@ -196,7 +196,7 @@ function Step1SoloQuiz({ onNext }: { onNext: () => void }) {
       setScore(score + 1)
       const reward = questions[currentQuestion].reward
       setEarnedCORE(earnedCORE + reward)
-      toast.success(`✅ Correct! +${reward} CORE earned`)
+      toast.success(`✅ Correct! +${reward} tMETIS earned`)
     } else {
       toast.error("❌ Incorrect answer")
     }
@@ -220,7 +220,7 @@ function Step1SoloQuiz({ onNext }: { onNext: () => void }) {
             🎯 Step 1: Solo Quiz - Learn & Earn
           </h1>
           <p className="text-emerald-400 text-lg">
-            Start a quiz on Core blockchain and earn CORE rewards
+            Start a quiz on Hyperion Testnet and earn tMETIS rewards
           </p>
         </div>
 
@@ -228,7 +228,7 @@ function Step1SoloQuiz({ onNext }: { onNext: () => void }) {
           <div className="text-6xl mb-4">🎮</div>
           <h3 className="text-2xl font-bold text-white mb-4">Ready to Start Quiz?</h3>
           <p className="text-gray-400 mb-6">
-            Entry fee: 0.01 CORE • Potential rewards: Up to 0.1 CORE
+            Entry fee: 0.01 tMETIS • Potential rewards: Up to 0.1 tMETIS
           </p>
           
           <button
@@ -264,7 +264,7 @@ function Step1SoloQuiz({ onNext }: { onNext: () => void }) {
       <div className="grid grid-cols-3 gap-4 mb-8">
         <div className="bg-black/30 border border-emerald-500/30 rounded-xl p-4 text-center">
           <div className="text-2xl font-bold text-emerald-400">{earnedCORE.toFixed(3)}</div>
-          <div className="text-sm text-gray-400">CORE Earned</div>
+          <div className="text-sm text-gray-400">tMETIS Earned</div>
         </div>
         <div className="bg-black/30 border border-emerald-500/30 rounded-xl p-4 text-center">
           <div className="text-2xl font-bold text-emerald-400">{streak}</div>
@@ -321,14 +321,14 @@ function Step1SoloQuiz({ onNext }: { onNext: () => void }) {
         <div className="text-center">
           {isProcessingReward ? (
             <div className="animate-pulse text-yellow-400 text-lg">
-              ⏳ Processing reward on Core blockchain...
+              ⏳ Processing reward on Hyperion Testnet...
             </div>
           ) : (
             <div className="text-emerald-400 text-lg">
-              ⚡ Transaction confirmed in 0.4s on Core
+              ⚡ Transaction confirmed on Hyperion Testnet
               {selectedAnswer === questions[currentQuestion].correct && (
                 <div className="text-sm text-green-300 mt-1">
-                  🎉 +{questions[currentQuestion].reward} CORE added to wallet
+                  🎉 +{questions[currentQuestion].reward} tMETIS added to wallet
                 </div>
               )}
             </div>
@@ -413,7 +413,7 @@ function Step2PvPDuel({ onNext }: { onNext: () => void }) {
       abi: quizGameABI, // Using same ABI for demo
       functionName: 'startQuiz',
       args: ['pvp-duel-demo', BigInt(123)],
-      value: parseEther('0.02'), // Entry fee for duel
+      value: parseEther('0.02'), // Entry fee for duel (tMETIS)
     })
   }
 
@@ -446,7 +446,7 @@ function Step2PvPDuel({ onNext }: { onNext: () => void }) {
       isOracle: true
     },
     {
-      question: "How many confirmations for Core finality?",
+      question: "How many confirmations for Hyperion finality?",
       options: ["1", "6", "12", "20"],
       correct: 0,
       isOracle: false
@@ -457,20 +457,20 @@ function Step2PvPDuel({ onNext }: { onNext: () => void }) {
   useEffect(() => {
     const loadOracleData = async () => {
       try {
-        const priceData = await RedStoneOracle.getPrice('CORE')
+        const priceData = await RedStoneOracle.getPrice('tMETIS')
         const options = ["$0.95", "$1.23", "$1.45", "$2.10"]
-        const questionData = RedStoneOracle.formatPriceQuestion('CORE', priceData.price, options)
+        const questionData = RedStoneOracle.formatPriceQuestion('tMETIS', priceData.price, options)
         setOracleQuestion({
           ...questionData,
           isOracle: true
         })
         toast.success("🔮 RedStone Oracle data loaded", { 
-          description: `Current CORE price: $${priceData.price}` 
+          description: `Current tMETIS price: $${priceData.price}` 
         })
       } catch (error) {
         console.error('Oracle error:', error)
         setOracleQuestion({
-          question: "What's the current price of CORE? (RedStone Oracle)",
+          question: "What's the current price of tMETIS? (RedStone Oracle)",
           options: ["$0.95", "$1.23", "$1.45", "$2.10"],
           correct: 1,
           isOracle: true
@@ -508,7 +508,7 @@ function Step2PvPDuel({ onNext }: { onNext: () => void }) {
       
       if (userCorrect && !opponentCorrect) {
         setWinner('user')
-        toast.success("🏆 You win! +0.1 CORE")
+        toast.success("🏆 You win! +0.1 tMETIS")
       } else if (!userCorrect && opponentCorrect) {
         setWinner('opponent')
         toast.error("😔 Opponent wins this round")
@@ -545,7 +545,7 @@ function Step2PvPDuel({ onNext }: { onNext: () => void }) {
           <div className="text-6xl mb-4">⚔️</div>
           <h3 className="text-2xl font-bold text-white mb-4">Ready for PvP Battle?</h3>
           <p className="text-gray-400 mb-6">
-            Entry fee: 0.02 CORE • Winner takes all + bonus rewards
+            Entry fee: 0.02 tMETIS • Winner takes all + bonus rewards
           </p>
           
           <button
@@ -579,7 +579,7 @@ function Step2PvPDuel({ onNext }: { onNext: () => void }) {
         <div className="bg-black/40 border border-emerald-500/30 rounded-2xl p-12">
           <div className="animate-spin text-6xl mb-4">⚡</div>
           <div className="text-2xl font-bold text-white mb-2">Finding Opponent...</div>
-          <div className="text-emerald-400 mb-4">Core real-time matching</div>
+          <div className="text-emerald-400 mb-4">Hyperion real-time matching</div>
         </div>
       </div>
     )
@@ -715,7 +715,7 @@ function Step3GuildSystem({ onNext }: { onNext: () => void }) {
       await BlockchainUtils.triggerMetaMaskTransaction({
         to: contractAddresses.guildSystemContractAddress,
         value: parseEther("0.05").toString(),
-        description: "Creating 'Tezos Titans' guild with 0.05 CORE initial treasury"
+        description: "Creating 'Tezos Titans' guild with 0.05 tMETIS initial treasury"
       })
       setGuildState('formed')
       setTreasury(0.05)
@@ -732,7 +732,7 @@ function Step3GuildSystem({ onNext }: { onNext: () => void }) {
       await BlockchainUtils.triggerMetaMaskTransaction({
         to: contractAddresses.guildSystemContractAddress,
         value: parseEther("0.1").toString(),
-        description: "Contributing 0.1 CORE to guild treasury"
+        description: "Contributing 0.1 tMETIS to guild treasury"
       })
       setTreasury(treasury + 0.1)
       toast.success("💰 Treasury contribution successful!")
@@ -746,7 +746,7 @@ function Step3GuildSystem({ onNext }: { onNext: () => void }) {
       await BlockchainUtils.triggerMetaMaskTransaction({
         to: contractAddresses.guildSystemContractAddress,
         value: parseEther("0.2").toString(),
-        description: "Starting Guild vs Guild battle with 0.2 CORE prize pool"
+        description: "Starting Guild vs Guild battle with 0.2 tMETIS prize pool"
       })
       setGuildState('battle')
       toast.success("⚔️ Guild battle started!")

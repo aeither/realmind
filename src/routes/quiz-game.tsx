@@ -5,7 +5,7 @@ import { parseEther } from 'viem'
 import { toast } from 'sonner'
 import { quizGameABI } from '../libs/quizGameABI'
 import { getContractAddresses } from '../libs/constants'
-import { coreTestnet } from '../wagmi'
+import { hyperionTestnet } from '../wagmi'
 import GlobalHeader from '../components/GlobalHeader'
 
 interface QuizSearchParams {
@@ -50,7 +50,7 @@ function QuizGame() {
   const [score, setScore] = useState(0)
   const [selectedAmount, setSelectedAmount] = useState('0.1')
 
-  const contractAddresses = chain ? getContractAddresses(chain.id) : getContractAddresses(coreTestnet.id)
+  const contractAddresses = chain ? getContractAddresses(chain.id) : getContractAddresses(hyperionTestnet.id)
   const quizConfig = quizId ? QUIZ_CONFIGS[quizId as keyof typeof QUIZ_CONFIGS] : null
 
   // Contract reads
@@ -163,7 +163,7 @@ function QuizGame() {
   }
   
   // Check if user is on correct chain
-  const isCorrectChain = chain?.id === coreTestnet.id
+  const isCorrectChain = chain?.id === hyperionTestnet.id
 
   if (!isCorrectChain) {
     return (
@@ -177,10 +177,10 @@ function QuizGame() {
         }}>
           <h2 style={{ color: "#ffffff", marginBottom: "1rem" }}>Wrong Network</h2>
           <p style={{ color: "#9ca3af", marginBottom: "2rem" }}>
-            Please switch to Core Testnet to play this quiz.
+            Please switch to Hyperion (Testnet) to play this quiz.
           </p>
           <button 
-            onClick={() => switchChain({ chainId: coreTestnet.id })}
+            onClick={() => switchChain({ chainId: hyperionTestnet.id })}
             style={{
               backgroundColor: "#00ff87",
               color: "#0a0e0a",
@@ -192,7 +192,7 @@ function QuizGame() {
               cursor: "pointer"
             }}
           >
-            Switch to Core Testnet
+            Switch to Hyperion Testnet
           </button>
         </div>
       </div>
@@ -311,7 +311,7 @@ function QuizGame() {
             }}>
               <h3 style={{ color: "#00ff87", marginBottom: "1rem" }}>🪙 Your Rewards</h3>
               <p style={{ color: "#ffffff", margin: "0.5rem 0" }}>
-                Base Tokens: {selectedAmount} CORE × 100 = {parseFloat(selectedAmount) * 100} TK1
+                 Base Tokens: {selectedAmount} tMETIS × 100 = {parseFloat(selectedAmount) * 100} TK1
               </p>
               <p style={{ color: "#ffffff", margin: "0.5rem 0" }}>
                 Bonus: {score === quizConfig.questions.length ? '10-90% additional tokens for all correct answers!' : 'Better luck next time!'}
@@ -454,7 +454,7 @@ function QuizGame() {
               marginBottom: "0.5rem",
               fontWeight: "500"
             }}>
-              Entry Amount (CORE):
+              Entry Amount (tMETIS):
             </label>
             <input
               type="number"
@@ -490,7 +490,7 @@ function QuizGame() {
               minWidth: "200px"
             }}
           >
-            {isStartPending ? "Starting..." : `🎮 Start Quiz (${selectedAmount} CORE)`}
+            {isStartPending ? "Starting..." : `🎮 Start Quiz (${selectedAmount} tMETIS)`}
           </button>
         </div>
       </div>

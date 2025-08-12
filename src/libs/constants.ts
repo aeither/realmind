@@ -1,7 +1,7 @@
 // Contract addresses by chain ID
 const CONTRACT_ADDRESSES = {
-  // Core Testnet2
-  1114: {
+  // Hyperion (Testnet)
+  133717: {
     token1ContractAddress: "0xdED87fD6213A8f4ea824B8c74128fAf3DE65BFFE",
     quizGameContractAddress: "0x9a486C66c308db15aD6a3d1aF4cb20244bD1e2c3",
     // New demo contracts (placeholder addresses - update after deployment)
@@ -20,8 +20,8 @@ export function getContractAddresses(chainId: number) {
 }
 
 // Legacy exports for backward compatibility (defaults to Core Testnet)
-export const token1ContractAddress = CONTRACT_ADDRESSES[1114].token1ContractAddress;
-export const quizGameContractAddress = CONTRACT_ADDRESSES[1114].quizGameContractAddress;
+export const token1ContractAddress = CONTRACT_ADDRESSES[133717].token1ContractAddress;
+export const quizGameContractAddress = CONTRACT_ADDRESSES[133717].quizGameContractAddress;
 
 // Demo configuration
 export const DEMO_CONFIG = {
@@ -34,7 +34,7 @@ export const DEMO_CONFIG = {
   },
   MOCK_DATA: {
     ORACLE_PRICES: {
-      CORE: { price: 1.23, index: 1 },
+      tMETIS: { price: 1.23, index: 1 },
       ETH: { price: 2450.50, index: 2 }
     },
     GUILD_MEMBERS: [

@@ -150,14 +150,14 @@ export class GoldskyIndexer {
     await new Promise(resolve => setTimeout(resolve, 300))
     
     return [
-      { guildId: 1, name: "Crypto Legends", totalScore: 15420, ranking: 1, memberCount: 8, treasury: "2.4 CORE" },
-      { guildId: 2, name: "DeFi Masters", totalScore: 13890, ranking: 2, memberCount: 7, treasury: "1.8 CORE" },
-      { guildId: 3, name: "Blockchain Builders", totalScore: 12560, ranking: 3, memberCount: 9, treasury: "2.1 CORE" },
-      { guildId: 4, name: "Web3 Warriors", totalScore: 11240, ranking: 4, memberCount: 6, treasury: "1.5 CORE" },
-      { guildId: 5, name: "Smart Contract Pros", totalScore: 10180, ranking: 5, memberCount: 8, treasury: "1.9 CORE" },
-      { guildId: 6, name: "NFT Collectors", totalScore: 9850, ranking: 6, memberCount: 5, treasury: "1.2 CORE" },
-      { guildId: 7, name: "Core Champions", totalScore: 8920, ranking: 7, memberCount: 5, treasury: "0.8 CORE" },
-      { guildId: 8, name: "Core DAO Experts", totalScore: 7650, ranking: 8, memberCount: 4, treasury: "0.6 CORE" }
+      { guildId: 1, name: "Crypto Legends", totalScore: 15420, ranking: 1, memberCount: 8, treasury: "2.4 tMETIS" },
+      { guildId: 2, name: "DeFi Masters", totalScore: 13890, ranking: 2, memberCount: 7, treasury: "1.8 tMETIS" },
+      { guildId: 3, name: "Blockchain Builders", totalScore: 12560, ranking: 3, memberCount: 9, treasury: "2.1 tMETIS" },
+      { guildId: 4, name: "Web3 Warriors", totalScore: 11240, ranking: 4, memberCount: 6, treasury: "1.5 tMETIS" },
+      { guildId: 5, name: "Smart Contract Pros", totalScore: 10180, ranking: 5, memberCount: 8, treasury: "1.9 tMETIS" },
+      { guildId: 6, name: "NFT Collectors", totalScore: 9850, ranking: 6, memberCount: 5, treasury: "1.2 tMETIS" },
+      { guildId: 7, name: "Hyperion Champions", totalScore: 8920, ranking: 7, memberCount: 5, treasury: "0.8 tMETIS" },
+      { guildId: 8, name: "Hyperion Experts", totalScore: 7650, ranking: 8, memberCount: 4, treasury: "0.6 tMETIS" }
     ]
   }
   
@@ -173,7 +173,7 @@ export class GoldskyIndexer {
     return {
       newRanking: Math.max(1, Math.floor(Math.random() * 5) + 3), // Random ranking 3-7
       scoreChange: Math.floor(Math.random() * 500) + 200, // +200-700 points
-      treasuryChange: "+0.5 CORE"
+      treasuryChange: "+0.5 tMETIS"
     }
   }
 }

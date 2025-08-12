@@ -13,7 +13,7 @@ import {
 import { formatEther, parseEther } from 'viem'
 import { quizGameABI } from '../libs/quizGameABI'
 import { getContractAddresses } from '../libs/constants'
-import { coreTestnet } from '../wagmi'
+import { hyperionTestnet } from '../wagmi'
 import Header from '../components/Header'
 
 function ContractDebugPage() {
@@ -27,12 +27,12 @@ function ContractDebugPage() {
   const [submittedAnswer, setSubmittedAnswer] = useState<number>(42);
 
   // Get contract addresses based on current chain
-  const contractAddresses = chain ? getContractAddresses(chain.id) : getContractAddresses(coreTestnet.id);
+  const contractAddresses = chain ? getContractAddresses(chain.id) : getContractAddresses(hyperionTestnet.id);
 
   // Get user balance
   const { data: balance } = useBalance({
     address,
-    chainId: chain?.id || coreTestnet.id,
+    chainId: chain?.id || hyperionTestnet.id,
   });
 
   // Read contract data

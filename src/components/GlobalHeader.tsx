@@ -18,7 +18,7 @@ function GlobalHeader({
   const { address, chain } = useAccount();
   
   // Get contract addresses based on current chain
-  const contractAddresses = chain ? getContractAddresses(chain.id) : getContractAddresses(1114); // Default to Core Testnet
+  const contractAddresses = chain ? getContractAddresses(chain.id) : getContractAddresses(133717); // Default to Hyperion (Testnet)
 
   // Get Token1 balance
   const { data: tokenBalance } = useBalance({
