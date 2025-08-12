@@ -18,7 +18,7 @@ function GlobalHeader({
   const { address, chain } = useAccount();
   
   // Get contract addresses based on current chain
-  const contractAddresses = chain ? getContractAddresses(chain.id) : getContractAddresses(133717); // Default to Hyperion
+  const contractAddresses = chain ? getContractAddresses(chain.id) : getContractAddresses(1114); // Default to Core Testnet
 
   // Get Token1 balance
   const { data: tokenBalance } = useBalance({
@@ -27,6 +27,9 @@ function GlobalHeader({
     chainId: chain?.id,
   });
 
+  // TODO: Fix token balance display
+  console.log("tokenBalance", tokenBalance);
+  
   return (
     <header style={{
       position: "fixed",
@@ -34,14 +37,14 @@ function GlobalHeader({
       left: 0,
       right: 0,
       zIndex: 1000,
-      background: "rgba(255, 255, 255, 0.95)",
+      background: "rgba(15, 23, 42, 0.95)",
       backdropFilter: "blur(10px)",
-      borderBottom: "1px solid rgba(0, 0, 0, 0.1)",
+      borderBottom: "1px solid rgba(55, 65, 81, 0.3)",
       padding: "1rem 2rem",
       display: "flex",
       justifyContent: "space-between",
       alignItems: "center",
-      boxShadow: "0 2px 10px rgba(0, 0, 0, 0.1)"
+      boxShadow: "0 2px 10px rgba(0, 255, 135, 0.2)"
     }}>
       {/* Left side - Logo and Back button */}
       <div style={{ display: "flex", alignItems: "center", gap: "2rem" }}>
@@ -49,7 +52,7 @@ function GlobalHeader({
           <Link
             to={backTo}
             style={{
-              color: "#667eea",
+              color: "#00ff87",
               textDecoration: "none",
               fontSize: "1rem",
               fontWeight: "600",
@@ -59,10 +62,10 @@ function GlobalHeader({
               transition: "color 0.3s ease"
             }}
             onMouseEnter={(e) => {
-              e.currentTarget.style.color = "#5a67d8";
+              e.currentTarget.style.color = "#00cc6a";
             }}
             onMouseLeave={(e) => {
-              e.currentTarget.style.color = "#667eea";
+              e.currentTarget.style.color = "#00ff87";
             }}
           >
             {backText}
@@ -72,7 +75,7 @@ function GlobalHeader({
         <Link
           to="/"
           style={{
-            color: "#1f2937",
+            color: "#00ff87",
             textDecoration: "none",
             fontSize: "1.5rem",
             fontWeight: "bold",
@@ -81,7 +84,7 @@ function GlobalHeader({
             gap: "0.5rem"
           }}
         >
-          🧠 RealMind
+          🏛️ Realmind
         </Link>
       </div>
 
@@ -90,57 +93,75 @@ function GlobalHeader({
         <Link
           to="/"
           style={{
-            color: "#6b7280",
+            color: "#e5e7eb",
             textDecoration: "none",
             fontSize: "1rem",
             fontWeight: "500",
             transition: "color 0.3s ease"
           }}
           onMouseEnter={(e) => {
-            e.currentTarget.style.color = "#374151";
+            e.currentTarget.style.color = "#00ff87";
           }}
           onMouseLeave={(e) => {
-            e.currentTarget.style.color = "#6b7280";
+            e.currentTarget.style.color = "#e5e7eb";
           }}
         >
           Home
         </Link>
-        <Link
+        {/* <Link
           to="/landing"
           style={{
-            color: "#6b7280",
+            color: "#e5e7eb",
             textDecoration: "none",
             fontSize: "1rem",
             fontWeight: "500",
             transition: "color 0.3s ease"
           }}
           onMouseEnter={(e) => {
-            e.currentTarget.style.color = "#374151";
+            e.currentTarget.style.color = "#00ff87";
           }}
           onMouseLeave={(e) => {
-            e.currentTarget.style.color = "#6b7280";
+            e.currentTarget.style.color = "#e5e7eb";
           }}
         >
           Landing
-        </Link>
+        </Link> */}
         <Link
-          to="/contract"
+          to="/demo"
           style={{
-            color: "#6b7280",
+            color: "#e5e7eb",
             textDecoration: "none",
             fontSize: "1rem",
             fontWeight: "500",
             transition: "color 0.3s ease"
           }}
           onMouseEnter={(e) => {
-            e.currentTarget.style.color = "#374151";
+            e.currentTarget.style.color = "#00ff87";
           }}
           onMouseLeave={(e) => {
-            e.currentTarget.style.color = "#6b7280";
+            e.currentTarget.style.color = "#e5e7eb";
+          }}
+        >
+          🎮 Play
+        </Link>
+        {/* <Link
+          to="/contract"
+          style={{
+            color: "#e5e7eb",
+            textDecoration: "none",
+            fontSize: "1rem",
+            fontWeight: "500",
+            transition: "color 0.3s ease"
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.color = "#00ff87";
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.color = "#e5e7eb";
           }}
         >
           Debug
-        </Link>
+        </Link> */}
       </nav>
 
       {/* Right side - Token Balance and Connect Button */}
@@ -148,13 +169,13 @@ function GlobalHeader({
         {/* Token Balance Display */}
         {address && tokenBalance && (
           <div style={{
-            background: "rgba(102, 126, 234, 0.1)",
+            background: "rgba(0, 255, 135, 0.1)",
             borderRadius: "8px",
             padding: "0.5rem 1rem",
-            border: "1px solid rgba(102, 126, 234, 0.2)"
+            border: "1px solid rgba(0, 255, 135, 0.2)"
           }}>
             <div style={{
-              color: "#667eea",
+              color: "#00ff87",
               fontSize: "0.9rem",
               fontWeight: "600",
               display: "flex",
@@ -162,7 +183,7 @@ function GlobalHeader({
               gap: "0.5rem"
             }}>
               <span>🪙</span>
-              <span>{parseFloat(tokenBalance.formatted).toFixed(2)} {tokenBalance.symbol}</span>
+              <span>{parseFloat(tokenBalance.value.toString()).toFixed(2)} {tokenBalance.symbol}</span>
             </div>
           </div>
         )}

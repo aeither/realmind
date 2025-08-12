@@ -1,14 +1,15 @@
 import { getDefaultConfig } from '@rainbow-me/rainbowkit';
-import { SUPPORTED_CHAINS, hyperionTestnet, coreDaoTestnet } from './libs/supportedChains';
+import { SUPPORTED_CHAINS } from './libs/supportedChains';
+import { coreTestnet } from './libs/coreChain';
 
 const config = getDefaultConfig({
-  appName: 'RealMind',
+  appName: 'Realmind',
   projectId: import.meta.env.VITE_WALLETCONNECT_PROJECT_ID || 'YOUR_WALLETCONNECT_PROJECT_ID',
   chains: SUPPORTED_CHAINS,
   ssr: true,
 });
 
-export { config, hyperionTestnet, coreDaoTestnet };
+export { config, coreTestnet };
 
 declare module "wagmi" {
   interface Register {

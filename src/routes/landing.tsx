@@ -2,372 +2,147 @@ import { createFileRoute, Link } from '@tanstack/react-router'
 
 function LandingPage() {
   return (
-    <div style={{ 
-      padding: "2rem",
-      maxWidth: "1200px",
-      margin: "0 auto"
-    }}>
-      {/* Hero Section */}
-      <div style={{
-        textAlign: "center",
-        padding: "4rem 2rem",
-        background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
-        borderRadius: "16px",
-        color: "white",
-        marginBottom: "3rem"
-      }}>
-        <h1 style={{
-          fontSize: "3.5rem",
-          fontWeight: "bold",
-          marginBottom: "1rem",
-          textShadow: "0 2px 4px rgba(0,0,0,0.3)"
-        }}>
-          🧠 Welcome to RealMind
-        </h1>
-        <p style={{
-          fontSize: "1.4rem",
-          marginBottom: "2rem",
-          opacity: 0.95,
-          maxWidth: "600px",
-          margin: "0 auto 2rem"
-        }}>
-          Interactive learning platform that rewards users with Yuzu Points through 
-          daily quizzes, quests, and challenges on the EDU Chain ecosystem.
-        </p>
-        <div style={{ display: "flex", gap: "1rem", justifyContent: "center", flexWrap: "wrap" }}>
-          <Link
-            to="/"
-            style={{
-              display: "inline-block",
-              backgroundColor: "rgba(255,255,255,0.2)",
-              color: "white",
-              padding: "1rem 2rem",
-              borderRadius: "12px",
-              textDecoration: "none",
-              fontSize: "1.1rem",
-              fontWeight: "600",
-              border: "2px solid rgba(255,255,255,0.3)",
-              backdropFilter: "blur(10px)",
-              transition: "all 0.3s ease"
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.backgroundColor = "rgba(255,255,255,0.3)";
-              e.currentTarget.style.transform = "translateY(-2px)";
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.backgroundColor = "rgba(255,255,255,0.2)";
-              e.currentTarget.style.transform = "translateY(0)";
-            }}
-          >
-            🎮 Start Playing
-          </Link>
-          
-          <Link
-            to="/farcaster"
-            style={{
-              display: "inline-block",
-              backgroundColor: "rgba(255,255,255,0.2)",
-              color: "white",
-              padding: "1rem 2rem",
-              borderRadius: "12px",
-              textDecoration: "none",
-              fontSize: "1.1rem",
-              fontWeight: "600",
-              border: "2px solid rgba(255,255,255,0.3)",
-              backdropFilter: "blur(10px)",
-              transition: "all 0.3s ease"
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.backgroundColor = "rgba(255,255,255,0.3)";
-              e.currentTarget.style.transform = "translateY(-2px)";
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.backgroundColor = "rgba(255,255,255,0.2)";
-              e.currentTarget.style.transform = "translateY(0)";
-            }}
-          >
-            🚀 Farcaster App
-          </Link>
+    <div className="min-h-screen bg-background">
+      <div className="max-w-6xl mx-auto p-8">
+        {/* Hero Section */}
+        <div className="text-center py-16 quiz-card rounded-3xl mb-12 animate-bounce-in">
+          <div className="text-8xl mb-6 animate-pulse-glow">🏛️</div>
+          <h1 className="text-6xl font-bold mb-6 bg-gradient-primary bg-clip-text text-transparent">
+            Welcome to Realmind
+          </h1>
+          <p className="text-xl text-muted-foreground mb-8 max-w-3xl mx-auto leading-relaxed">
+            Master blockchain knowledge through gamified quizzes and earn real rewards on Core blockchain.
+            Challenge yourself, climb leaderboards, and get rewarded for learning!
+          </p>
+          <div className="flex gap-4 justify-center flex-wrap">
+            <Link
+              to="/contract"
+              className="px-8 py-4 bg-gradient-primary text-primary-foreground rounded-2xl text-lg font-semibold 
+                         quiz-button-glow hover:scale-105 transition-all duration-300 animate-bounce-in"
+              style={{ animationDelay: '200ms' }}
+            >
+              🎮 Start Playing
+            </Link>
 
-          <Link
-            to="/contract"
-            style={{
-              display: "inline-block",
-              backgroundColor: "rgba(255,255,255,0.1)",
-              color: "white",
-              padding: "1rem 2rem",
-              borderRadius: "12px",
-              textDecoration: "none",
-              fontSize: "1rem",
-              fontWeight: "600",
-              border: "2px solid rgba(255,255,255,0.2)",
-              backdropFilter: "blur(10px)",
-              transition: "all 0.3s ease"
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.backgroundColor = "rgba(255,255,255,0.2)";
-              e.currentTarget.style.transform = "translateY(-2px)";
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.backgroundColor = "rgba(255,255,255,0.1)";
-              e.currentTarget.style.transform = "translateY(0)";
-            }}
-          >
-            🔧 Contract Debug
-          </Link>
+            <Link
+              to="/farcaster"
+              className="px-8 py-4 bg-secondary text-secondary-foreground border-2 border-primary/50 rounded-2xl 
+                         text-lg font-semibold hover:bg-primary hover:text-primary-foreground hover:scale-105 
+                         transition-all duration-300 animate-bounce-in"
+              style={{ animationDelay: '400ms' }}
+            >
+              🚀 Farcaster App
+            </Link>
+
+            <Link
+              to="/contract"
+              className="px-6 py-3 bg-muted text-muted-foreground border border-border rounded-xl 
+                         text-base font-medium hover:bg-secondary hover:text-foreground hover:scale-105 
+                         transition-all duration-300 animate-bounce-in"
+              style={{ animationDelay: '600ms' }}
+            >
+              🔧 Debug
+            </Link>
+          </div>
         </div>
       </div>
 
       {/* Features Grid */}
-      <div style={{
-        display: "grid",
-        gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))",
-        gap: "2rem",
-        marginBottom: "3rem"
-      }}>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-16">
         <FeatureCard
           icon="🎮"
           title="Onchain Quiz Game"
-          description="Play blockchain quizzes with real crypto rewards. Pay to play, earn up to 120% back based on performance!"
+          description="Play blockchain quizzes with real crypto rewards. Pay to play, earn up to 190% back based on performance!"
+          delay="200ms"
         />
         <FeatureCard
-          icon="📚"
-          title="Daily Learning"
-          description="Take personalized daily quizzes to earn points and build your knowledge across various subjects."
+          icon="🧠"
+          title="Learn & Earn"
+          description="Master Web3, DeFi, and Tezos concepts through interactive quizzes with instant feedback."
+          delay="400ms"
         />
         <FeatureCard
           icon="🏆"
           title="Leaderboards"
-          description="Compete with other learners in seasonal competitions and track your progress."
+          description="Compete with other learners globally and climb seasonal rankings for extra rewards."
+          delay="600ms"
         />
         <FeatureCard
-          icon="🍋"
-          title="Yuzu Points"
-          description="Earn points that convert to EDU tokens on the Open Campus EDU Chain ecosystem."
+          icon="🪙"
+          title="Token Rewards"
+          description="Earn TK1 tokens for completing quizzes, with bonus multipliers for perfect scores!"
+          delay="800ms"
         />
       </div>
 
-      {/* How It Works Section */}
-      <div style={{
-        background: "#f8fafc",
-        borderRadius: "16px",
-        padding: "3rem 2rem",
-        textAlign: "center"
-      }}>
-        <h2 style={{
-          fontSize: "2.5rem",
-          fontWeight: "bold",
-          color: "#1f2937",
-          marginBottom: "2rem"
-        }}>
-          How It Works
-        </h2>
-        <div style={{
-          display: "grid",
-          gridTemplateColumns: "repeat(auto-fit, minmax(250px, 1fr))",
-          gap: "2rem",
-          maxWidth: "1000px",
-          margin: "0 auto"
-        }}>
-          <StepCard
-            step="1"
-            title="Connect"
-            description="Sign in with your Farcaster account to get started"
-            color="#667eea"
-          />
-          <StepCard
-            step="2"
-            title="Learn"
-            description="Take daily quizzes and complete educational quests"
-            color="#22c55e"
-          />
-          <StepCard
-            step="3"
-            title="Earn"
-            description="Accumulate points and climb the leaderboards"
-            color="#f59e0b"
-          />
-          <StepCard
-            step="4"
-            title="Reward"
-            description="Convert points to Yuzu Points for EDU Chain rewards"
-            color="#8b5cf6"
-          />
+      {/* How It Works */}
+      <div className="quiz-card rounded-3xl p-12 text-center animate-bounce-in" style={{ animationDelay: '1000ms' }}>
+        <h2 className="text-4xl font-bold text-primary mb-8">How It Works</h2>
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-8 max-w-4xl mx-auto">
+          <StepCard step="1" title="Connect" description="Connect your wallet to Core Testnet" />
+          <StepCard step="2" title="Choose" description="Select from Web3, DeFi, or Tezos quizzes" />
+          <StepCard step="3" title="Play" description="Answer questions and earn tokens" />
+          <StepCard step="4" title="Claim" description="Get up to 190% returns for perfect scores!" />
         </div>
       </div>
 
-      {/* CTA Section */}
-      <div style={{
-        textAlign: "center",
-        padding: "3rem 2rem",
-        marginTop: "3rem"
-      }}>
-        <h3 style={{
-          fontSize: "2rem",
-          fontWeight: "bold",
-          color: "#1f2937",
-          marginBottom: "1rem"
-        }}>
-          Ready to Start Learning?
-        </h3>
-        <p style={{
-          fontSize: "1.1rem",
-          color: "#6b7280",
-          marginBottom: "2rem",
-          maxWidth: "500px",
-          margin: "0 auto 2rem"
-        }}>
-          Join thousands of learners already earning rewards through interactive education.
+      {/* Final CTA */}
+      <div className="text-center py-16 animate-bounce-in" style={{ animationDelay: '1200ms' }}>
+        <h3 className="text-3xl font-bold text-foreground mb-6">Ready to Test Your Knowledge?</h3>
+        <p className="text-xl text-muted-foreground mb-8 max-w-2xl mx-auto">
+          Join the Realmind community and start earning rewards for learning blockchain concepts!
         </p>
-        <div style={{ display: "flex", gap: "1rem", justifyContent: "center", flexWrap: "wrap" }}>
-          <Link
-            to="/"
-            style={{
-              display: "inline-block",
-              backgroundColor: "#667eea",
-              color: "white",
-              padding: "1rem 2rem",
-              borderRadius: "12px",
-              textDecoration: "none",
-              fontSize: "1.1rem",
-              fontWeight: "600",
-              boxShadow: "0 4px 6px rgba(102, 126, 234, 0.3)",
-              transition: "all 0.3s ease"
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.backgroundColor = "#5a67d8";
-              e.currentTarget.style.transform = "translateY(-2px)";
-              e.currentTarget.style.boxShadow = "0 8px 12px rgba(102, 126, 234, 0.4)";
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.backgroundColor = "#667eea";
-              e.currentTarget.style.transform = "translateY(0)";
-              e.currentTarget.style.boxShadow = "0 4px 6px rgba(102, 126, 234, 0.3)";
-            }}
-          >
-            🎮 Start Playing
-          </Link>
-
-          <Link
-            to="/farcaster"
-            style={{
-              display: "inline-block",
-              backgroundColor: "#8b5cf6",
-              color: "white",
-              padding: "1rem 2rem",
-              borderRadius: "12px",
-              textDecoration: "none",
-              fontSize: "1.1rem",
-              fontWeight: "600",
-              boxShadow: "0 4px 6px rgba(139, 92, 246, 0.3)",
-              transition: "all 0.3s ease"
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.backgroundColor = "#7c3aed";
-              e.currentTarget.style.transform = "translateY(-2px)";
-              e.currentTarget.style.boxShadow = "0 8px 12px rgba(139, 92, 246, 0.4)";
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.backgroundColor = "#8b5cf6";
-              e.currentTarget.style.transform = "translateY(0)";
-              e.currentTarget.style.boxShadow = "0 4px 6px rgba(139, 92, 246, 0.3)";
-            }}
-          >
-            Launch Farcaster App →
-          </Link>
-        </div>
+        <Link
+          to="/contract"
+          className="inline-block px-12 py-6 bg-gradient-primary text-primary-foreground rounded-3xl 
+                       text-xl font-bold quiz-button-glow hover:scale-110 transition-all duration-300 
+                       animate-pulse-glow"
+        >
+          🚀 Start Your Journey
+        </Link>
       </div>
     </div>
   );
 }
 
-function FeatureCard({ icon, title, description }: { 
-  icon: string; 
-  title: string; 
-  description: string; 
+function FeatureCard({ icon, title, description, delay }: {
+  icon: string;
+  title: string;
+  description: string;
+  delay: string;
 }) {
   return (
-    <div style={{
-      background: "white",
-      borderRadius: "12px",
-      padding: "2rem",
-      textAlign: "center",
-      boxShadow: "0 4px 6px rgba(0,0,0,0.05)",
-      border: "1px solid #e5e7eb",
-      transition: "all 0.3s ease"
-    }}
-    onMouseEnter={(e) => {
-      e.currentTarget.style.transform = "translateY(-4px)";
-      e.currentTarget.style.boxShadow = "0 8px 12px rgba(0,0,0,0.1)";
-    }}
-    onMouseLeave={(e) => {
-      e.currentTarget.style.transform = "translateY(0)";
-      e.currentTarget.style.boxShadow = "0 4px 6px rgba(0,0,0,0.05)";
-    }}
+    <div
+      className="quiz-card rounded-2xl p-6 text-center hover:scale-105 transition-all duration-300 animate-bounce-in group"
+      style={{ animationDelay: delay }}
     >
-      <div style={{ fontSize: "3rem", marginBottom: "1rem" }}>{icon}</div>
-      <h3 style={{
-        fontSize: "1.5rem",
-        fontWeight: "bold",
-        color: "#1f2937",
-        marginBottom: "1rem"
-      }}>
+      <div className="text-5xl mb-4 group-hover:animate-celebrate">{icon}</div>
+      <h3 className="text-xl font-bold text-primary mb-3">
         {title}
       </h3>
-      <p style={{
-        color: "#6b7280",
-        lineHeight: "1.6"
-      }}>
+      <p className="text-muted-foreground leading-relaxed text-sm">
         {description}
       </p>
     </div>
   );
 }
 
-function StepCard({ step, title, description, color }: {
+function StepCard({ step, title, description }: {
   step: string;
   title: string;
   description: string;
-  color: string;
 }) {
   return (
-    <div style={{
-      background: "white",
-      borderRadius: "12px",
-      padding: "2rem",
-      textAlign: "center",
-      position: "relative",
-      border: "1px solid #e5e7eb"
-    }}>
-      <div style={{
-        width: "3rem",
-        height: "3rem",
-        backgroundColor: color,
-        color: "white",
-        borderRadius: "50%",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        fontSize: "1.5rem",
-        fontWeight: "bold",
-        margin: "0 auto 1rem",
-        boxShadow: `0 4px 8px ${color}40`
-      }}>
+    <div className="text-center group">
+      <div className="w-16 h-16 bg-primary text-primary-foreground rounded-full flex items-center justify-center 
+                      text-2xl font-bold mx-auto mb-4 quiz-button-glow group-hover:animate-celebrate 
+                      transition-all duration-300">
         {step}
       </div>
-      <h4 style={{
-        fontSize: "1.25rem",
-        fontWeight: "bold",
-        color: "#1f2937",
-        marginBottom: "0.5rem"
-      }}>
+      <h4 className="text-lg font-bold text-foreground mb-2">
         {title}
       </h4>
-      <p style={{
-        color: "#6b7280",
-        fontSize: "0.95rem",
-        lineHeight: "1.5"
-      }}>
+      <p className="text-muted-foreground text-sm leading-relaxed">
         {description}
       </p>
     </div>

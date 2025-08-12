@@ -36,7 +36,7 @@ function FarcasterApp() {
   return (
     <div style={{ minHeight: "calc(100vh - 80px)", display: "flex", flexDirection: "column" }}>
       <div style={{ flex: 1, textAlign: "center", padding: "2rem" }}>
-        <h1 style={{ marginBottom: "2rem", fontSize: "2.5rem", color: "#667eea" }}>🧠 RealMind Farcaster</h1>
+        <h1 style={{ marginBottom: "2rem", fontSize: "2.5rem", color: "#667eea" }}>🏛️ Realmind Farcaster</h1>
         {user ? <AuthenticatedView user={user} token={authToken} /> : <AuthenticationPrompt onAuth={setUser} />}
       </div>
       {user && <ConnectMenu />}
@@ -66,7 +66,7 @@ function SplashScreen() {
           textAlign: "center",
         }}
       >
-        🧠 RealMind
+        🏛️ Realmind
       </div>
       <div
         style={{
@@ -255,7 +255,7 @@ function AuthenticationPrompt({
 
   return (
     <div style={{ margin: "2rem 0", padding: "3rem", backgroundColor: "#f9f9f9", borderRadius: "16px", maxWidth: "600px", marginLeft: "auto", marginRight: "auto" }}>
-      <h3 style={{ fontSize: "1.8rem", marginBottom: "1rem" }}>Welcome to RealMind Farcaster!</h3>
+      <h3 style={{ fontSize: "1.8rem", marginBottom: "1rem" }}>Welcome to Realmind Farcaster!</h3>
       <p style={{ fontSize: "1.1rem", lineHeight: "1.6", marginBottom: "2rem" }}>Sign in with your Farcaster account to start learning and earning points through interactive quizzes.</p>
       <button
         type="button"

@@ -1,6 +1,6 @@
 {
   "frame": {
-    "name": "RealMind",
+    "name": "Realmind",
     "version": "1",
     "iconUrl": "https://realmind.vercel.app/icon.png",
     "homeUrl": "https://realmind.vercel.app",
@@ -9,7 +9,7 @@
     "splashBackgroundColor": "#6200EA",
     "webhookUrl": "https://realmind.vercel.app/api/webhook",
     "subtitle": "Interactive learning",
-    "description": "RealMind is a decentralized learning platform built for the Farcaster ecosystem.",
+    "description": "Realmind is a decentralized learning platform built for the Etherlink ecosystem.",
     "primaryCategory": "education"
   },
   "accountAssociation": {

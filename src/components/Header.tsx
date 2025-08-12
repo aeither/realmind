@@ -12,7 +12,7 @@ interface HeaderProps {
 }
 
 function Header({ 
-  title = "🧠 RealMind", 
+  title = "🏛️ Realmind", 
   subtitle = "Interactive Learning Platform",
   showBackButton = false,
   backTo = "/landing",
