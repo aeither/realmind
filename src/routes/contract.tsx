@@ -1,5 +1,6 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { useState } from 'react'
+import { motion } from 'framer-motion'
 import { 
   useAccount, 
   useConnect, 
@@ -325,11 +326,11 @@ function ContractDebugPage() {
   // }
 
   return (
-    <div style={{
+    <motion.div style={{
       minHeight: "100vh",
       background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
       padding: "2rem"
-    }}>
+    }} initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
 
       <div style={{
         maxWidth: "1200px",
@@ -339,12 +340,12 @@ function ContractDebugPage() {
         gap: "2rem"
       }}>
         {/* Contract Info */}
-        <div style={{
+        <motion.div style={{
           background: "rgba(255, 255, 255, 0.95)",
           borderRadius: "16px",
           padding: "2rem",
           boxShadow: "0 20px 40px rgba(0,0,0,0.2)"
-        }}>
+        }} initial={{ y: 15, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.05 }}>
           <h3 style={{ fontSize: "1.5rem", marginBottom: "1.5rem", color: "#1f2937" }}>
             📋 Contract Information
           </h3>
@@ -464,15 +465,15 @@ function ContractDebugPage() {
           >
             🔄 Refresh Data
           </button>
-        </div>
+        </motion.div>
 
         {/* Token Rewards Calculator */}
-        <div style={{
+        <motion.div style={{
           background: "rgba(255, 255, 255, 0.95)",
           borderRadius: "16px",
           padding: "2rem",
           boxShadow: "0 20px 40px rgba(0,0,0,0.2)"
-        }}>
+        }} initial={{ y: 15, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.1 }}>
           <h3 style={{ fontSize: "1.5rem", marginBottom: "1.5rem", color: "#1f2937" }}>
             🪙 Token Rewards Calculator
           </h3>
@@ -535,15 +536,15 @@ function ContractDebugPage() {
               <li>Keep tokens even if wrong!</li>
             </ul>
           </div>
-        </div>
+        </motion.div>
 
         {/* Quiz Functions */}
-        <div style={{
+        <motion.div style={{
           background: "rgba(255, 255, 255, 0.95)",
           borderRadius: "16px",
           padding: "2rem",
           boxShadow: "0 20px 40px rgba(0,0,0,0.2)"
-        }}>
+        }} initial={{ y: 15, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.15 }}>
           <h3 style={{ fontSize: "1.5rem", marginBottom: "1.5rem", color: "#1f2937" }}>
             🎮 Quiz Functions
           </h3>
@@ -638,15 +639,15 @@ function ContractDebugPage() {
           >
             {isCompletePending ? "Confirming..." : isCompleteConfirming ? "Completing Quiz..." : "✅ Complete Quiz"}
           </button>
-        </div>
+        </motion.div>
 
         {/* Admin Functions */}
-        <div style={{
+        <motion.div style={{
           background: "rgba(255, 255, 255, 0.95)",
           borderRadius: "16px",
           padding: "2rem",
           boxShadow: "0 20px 40px rgba(0,0,0,0.2)"
-        }}>
+        }} initial={{ y: 15, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.2 }}>
           <h3 style={{ fontSize: "1.5rem", marginBottom: "1.5rem", color: "#1f2937" }}>
             👑 Admin Functions
           </h3>
@@ -686,7 +687,7 @@ function ContractDebugPage() {
           >
             {isWithdrawPending ? "Confirming..." : isWithdrawConfirming ? "Withdrawing..." : "💸 Withdraw Funds"}
           </button>
-        </div>
+        </motion.div>
 
         {/* User Session */}
         <div style={{
@@ -795,7 +796,7 @@ function ContractDebugPage() {
           </p>
         </div>
       )}
-    </div>
+    </motion.div>
   );
 }
 

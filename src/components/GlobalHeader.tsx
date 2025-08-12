@@ -1,4 +1,5 @@
 import { Link } from '@tanstack/react-router';
+import { motion } from 'framer-motion';
 import { ConnectButton } from '@rainbow-me/rainbowkit';
 import { useAccount, useBalance } from 'wagmi';
 import { formatEther } from 'viem';
@@ -31,7 +32,11 @@ function GlobalHeader({
   console.log("tokenBalance", tokenBalance);
   
   return (
-    <header style={{
+    <motion.header
+      initial={{ y: -20, opacity: 0 }}
+      animate={{ y: 0, opacity: 1 }}
+      transition={{ duration: 0.5, ease: 'easeOut' }}
+      style={{
       position: "fixed",
       top: 0,
       left: 0,
@@ -44,8 +49,9 @@ function GlobalHeader({
       display: "flex",
       justifyContent: "space-between",
       alignItems: "center",
-      boxShadow: "0 2px 10px rgba(0, 255, 135, 0.2)"
-    }}>
+      boxShadow: "0 2px 10px rgba(0, 255, 135, 0.15)"
+    }}
+    >
       {/* Left side - Logo and Back button */}
       <div style={{ display: "flex", alignItems: "center", gap: "2rem" }}>
         {showBackButton && (
@@ -72,6 +78,7 @@ function GlobalHeader({
           </Link>
         )}
         
+        <motion.div whileHover={{ scale: 1.02 }} transition={{ type: 'spring', stiffness: 300, damping: 20 }}>
         <Link
           to="/"
           style={{
@@ -86,10 +93,12 @@ function GlobalHeader({
         >
           🏛️ Realmind
         </Link>
+        </motion.div>
       </div>
 
       {/* Center - Navigation */}
       <nav style={{ display: "flex", gap: "2rem", alignItems: "center" }}>
+        <motion.div whileHover={{ y: -1 }}>
         <Link
           to="/"
           style={{
@@ -108,6 +117,7 @@ function GlobalHeader({
         >
           Home
         </Link>
+        </motion.div>
         {/* <Link
           to="/landing"
           style={{
@@ -126,6 +136,7 @@ function GlobalHeader({
         >
           Landing
         </Link> */}
+        <motion.div whileHover={{ y: -1 }}>
         <Link
           to="/demo"
           style={{
@@ -144,6 +155,7 @@ function GlobalHeader({
         >
           🎮 Play
         </Link>
+        </motion.div>
         {/* <Link
           to="/contract"
           style={{
@@ -165,7 +177,7 @@ function GlobalHeader({
       </nav>
 
       {/* Right side - Token Balance and Connect Button */}
-      <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
+      <motion.div style={{ display: "flex", alignItems: "center", gap: "1rem" }} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.2 }}>
         {/* Token Balance Display */}
         {address && tokenBalance && (
           <div style={{
@@ -189,9 +201,11 @@ function GlobalHeader({
         )}
         
         {/* RainbowKit Connect Button */}
-        <ConnectButton />
-      </div>
-    </header>
+        <motion.div whileHover={{ scale: 1.02 }}>
+          <ConnectButton />
+        </motion.div>
+      </motion.div>
+    </motion.header>
   );
 }
 

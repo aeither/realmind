@@ -1,4 +1,5 @@
 import { createFileRoute, useNavigate, useSearch } from '@tanstack/react-router'
+import { motion } from 'framer-motion'
 import { useState, useEffect } from 'react'
 import { useAccount, useReadContract, useWriteContract, useWaitForTransactionReceipt, useSwitchChain } from 'wagmi'
 import { parseEther } from 'viem'
@@ -167,7 +168,7 @@ function QuizGame() {
 
   if (!isCorrectChain) {
     return (
-      <div style={{ paddingTop: '80px' }}>
+      <motion.div style={{ paddingTop: '80px' }} initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
         <GlobalHeader />
         <div style={{
           maxWidth: "600px",
@@ -195,14 +196,14 @@ function QuizGame() {
             Switch to Hyperion Testnet
           </button>
         </div>
-      </div>
+      </motion.div>
     )
   }
 
   // Redirect if no quiz ID or invalid quiz ID
   if (!quizId || !quizConfig) {
     return (
-      <div style={{ paddingTop: '80px' }}>
+      <motion.div style={{ paddingTop: '80px' }} initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
         <GlobalHeader />
         <div style={{ maxWidth: "600px", margin: "0 auto", padding: "2rem", textAlign: "center" }}>
           <h2 style={{ color: "#ffffff", marginBottom: "1rem" }}>Quiz Not Found</h2>
@@ -225,14 +226,14 @@ function QuizGame() {
             Back to Quiz Selection
           </button>
         </div>
-      </div>
+      </motion.div>
     )
   }
 
   // Check if user has an active quiz session but for a different quiz
   if (hasActiveQuiz && activeQuizId && activeQuizId !== quizId) {
     return (
-      <div style={{ paddingTop: '80px' }}>
+      <motion.div style={{ paddingTop: '80px' }} initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
         <GlobalHeader />
         <div style={{ maxWidth: "600px", margin: "0 auto", padding: "2rem", textAlign: "center" }}>
           <h2 style={{ color: "#ffffff", marginBottom: "1rem" }}>Active Quiz Session</h2>
@@ -272,7 +273,7 @@ function QuizGame() {
             </button>
           </div>
         </div>
-      </div>
+      </motion.div>
     )
   }
 
@@ -404,7 +405,7 @@ function QuizGame() {
 
   // Main quiz start interface
   return (
-    <div style={{ paddingTop: '80px' }}>
+    <motion.div style={{ paddingTop: '80px' }} initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
       <GlobalHeader />
       <div style={{
         maxWidth: "600px",
@@ -494,7 +495,7 @@ function QuizGame() {
           </button>
         </div>
       </div>
-    </div>
+    </motion.div>
   )
 }
 

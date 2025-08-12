@@ -1,20 +1,21 @@
 import { createFileRoute, Link } from '@tanstack/react-router'
+import { motion } from 'framer-motion'
 
 function LandingPage() {
   return (
-    <div className="min-h-screen bg-background">
+    <motion.div className="min-h-screen bg-background" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.5 }}>
       <div className="max-w-6xl mx-auto p-8">
         {/* Hero Section */}
-        <div className="text-center py-16 quiz-card rounded-3xl mb-12 animate-bounce-in">
-          <div className="text-8xl mb-6 animate-pulse-glow">🏛️</div>
+        <motion.div className="text-center py-16 quiz-card rounded-3xl mb-12" initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ duration: 0.6, ease: 'easeOut' }}>
+          <motion.div className="text-8xl mb-6" initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} transition={{ duration: 0.6, delay: 0.1 }}>🏛️</motion.div>
           <h1 className="text-6xl font-bold mb-6 bg-gradient-primary bg-clip-text text-transparent">
             Welcome to Realmind
           </h1>
           <p className="text-xl text-muted-foreground mb-8 max-w-3xl mx-auto leading-relaxed">
-            Master blockchain knowledge through gamified quizzes and earn real rewards on Core blockchain.
+            Master blockchain knowledge through gamified quizzes and earn real rewards on Hyperion Testnet.
             Challenge yourself, climb leaderboards, and get rewarded for learning!
           </p>
-          <div className="flex gap-4 justify-center flex-wrap">
+          <motion.div className="flex gap-4 justify-center flex-wrap" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.2 }}>
             <Link
               to="/contract"
               className="px-8 py-4 bg-gradient-primary text-primary-foreground rounded-2xl text-lg font-semibold 
@@ -43,8 +44,8 @@ function LandingPage() {
             >
               🔧 Debug
             </Link>
-          </div>
-        </div>
+          </motion.div>
+        </motion.div>
       </div>
 
       {/* Features Grid */}
@@ -79,7 +80,7 @@ function LandingPage() {
       <div className="quiz-card rounded-3xl p-12 text-center animate-bounce-in" style={{ animationDelay: '1000ms' }}>
         <h2 className="text-4xl font-bold text-primary mb-8">How It Works</h2>
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8 max-w-4xl mx-auto">
-          <StepCard step="1" title="Connect" description="Connect your wallet to Core Testnet" />
+          <StepCard step="1" title="Connect" description="Connect your wallet to Hyperion Testnet" />
           <StepCard step="2" title="Choose" description="Select from Web3, DeFi, or Tezos quizzes" />
           <StepCard step="3" title="Play" description="Answer questions and earn tokens" />
           <StepCard step="4" title="Claim" description="Get up to 190% returns for perfect scores!" />
@@ -101,7 +102,7 @@ function LandingPage() {
           🚀 Start Your Journey
         </Link>
       </div>
-    </div>
+    </motion.div>
   );
 }
 
