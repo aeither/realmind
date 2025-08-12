@@ -75,7 +75,7 @@ function GamifiedEndScreen({
   return (
     <div style={{
       minHeight: "100vh",
-      background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+      background: "hsl(var(--background))",
       display: "flex",
       alignItems: "center",
       justifyContent: "center",
@@ -113,23 +113,24 @@ function GamifiedEndScreen({
       )}
 
       <div style={{
-        background: "rgba(255, 255, 255, 0.95)",
+        background: "#ffffff",
         borderRadius: "24px",
         padding: "3rem",
         textAlign: "center",
         maxWidth: "600px",
         width: "100%",
-        boxShadow: "0 20px 40px rgba(0,0,0,0.2)",
-        backdropFilter: "blur(10px)",
+        boxShadow: "var(--shadow-card)",
+        backdropFilter: "blur(2px)",
         position: "relative",
-        zIndex: 2
+        zIndex: 2,
+        border: "1px solid hsl(var(--border))"
       }}>
         {/* Score Display */}
         <div style={{ marginBottom: "2rem" }}>
           <h2 style={{
-            fontSize: "2.5rem",
-            fontWeight: "bold",
-            color: "#1f2937",
+            fontSize: "2.25rem",
+            fontWeight: 800,
+            color: "#111827",
             marginBottom: "1rem"
           }}>
             🎉 Quiz Completed!
@@ -142,15 +143,15 @@ function GamifiedEndScreen({
             {getRewardEmoji()}
           </div>
           <h3 style={{
-            fontSize: "2rem",
-            fontWeight: "bold",
+            fontSize: "1.75rem",
+            fontWeight: 800,
             color: getRewardColor(),
             marginBottom: "0.5rem"
           }}>
             {getRewardTitle()}
           </h3>
           <p style={{
-            fontSize: "1.5rem",
+            fontSize: "1.25rem",
             color: "#6b7280",
             marginBottom: "2rem"
           }}>
@@ -215,15 +216,15 @@ function GamifiedEndScreen({
             marginBottom: "2rem"
           }}>
             <div style={{
-              background: "linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%)",
+              background: "#f0fdf4",
               borderRadius: "16px",
               padding: "2rem",
-              border: "2px solid #0ea5e9"
+              border: "2px solid #22c55e"
             }}>
               <h4 style={{
-                fontSize: "1.5rem",
-                fontWeight: "bold",
-                color: "#0c4a6e",
+                fontSize: "1.25rem",
+                fontWeight: 800,
+                color: "#14532d",
                 marginBottom: "1rem"
               }}>
                 🍋 Rewards Earned!
@@ -236,25 +237,25 @@ function GamifiedEndScreen({
               }}>
                 <div style={{ textAlign: "center" }}>
                   <div style={{ fontSize: "2rem", marginBottom: "0.5rem" }}>📝</div>
-                  <div style={{ fontWeight: "bold", color: "#374151" }}>Base Points</div>
-                  <div style={{ fontSize: "1.2rem", color: "#059669" }}>{pointsEarned}</div>
+                  <div style={{ fontWeight: 700, color: "#374151" }}>Base Points</div>
+                  <div style={{ fontSize: "1.2rem", color: "#16a34a" }}>{pointsEarned}</div>
                 </div>
                 <div style={{ fontSize: "1.5rem", color: "#6b7280" }}>×</div>
                 <div style={{ textAlign: "center" }}>
                   <div style={{ fontSize: "2rem", marginBottom: "0.5rem" }}>⚡</div>
-                  <div style={{ fontWeight: "bold", color: "#374151" }}>Bonus</div>
-                  <div style={{ fontSize: "1.2rem", color: "#dc2626" }}>{bonusMultiplier}x</div>
+                  <div style={{ fontWeight: 700, color: "#374151" }}>Bonus</div>
+                  <div style={{ fontSize: "1.2rem", color: "#22c55e" }}>{bonusMultiplier}x</div>
                 </div>
                 <div style={{ fontSize: "1.5rem", color: "#6b7280" }}>=</div>
                 <div style={{ textAlign: "center" }}>
                   <div style={{ fontSize: "2rem", marginBottom: "0.5rem" }}>🏆</div>
-                  <div style={{ fontWeight: "bold", color: "#374151" }}>Total</div>
-                  <div style={{ fontSize: "1.5rem", color: "#059669", fontWeight: "bold" }}>{totalPoints}</div>
+                  <div style={{ fontWeight: 700, color: "#374151" }}>Total</div>
+                  <div style={{ fontSize: "1.5rem", color: "#16a34a", fontWeight: 800 }}>{totalPoints}</div>
                 </div>
               </div>
               <p style={{
-                fontSize: "0.9rem",
-                color: "#6b7280",
+                fontSize: "0.95rem",
+                color: "#374151",
                 marginTop: "1rem"
               }}>
                 {bonusMultiplier > 1 ? `You earned a ${bonusMultiplier}x bonus for your excellent performance!` : "Keep practicing to earn bonus multipliers!"}
@@ -275,26 +276,26 @@ function GamifiedEndScreen({
               onClick={handleClaim}
               disabled={isClaiming}
               style={{
-                backgroundColor: isClaiming ? "#9ca3af" : "#22c55e",
-                color: "white",
+                backgroundColor: isClaiming ? "#a3e635" : "#58CC02",
+                color: "#ffffff",
                 border: "none",
                 borderRadius: "12px",
                 padding: "1rem 2rem",
                 fontSize: "1.1rem",
-                fontWeight: "600",
+                fontWeight: 700,
                 cursor: isClaiming ? "not-allowed" : "pointer",
-                boxShadow: "0 4px 6px rgba(34, 197, 94, 0.3)",
+                boxShadow: "var(--shadow-button)",
                 transition: "all 0.3s ease"
               }}
               onMouseEnter={(e) => {
                 if (!isClaiming) {
-                  e.currentTarget.style.backgroundColor = "#16a34a";
+                  e.currentTarget.style.backgroundColor = "#46a001";
                   e.currentTarget.style.transform = "translateY(-2px)";
                 }
               }}
               onMouseLeave={(e) => {
                 if (!isClaiming) {
-                  e.currentTarget.style.backgroundColor = "#22c55e";
+                  e.currentTarget.style.backgroundColor = "#58CC02";
                   e.currentTarget.style.transform = "translateY(0)";
                 }
               }}
@@ -307,23 +308,23 @@ function GamifiedEndScreen({
             <button
               onClick={onPlayAgain}
               style={{
-                backgroundColor: "#667eea",
+                backgroundColor: "#0ea5e9",
                 color: "white",
                 border: "none",
                 borderRadius: "12px",
                 padding: "1rem 2rem",
                 fontSize: "1.1rem",
-                fontWeight: "600",
+                fontWeight: 700,
                 cursor: "pointer",
-                boxShadow: "0 4px 6px rgba(102, 126, 234, 0.3)",
+                boxShadow: "0 4px 6px rgba(14, 165, 233, 0.3)",
                 transition: "all 0.3s ease"
               }}
               onMouseEnter={(e) => {
-                e.currentTarget.style.backgroundColor = "#5a67d8";
+                e.currentTarget.style.backgroundColor = "#0284c7";
                 e.currentTarget.style.transform = "translateY(-2px)";
               }}
               onMouseLeave={(e) => {
-                e.currentTarget.style.backgroundColor = "#667eea";
+                e.currentTarget.style.backgroundColor = "#0ea5e9";
                 e.currentTarget.style.transform = "translateY(0)";
               }}
             >
@@ -334,22 +335,22 @@ function GamifiedEndScreen({
           <button
             onClick={onExit}
             style={{
-              backgroundColor: "#6b7280",
+              backgroundColor: "#e5e7eb",
               color: "white",
               border: "none",
               borderRadius: "12px",
               padding: "1rem 2rem",
               fontSize: "1rem",
-              fontWeight: "600",
+              fontWeight: 700,
               cursor: "pointer",
               transition: "all 0.3s ease"
             }}
             onMouseEnter={(e) => {
-              e.currentTarget.style.backgroundColor = "#4b5563";
+              e.currentTarget.style.backgroundColor = "#d1d5db";
               e.currentTarget.style.transform = "translateY(-2px)";
             }}
             onMouseLeave={(e) => {
-              e.currentTarget.style.backgroundColor = "#6b7280";
+              e.currentTarget.style.backgroundColor = "#e5e7eb";
               e.currentTarget.style.transform = "translateY(0)";
             }}
           >
@@ -362,11 +363,11 @@ function GamifiedEndScreen({
           <div style={{
             marginTop: "2rem",
             padding: "1rem",
-            background: "#e6f7ff",
+            background: "#f0f9ff",
             borderRadius: "8px",
             border: "1px solid #0ea5e9"
           }}>
-            <p style={{ fontWeight: "600", marginBottom: "0.5rem", color: "#0c4a6e" }}>
+            <p style={{ fontWeight: 700, marginBottom: "0.5rem", color: "#0c4a6e" }}>
               🔗 Transaction Hash:
             </p>
             <p style={{
@@ -374,7 +375,7 @@ function GamifiedEndScreen({
               wordBreak: "break-all",
               fontFamily: "monospace",
               color: "#0c4a6e",
-              backgroundColor: "white",
+              backgroundColor: "#ffffff",
               padding: "0.5rem",
               borderRadius: "4px"
             }}>

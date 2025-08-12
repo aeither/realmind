@@ -10,6 +10,19 @@ contract Token1 is ERC20, Ownable {
     function mint(address to, uint256 amount) public onlyOwner {
         _mint(to, amount);
     }
+
+    // Soulbound behavior: disable transfers and approvals
+    function transfer(address, uint256) public pure override returns (bool) {
+        revert("Soulbound: non-transferable");
+    }
+
+    function approve(address, uint256) public pure override returns (bool) {
+        revert("Soulbound: approvals disabled");
+    }
+
+    function transferFrom(address, address, uint256) public pure override returns (bool) {
+        revert("Soulbound: non-transferable");
+    }
 }
 
 contract QuizGame is Ownable {

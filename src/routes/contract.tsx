@@ -190,7 +190,7 @@ function ContractDebugPage() {
     return (
       <div style={{
         minHeight: "100vh",
-        background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+        background: "hsl(var(--background))",
         padding: "2rem",
         display: "flex",
         flexDirection: "column",
@@ -206,15 +206,16 @@ function ContractDebugPage() {
         />
         
         <div style={{
-          background: "rgba(255, 255, 255, 0.95)",
+          background: "#ffffff",
           borderRadius: "16px",
           padding: "3rem",
           textAlign: "center",
           maxWidth: "600px",
           width: "100%",
-          boxShadow: "0 20px 40px rgba(0,0,0,0.2)"
+          boxShadow: "var(--shadow-card)",
+          border: "1px solid hsl(var(--border))"
         }}>
-          <h2 style={{ fontSize: "2rem", marginBottom: "2rem", color: "#1f2937" }}>
+          <h2 style={{ fontSize: "1.75rem", marginBottom: "2rem", color: "#111827", fontWeight: 800 }}>
             Connect Wallet to Debug Contract
           </h2>
           
@@ -224,22 +225,22 @@ function ContractDebugPage() {
                 key={connector.id}
                 onClick={() => connect({ connector })}
                 style={{
-                  backgroundColor: "#667eea",
-                  color: "white",
+                  backgroundColor: "#58CC02",
+                  color: "#ffffff",
                   border: "none",
                   borderRadius: "12px",
                   padding: "1rem 2rem",
                   fontSize: "1.1rem",
-                  fontWeight: "600",
+                  fontWeight: 700,
                   cursor: "pointer",
                   transition: "all 0.3s ease"
                 }}
                 onMouseEnter={(e) => {
-                  e.currentTarget.style.backgroundColor = "#5a67d8";
+                  e.currentTarget.style.backgroundColor = "#46a001";
                   e.currentTarget.style.transform = "translateY(-2px)";
                 }}
                 onMouseLeave={(e) => {
-                  e.currentTarget.style.backgroundColor = "#667eea";
+                  e.currentTarget.style.backgroundColor = "#58CC02";
                   e.currentTarget.style.transform = "translateY(0)";
                 }}
               >
@@ -328,7 +329,7 @@ function ContractDebugPage() {
   return (
     <motion.div style={{
       minHeight: "100vh",
-      background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+      background: "hsl(var(--background))",
       padding: "2rem"
     }} initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
 
@@ -341,10 +342,11 @@ function ContractDebugPage() {
       }}>
         {/* Contract Info */}
         <motion.div style={{
-          background: "rgba(255, 255, 255, 0.95)",
+          background: "#ffffff",
           borderRadius: "16px",
           padding: "2rem",
-          boxShadow: "0 20px 40px rgba(0,0,0,0.2)"
+          boxShadow: "var(--shadow-card)",
+          border: "1px solid hsl(var(--border))"
         }} initial={{ y: 15, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.05 }}>
           <h3 style={{ fontSize: "1.5rem", marginBottom: "1.5rem", color: "#1f2937" }}>
             📋 Contract Information
@@ -355,8 +357,8 @@ function ContractDebugPage() {
             <p style={{ 
               fontFamily: "monospace", 
               fontSize: "0.9rem", 
-              color: "#6b7280",
-              backgroundColor: "#f3f4f6",
+              color: "#374151",
+              backgroundColor: "#f9fafb",
               padding: "0.5rem",
               borderRadius: "6px"
             }}>
@@ -369,8 +371,8 @@ function ContractDebugPage() {
             <p style={{ 
               fontFamily: "monospace", 
               fontSize: "0.9rem", 
-              color: "#6b7280",
-              backgroundColor: "#f3f4f6",
+              color: "#374151",
+              backgroundColor: "#f9fafb",
               padding: "0.5rem",
               borderRadius: "6px",
               wordBreak: "break-all"
@@ -384,8 +386,8 @@ function ContractDebugPage() {
             <p style={{ 
               fontFamily: "monospace", 
               fontSize: "0.9rem", 
-              color: "#6b7280",
-              backgroundColor: "#f3f4f6",
+              color: "#374151",
+              backgroundColor: "#f9fafb",
               padding: "0.5rem",
               borderRadius: "6px",
               wordBreak: "break-all"
@@ -399,8 +401,8 @@ function ContractDebugPage() {
             <p style={{ 
               fontFamily: "monospace", 
               fontSize: "0.9rem", 
-              color: "#6b7280",
-              backgroundColor: "#f3f4f6",
+              color: "#374151",
+              backgroundColor: "#f9fafb",
               padding: "0.5rem",
               borderRadius: "6px"
             }}>
@@ -413,8 +415,8 @@ function ContractDebugPage() {
             <p style={{ 
               fontFamily: "monospace", 
               fontSize: "0.9rem", 
-              color: "#6b7280",
-              backgroundColor: "#f3f4f6",
+              color: "#374151",
+              backgroundColor: "#f9fafb",
               padding: "0.5rem",
               borderRadius: "6px"
             }}>
@@ -427,8 +429,8 @@ function ContractDebugPage() {
             <p style={{ 
               fontFamily: "monospace", 
               fontSize: "0.9rem", 
-              color: "#6b7280",
-              backgroundColor: "#f3f4f6",
+              color: "#374151",
+              backgroundColor: "#f9fafb",
               padding: "0.5rem",
               borderRadius: "6px"
             }}>
@@ -441,8 +443,8 @@ function ContractDebugPage() {
             <p style={{ 
               fontFamily: "monospace", 
               fontSize: "0.9rem", 
-              color: "#6b7280",
-              backgroundColor: "#f3f4f6",
+              color: "#374151",
+              backgroundColor: "#f9fafb",
               padding: "0.5rem",
               borderRadius: "6px"
             }}>
@@ -453,14 +455,15 @@ function ContractDebugPage() {
           <button
             onClick={handleRefetchAll}
             style={{
-              backgroundColor: "#10b981",
-              color: "white",
+              backgroundColor: "#58CC02",
+              color: "#ffffff",
               border: "none",
               borderRadius: "8px",
               padding: "0.5rem 1rem",
               fontSize: "0.9rem",
               cursor: "pointer",
-              marginTop: "1rem"
+              marginTop: "1rem",
+              fontWeight: 700
             }}
           >
             🔄 Refresh Data
@@ -469,10 +472,11 @@ function ContractDebugPage() {
 
         {/* Token Rewards Calculator */}
         <motion.div style={{
-          background: "rgba(255, 255, 255, 0.95)",
+          background: "#ffffff",
           borderRadius: "16px",
           padding: "2rem",
-          boxShadow: "0 20px 40px rgba(0,0,0,0.2)"
+          boxShadow: "var(--shadow-card)",
+          border: "1px solid hsl(var(--border))"
         }} initial={{ y: 15, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.1 }}>
           <h3 style={{ fontSize: "1.5rem", marginBottom: "1.5rem", color: "#1f2937" }}>
             🪙 Token Rewards Calculator
@@ -489,17 +493,17 @@ function ContractDebugPage() {
               onChange={(e) => setSelectedAmount(parseFloat(e.target.value) || 0)}
               style={{
                 width: "100%",
-                padding: "0.5rem",
-                borderRadius: "6px",
-                border: "1px solid #d1d5db",
+                padding: "0.75rem 1rem",
+                borderRadius: "8px",
+                border: "2px solid hsl(var(--border))",
                 fontSize: "1rem"
               }}
             />
           </div>
 
           <div style={{ 
-            background: "#f0f9ff", 
-            border: "2px solid #0ea5e9", 
+            background: "#f0fdf4", 
+            border: "2px solid #22c55e", 
             borderRadius: "12px", 
             padding: "1rem",
             marginBottom: "1rem"
@@ -521,15 +525,15 @@ function ContractDebugPage() {
           </div>
 
           <div style={{ 
-            background: "#fef3c7", 
-            border: "2px solid #f59e0b", 
+            background: "#ecfeff", 
+            border: "2px solid #06b6d4", 
             borderRadius: "12px", 
             padding: "1rem"
           }}>
-            <h4 style={{ margin: "0 0 0.5rem 0", color: "#92400e", fontSize: "1.1rem" }}>
+            <h4 style={{ margin: "0 0 0.5rem 0", color: "#155e75", fontSize: "1.1rem" }}>
               🎯 How It Works
             </h4>
-            <ul style={{ margin: 0, paddingLeft: "1rem", fontSize: "0.9rem", color: "#92400e" }}>
+            <ul style={{ margin: 0, paddingLeft: "1rem", fontSize: "0.9rem", color: "#155e75" }}>
               <li>Pay ETH to start quiz</li>
               <li>Get 100x tokens immediately</li>
               <li>Answer correctly for 10-90% bonus</li>
@@ -540,10 +544,11 @@ function ContractDebugPage() {
 
         {/* Quiz Functions */}
         <motion.div style={{
-          background: "rgba(255, 255, 255, 0.95)",
+          background: "#ffffff",
           borderRadius: "16px",
           padding: "2rem",
-          boxShadow: "0 20px 40px rgba(0,0,0,0.2)"
+          boxShadow: "var(--shadow-card)",
+          border: "1px solid hsl(var(--border))"
         }} initial={{ y: 15, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.15 }}>
           <h3 style={{ fontSize: "1.5rem", marginBottom: "1.5rem", color: "#1f2937" }}>
             🎮 Quiz Functions
@@ -560,9 +565,9 @@ function ContractDebugPage() {
               onChange={(e) => setSelectedAmount(parseFloat(e.target.value) || 0)}
               style={{
                 width: "100%",
-                padding: "0.5rem",
-                borderRadius: "6px",
-                border: "1px solid #d1d5db",
+                padding: "0.75rem 1rem",
+                borderRadius: "8px",
+                border: "2px solid hsl(var(--border))",
                 fontSize: "1rem"
               }}
             />
@@ -590,15 +595,16 @@ function ContractDebugPage() {
             onClick={handleStartQuiz}
             disabled={isStartPending || isStartConfirming}
             style={{
-              backgroundColor: isStartPending || isStartConfirming ? "#9ca3af" : "#667eea",
-              color: "white",
+              backgroundColor: isStartPending || isStartConfirming ? "#a3e635" : "#58CC02",
+              color: "#ffffff",
               border: "none",
               borderRadius: "8px",
               padding: "0.75rem 1rem",
               fontSize: "1rem",
               cursor: isStartPending || isStartConfirming ? "not-allowed" : "pointer",
               width: "100%",
-              marginBottom: "1rem"
+              marginBottom: "1rem",
+              fontWeight: 700
             }}
           >
             {isStartPending ? "Confirming..." : isStartConfirming ? "Starting Quiz..." : "🚀 Start Quiz"}
@@ -614,9 +620,9 @@ function ContractDebugPage() {
               onChange={(e) => setSubmittedAnswer(parseInt(e.target.value) || 0)}
               style={{
                 width: "100%",
-                padding: "0.5rem",
-                borderRadius: "6px",
-                border: "1px solid #d1d5db",
+                padding: "0.75rem 1rem",
+                borderRadius: "8px",
+                border: "2px solid hsl(var(--border))",
                 fontSize: "1rem"
               }}
             />
@@ -626,7 +632,7 @@ function ContractDebugPage() {
             onClick={handleCompleteQuiz}
             disabled={isCompletePending || isCompleteConfirming}
             style={{
-              backgroundColor: isCompletePending || isCompleteConfirming ? "#9ca3af" : "#22c55e",
+              backgroundColor: isCompletePending || isCompleteConfirming ? "#a3e635" : "#10b981",
               color: "white",
               border: "none",
               borderRadius: "8px",
@@ -634,7 +640,8 @@ function ContractDebugPage() {
               fontSize: "1rem",
               cursor: isCompletePending || isCompleteConfirming ? "not-allowed" : "pointer",
               width: "100%",
-              marginBottom: "1rem"
+              marginBottom: "1rem",
+              fontWeight: 700
             }}
           >
             {isCompletePending ? "Confirming..." : isCompleteConfirming ? "Completing Quiz..." : "✅ Complete Quiz"}
@@ -691,10 +698,11 @@ function ContractDebugPage() {
 
         {/* User Session */}
         <div style={{
-          background: "rgba(255, 255, 255, 0.95)",
+          background: "#ffffff",
           borderRadius: "16px",
           padding: "2rem",
-          boxShadow: "0 20px 40px rgba(0,0,0,0.2)"
+          boxShadow: "var(--shadow-card)",
+          border: "1px solid hsl(var(--border))"
         }}>
           <h3 style={{ fontSize: "1.5rem", marginBottom: "1.5rem", color: "#1f2937" }}>
             👤 User Session
@@ -731,12 +739,12 @@ function ContractDebugPage() {
           position: "fixed",
           bottom: "2rem",
           right: "2rem",
-          background: "#fef3c7",
-          border: "1px solid #f59e0b",
+          background: "#ecfeff",
+          border: "1px solid #06b6d4",
           borderRadius: "12px",
           padding: "1rem",
           maxWidth: "400px",
-          boxShadow: "0 8px 16px rgba(0,0,0,0.2)"
+          boxShadow: "0 8px 16px rgba(0,0,0,0.1)"
         }}>
           <p style={{ margin: "0 0 0.5rem 0", color: "#92400e", fontWeight: "600" }}>
             🔄 Transaction in Progress
@@ -756,12 +764,12 @@ function ContractDebugPage() {
           position: "fixed",
           bottom: "2rem",
           left: "2rem",
-          background: "#fee2e2",
+          background: "#fef2f2",
           border: "1px solid #ef4444",
           borderRadius: "12px",
           padding: "1rem",
           maxWidth: "400px",
-          boxShadow: "0 8px 16px rgba(0,0,0,0.2)"
+          boxShadow: "0 8px 16px rgba(0,0,0,0.1)"
         }}>
           <p style={{ margin: "0 0 0.5rem 0", color: "#991b1b", fontWeight: "600" }}>
             ❌ Transaction Error
@@ -778,12 +786,12 @@ function ContractDebugPage() {
           position: "fixed",
           bottom: "2rem",
           left: "2rem",
-          background: "#d1fae5",
+          background: "#ecfdf5",
           border: "1px solid #10b981",
           borderRadius: "12px",
           padding: "1rem",
           maxWidth: "400px",
-          boxShadow: "0 8px 16px rgba(0,0,0,0.2)"
+          boxShadow: "0 8px 16px rgba(0,0,0,0.1)"
         }}>
           <p style={{ margin: "0 0 0.5rem 0", color: "#065f46", fontWeight: "600" }}>
             ✅ Transaction Successful

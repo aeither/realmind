@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import { RouterProvider, createRouter } from '@tanstack/react-router'
 import { routeTree } from './routeTree.gen'
 import '@rainbow-me/rainbowkit/styles.css'
-import { RainbowKitProvider, darkTheme } from '@rainbow-me/rainbowkit'
+import { RainbowKitProvider, lightTheme } from '@rainbow-me/rainbowkit'
 import { WagmiProvider } from 'wagmi'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { Toaster } from 'sonner'
@@ -33,22 +33,23 @@ function App() {
     <WagmiProvider config={config}>
       <QueryClientProvider client={queryClient}>
         <RainbowKitProvider
-          theme={darkTheme({
-            accentColor: '#00ff87',
-            accentColorForeground: '#0a0e0a',
+          theme={lightTheme({
+            accentColor: '#58CC02',
+            accentColorForeground: '#ffffff',
             borderRadius: 'medium',
             fontStack: 'system',
           })}
         >
           <RouterProvider router={router} />
           <Toaster 
-            theme="dark"
+            theme="light"
             position="bottom-right"
             toastOptions={{
               style: {
-                background: '#1a2e1a',
-                border: '1px solid #00ff87',
-                color: '#ffffff',
+                background: '#ffffff',
+                border: '1px solid #e5e7eb',
+                color: '#1f2937',
+                borderRadius: '12px'
               },
             }}
           />

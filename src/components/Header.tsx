@@ -39,7 +39,7 @@ function Header({
           <Link
             to={backTo}
             style={{
-              color: "white",
+              color: "hsl(var(--primary))",
               textDecoration: "none",
               fontSize: "1rem",
               opacity: 0.8,
@@ -61,39 +61,14 @@ function Header({
       )}
 
       {/* Balance Display */}
-      {address && balance && (
-        <div style={{
-          position: "absolute",
-          top: "0",
-          right: "0",
-          zIndex: 10,
-          background: "rgba(255, 255, 255, 0.1)",
-          backdropFilter: "blur(10px)",
-          borderRadius: "12px",
-          padding: "0.5rem 1rem",
-          border: "1px solid rgba(255, 255, 255, 0.2)"
-        }}>
-          <div style={{
-            color: "white",
-            fontSize: "0.9rem",
-            fontWeight: "600",
-            display: "flex",
-            alignItems: "center",
-            gap: "0.5rem"
-          }}>
-            <span>💰</span>
-            <span>{parseFloat(formatEther(balance.value)).toFixed(4)} {balance.symbol}</span>
-          </div>
-        </div>
-      )}
+      {/* Removed native balance chip here to avoid duplication with global header */}
 
       {/* Title */}
       <h1 style={{
-        fontSize: "3.5rem",
-        fontWeight: "bold",
-        marginBottom: "1rem",
-        textShadow: "0 2px 4px rgba(0,0,0,0.3)",
-        color: "white"
+        fontSize: "2.25rem",
+        fontWeight: 800,
+        marginBottom: "0.5rem",
+        color: "#111827"
       }}>
         {title}
       </h1>
@@ -101,12 +76,12 @@ function Header({
       {/* Subtitle */}
       {subtitle && (
         <p style={{
-          fontSize: "1.4rem",
-          marginBottom: "2rem",
-          opacity: 0.95,
+          fontSize: "1rem",
+          marginBottom: "1rem",
+          opacity: 1,
           maxWidth: "600px",
-          margin: "0 auto 2rem",
-          color: "white"
+          margin: "0 auto 1rem",
+          color: "#6b7280"
         }}>
           {subtitle}
         </p>

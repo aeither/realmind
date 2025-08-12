@@ -37,20 +37,20 @@ function GlobalHeader({
       animate={{ y: 0, opacity: 1 }}
       transition={{ duration: 0.5, ease: 'easeOut' }}
       style={{
-      position: "fixed",
-      top: 0,
-      left: 0,
-      right: 0,
-      zIndex: 1000,
-      background: "rgba(15, 23, 42, 0.95)",
-      backdropFilter: "blur(10px)",
-      borderBottom: "1px solid rgba(55, 65, 81, 0.3)",
-      padding: "1rem 2rem",
-      display: "flex",
-      justifyContent: "space-between",
-      alignItems: "center",
-      boxShadow: "0 2px 10px rgba(0, 255, 135, 0.15)"
-    }}
+        position: "fixed",
+        top: 0,
+        left: 0,
+        right: 0,
+        zIndex: 1000,
+        background: "rgba(255, 255, 255, 0.8)",
+        backdropFilter: "blur(10px)",
+        borderBottom: "1px solid hsl(var(--border))",
+        padding: "1rem 2rem",
+        display: "flex",
+        justifyContent: "space-between",
+        alignItems: "center",
+        boxShadow: "0 2px 10px rgba(16, 24, 40, 0.06)"
+      }}
     >
       {/* Left side - Logo and Back button */}
       <div style={{ display: "flex", alignItems: "center", gap: "2rem" }}>
@@ -58,20 +58,20 @@ function GlobalHeader({
           <Link
             to={backTo}
             style={{
-              color: "#00ff87",
+              color: "hsl(var(--primary))",
               textDecoration: "none",
               fontSize: "1rem",
-              fontWeight: "600",
+              fontWeight: "700",
               display: "flex",
               alignItems: "center",
               gap: "0.5rem",
               transition: "color 0.3s ease"
             }}
             onMouseEnter={(e) => {
-              e.currentTarget.style.color = "#00cc6a";
+              e.currentTarget.style.color = "#3aaa00";
             }}
             onMouseLeave={(e) => {
-              e.currentTarget.style.color = "#00ff87";
+              e.currentTarget.style.color = "hsl(var(--primary))";
             }}
           >
             {backText}
@@ -82,119 +82,42 @@ function GlobalHeader({
         <Link
           to="/"
           style={{
-            color: "#00ff87",
+            color: "hsl(var(--primary))",
             textDecoration: "none",
             fontSize: "1.5rem",
-            fontWeight: "bold",
+            fontWeight: 800,
             display: "flex",
             alignItems: "center",
             gap: "0.5rem"
           }}
         >
-          🏛️ Realmind
+          🍋 Realmind
         </Link>
         </motion.div>
       </div>
 
-      {/* Center - Navigation */}
-      <nav style={{ display: "flex", gap: "2rem", alignItems: "center" }}>
-        <motion.div whileHover={{ y: -1 }}>
-        <Link
-          to="/"
-          style={{
-            color: "#e5e7eb",
-            textDecoration: "none",
-            fontSize: "1rem",
-            fontWeight: "500",
-            transition: "color 0.3s ease"
-          }}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.color = "#00ff87";
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.color = "#e5e7eb";
-          }}
-        >
-          Home
-        </Link>
-        </motion.div>
-        {/* <Link
-          to="/landing"
-          style={{
-            color: "#e5e7eb",
-            textDecoration: "none",
-            fontSize: "1rem",
-            fontWeight: "500",
-            transition: "color 0.3s ease"
-          }}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.color = "#00ff87";
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.color = "#e5e7eb";
-          }}
-        >
-          Landing
-        </Link> */}
-        <motion.div whileHover={{ y: -1 }}>
-        <Link
-          to="/demo"
-          style={{
-            color: "#e5e7eb",
-            textDecoration: "none",
-            fontSize: "1rem",
-            fontWeight: "500",
-            transition: "color 0.3s ease"
-          }}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.color = "#00ff87";
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.color = "#e5e7eb";
-          }}
-        >
-          🎮 Play
-        </Link>
-        </motion.div>
-        {/* <Link
-          to="/contract"
-          style={{
-            color: "#e5e7eb",
-            textDecoration: "none",
-            fontSize: "1rem",
-            fontWeight: "500",
-            transition: "color 0.3s ease"
-          }}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.color = "#00ff87";
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.color = "#e5e7eb";
-          }}
-        >
-          Debug
-        </Link> */}
-      </nav>
+      {/* Center - Navigation removed (only logo/back remain) */}
+      <nav />
 
       {/* Right side - Token Balance and Connect Button */}
       <motion.div style={{ display: "flex", alignItems: "center", gap: "1rem" }} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.2 }}>
         {/* Token Balance Display */}
         {address && tokenBalance && (
           <div style={{
-            background: "rgba(0, 255, 135, 0.1)",
+            background: "hsl(var(--quiz-selected))",
             borderRadius: "8px",
             padding: "0.5rem 1rem",
-            border: "1px solid rgba(0, 255, 135, 0.2)"
+            border: "1px solid hsl(var(--primary))"
           }}>
             <div style={{
-              color: "#00ff87",
+              color: "hsl(var(--primary))",
               fontSize: "0.9rem",
               fontWeight: "600",
               display: "flex",
               alignItems: "center",
               gap: "0.5rem"
             }}>
-              <span>🪙</span>
+              <span>🟢</span>
               <span>{parseFloat(tokenBalance.value.toString()).toFixed(2)} {tokenBalance.symbol}</span>
             </div>
           </div>

@@ -36,7 +36,7 @@ function FarcasterApp() {
   return (
     <div style={{ minHeight: "calc(100vh - 80px)", display: "flex", flexDirection: "column" }}>
       <div style={{ flex: 1, textAlign: "center", padding: "2rem" }}>
-        <h1 style={{ marginBottom: "2rem", fontSize: "2.5rem", color: "#667eea" }}>🏛️ Realmind Farcaster</h1>
+        <h1 style={{ marginBottom: "2rem", fontSize: "2.25rem", color: "hsl(var(--primary))", fontWeight: 800 }}>🍋 Realmind Farcaster</h1>
         {user ? <AuthenticatedView user={user} token={authToken} /> : <AuthenticationPrompt onAuth={setUser} />}
       </div>
       {user && <ConnectMenu />}
@@ -53,20 +53,20 @@ function SplashScreen() {
         alignItems: "center",
         justifyContent: "center",
         height: "calc(100vh - 80px)",
-        background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
-        color: "white",
+        background: "hsl(var(--background))",
+        color: "hsl(var(--foreground))",
         fontFamily: "system-ui, sans-serif",
       }}
     >
       <div
         style={{
-          fontSize: "3rem",
-          fontWeight: "bold",
+          fontSize: "2.25rem",
+          fontWeight: 800,
           marginBottom: "1rem",
           textAlign: "center",
         }}
       >
-        🏛️ Realmind
+        🍋 Realmind
       </div>
       <div
         style={{
@@ -82,8 +82,8 @@ function SplashScreen() {
         style={{
           width: "40px",
           height: "40px",
-          border: "3px solid rgba(255,255,255,0.3)",
-          borderTop: "3px solid white",
+          border: "3px solid rgba(16,24,40,0.1)",
+          borderTop: "3px solid hsl(var(--primary))",
           borderRadius: "50%",
           animation: "spin 1s linear infinite",
         }}
@@ -108,13 +108,13 @@ function ConnectMenu() {
         position: "fixed",
         bottom: "1rem",
         right: "1rem",
-        background: "rgba(255, 255, 255, 0.95)",
-        backdropFilter: "blur(10px)",
+        background: "#ffffff",
+        backdropFilter: "blur(2px)",
         border: "1px solid #e5e7eb",
         borderRadius: "12px",
         padding: "0.75rem 1rem",
         fontSize: "0.85rem",
-        color: "#6b7280",
+        color: "#374151",
         boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1)",
         maxWidth: "250px",
         wordBreak: "break-all"
@@ -135,24 +135,24 @@ function ConnectMenu() {
         type="button" 
         onClick={() => connect({ connector: connectors[0] })}
         style={{
-          background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
-          color: "white",
+          background: "#58CC02",
+          color: "#ffffff",
           border: "none",
           borderRadius: "12px",
           padding: "0.75rem 1.5rem",
           fontSize: "1rem",
-          fontWeight: "600",
+          fontWeight: 700,
           cursor: "pointer",
           boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1)",
           transition: "transform 0.2s, box-shadow 0.2s",
         }}
         onMouseEnter={(e) => {
           e.currentTarget.style.transform = "translateY(-2px)";
-          e.currentTarget.style.boxShadow = "0 8px 12px -1px rgba(0, 0, 0, 0.15)";
+          e.currentTarget.style.boxShadow = "0 8px 12px -1px rgba(88, 204, 2, 0.3)";
         }}
         onMouseLeave={(e) => {
           e.currentTarget.style.transform = "translateY(0)";
-          e.currentTarget.style.boxShadow = "0 4px 6px -1px rgba(0, 0, 0, 0.1)";
+          e.currentTarget.style.boxShadow = "0 4px 6px -1px rgba(88, 204, 2, 0.25)";
         }}
       >
         💳 Connect Wallet
@@ -173,8 +173,8 @@ function AuthenticatedView({
 
   return (
     <div style={{ margin: "2rem 0", padding: "2rem", backgroundColor: "#f0f8ff", borderRadius: "16px", maxWidth: "800px", marginLeft: "auto", marginRight: "auto" }}>
-      <h3 style={{ fontSize: "1.8rem", marginBottom: "1rem" }}>Welcome, {user.displayName || user.username}!</h3>
-      <p style={{ fontSize: "1.1rem", color: "#666", marginBottom: "1rem" }}>FID: {user.fid}</p>
+      <h3 style={{ fontSize: "1.65rem", marginBottom: "1rem", fontWeight: 800, color: "#111827" }}>Welcome, {user.displayName || user.username}!</h3>
+      <p style={{ fontSize: "1rem", color: "#6b7280", marginBottom: "1rem" }}>FID: {user.fid}</p>
       {user.pfpUrl && (
         <img
           src={user.pfpUrl}
@@ -187,24 +187,24 @@ function AuthenticatedView({
         <button
           type="button"
           style={{
-            backgroundColor: "#667eea",
-            color: "white",
+            backgroundColor: "#58CC02",
+            color: "#ffffff",
             border: "none",
             padding: "0.75rem 1.5rem",
             borderRadius: "12px",
             fontSize: "1rem",
             cursor: "pointer",
-            fontWeight: "600",
-            boxShadow: "0 4px 6px rgba(102, 126, 234, 0.3)",
+            fontWeight: 700,
+            boxShadow: "var(--shadow-button)",
             transition: "all 0.3s ease"
           }}
           onClick={() => setActiveView('quiz')}
           onMouseEnter={(e) => {
-            e.currentTarget.style.backgroundColor = "#5a67d8";
+            e.currentTarget.style.backgroundColor = "#46a001";
             e.currentTarget.style.transform = "translateY(-2px)";
           }}
           onMouseLeave={(e) => {
-            e.currentTarget.style.backgroundColor = "#667eea";
+            e.currentTarget.style.backgroundColor = "#58CC02";
             e.currentTarget.style.transform = "translateY(0)";
           }}
         >
@@ -255,33 +255,33 @@ function AuthenticationPrompt({
 
   return (
     <div style={{ margin: "2rem 0", padding: "3rem", backgroundColor: "#f9f9f9", borderRadius: "16px", maxWidth: "600px", marginLeft: "auto", marginRight: "auto" }}>
-      <h3 style={{ fontSize: "1.8rem", marginBottom: "1rem" }}>Welcome to Realmind Farcaster!</h3>
-      <p style={{ fontSize: "1.1rem", lineHeight: "1.6", marginBottom: "2rem" }}>Sign in with your Farcaster account to start learning and earning points through interactive quizzes.</p>
+      <h3 style={{ fontSize: "1.65rem", marginBottom: "1rem", fontWeight: 800 }}>Welcome to Realmind Farcaster!</h3>
+      <p style={{ fontSize: "1rem", lineHeight: "1.7", marginBottom: "2rem", color: "#374151" }}>Sign in with your Farcaster account to start learning and earning points through interactive quizzes.</p>
       <button
         type="button"
         onClick={handleSignIn}
         disabled={isAuthenticating}
         style={{
-          backgroundColor: isAuthenticating ? "#ccc" : "#8b5cf6",
-          color: "white",
+          backgroundColor: isAuthenticating ? "#a3e635" : "#58CC02",
+          color: "#ffffff",
           border: "none",
           padding: "1rem 2rem",
           borderRadius: "12px",
           fontSize: "1.1rem",
           cursor: isAuthenticating ? "not-allowed" : "pointer",
-          fontWeight: "600",
-          boxShadow: isAuthenticating ? "none" : "0 4px 6px rgba(139, 92, 246, 0.3)",
+          fontWeight: 700,
+          boxShadow: isAuthenticating ? "none" : "var(--shadow-button)",
           transition: "all 0.3s ease"
         }}
         onMouseEnter={(e) => {
           if (!isAuthenticating) {
-            e.currentTarget.style.backgroundColor = "#7c3aed";
+            e.currentTarget.style.backgroundColor = "#46a001";
             e.currentTarget.style.transform = "translateY(-2px)";
           }
         }}
         onMouseLeave={(e) => {
           if (!isAuthenticating) {
-            e.currentTarget.style.backgroundColor = "#8b5cf6";
+            e.currentTarget.style.backgroundColor = "#58CC02";
             e.currentTarget.style.transform = "translateY(0)";
           }
         }}

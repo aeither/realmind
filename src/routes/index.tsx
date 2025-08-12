@@ -57,22 +57,27 @@ function HomePage() {
 
   return (
     <div className="min-h-screen bg-background">
-      <Header />
-      
-      <div className="max-w-6xl mx-auto p-8 pt-24">
-        {/* Hero Section */}
-        <div className="text-center mb-16 animate-bounce-in">
-          <div className="text-7xl mb-6 animate-pulse-glow">🎮</div>
-          <h1 className="text-5xl font-bold mb-4 bg-gradient-primary bg-clip-text text-transparent">
-            Choose Your Challenge
+      <div className="max-w-6xl mx-auto p-8">
+        {/* Hero Section - Simplified Duolingo-like */}
+        <div className="text-center">
+          <h1 className="text-4xl font-extrabold mb-3 text-foreground">
+            Learn by Playing
           </h1>
-          <p className="text-xl text-muted-foreground mb-8 max-w-2xl mx-auto">
-            Select a quiz topic and test your knowledge. Earn up to 190% returns for perfect scores!
+          <p className="text-lg text-muted-foreground mb-6 max-w-2xl mx-auto">
+            Short, fun quizzes to build real crypto knowledge. Pick a topic and start earning points.
           </p>
+          <div className="flex items-center justify-center gap-3">
+            <button
+              onClick={handleRandomQuiz}
+              className="px-6 py-3 bg-primary text-primary-foreground rounded-xl font-bold quiz-button-glow hover:scale-105 transition-all"
+            >
+              Start a Random Quiz
+            </button>
+          </div>
         </div>
 
         {/* Quiz Selection Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
+        <div id="topics" className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
           {AVAILABLE_QUIZZES.map((quiz, index) => (
             <QuizCard
               key={quiz.id}
@@ -86,16 +91,6 @@ function HomePage() {
 
         {/* Action Buttons */}
         <div className="text-center space-y-6">
-          <button
-            onClick={handleRandomQuiz}
-            className="px-8 py-4 bg-secondary text-secondary-foreground border-2 border-primary/30 
-                       rounded-2xl text-lg font-semibold hover:bg-primary hover:text-primary-foreground 
-                       hover:scale-105 transition-all duration-300 animate-bounce-in"
-            style={{ animationDelay: '600ms' }}
-          >
-            🎲 Try Random Quiz
-          </button>
-
           {selectedQuiz && (
             <div className="animate-bounce-in" style={{ animationDelay: '200ms' }}>
               <Link

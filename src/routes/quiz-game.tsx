@@ -176,20 +176,20 @@ function QuizGame() {
           padding: "2rem",
           textAlign: "center"
         }}>
-          <h2 style={{ color: "#ffffff", marginBottom: "1rem" }}>Wrong Network</h2>
-          <p style={{ color: "#9ca3af", marginBottom: "2rem" }}>
+          <h2 style={{ color: "#111827", marginBottom: "1rem" }}>Wrong Network</h2>
+          <p style={{ color: "#6b7280", marginBottom: "2rem" }}>
             Please switch to Hyperion (Testnet) to play this quiz.
           </p>
           <button 
             onClick={() => switchChain({ chainId: hyperionTestnet.id })}
             style={{
-              backgroundColor: "#00ff87",
-              color: "#0a0e0a",
+              backgroundColor: "#58CC02",
+              color: "#ffffff",
               border: "none",
               borderRadius: "8px",
               padding: "0.75rem 1.5rem",
               fontSize: "1rem",
-              fontWeight: "600",
+              fontWeight: 700,
               cursor: "pointer"
             }}
           >
@@ -206,20 +206,20 @@ function QuizGame() {
       <motion.div style={{ paddingTop: '80px' }} initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
         <GlobalHeader />
         <div style={{ maxWidth: "600px", margin: "0 auto", padding: "2rem", textAlign: "center" }}>
-          <h2 style={{ color: "#ffffff", marginBottom: "1rem" }}>Quiz Not Found</h2>
-          <p style={{ color: "#9ca3af", marginBottom: "2rem" }}>
+          <h2 style={{ color: "#111827", marginBottom: "1rem" }}>Quiz Not Found</h2>
+          <p style={{ color: "#6b7280", marginBottom: "2rem" }}>
             The requested quiz could not be found.
           </p>
           <button 
             onClick={() => navigate({ to: '/contract' })}
             style={{
-              backgroundColor: "#00ff87",
-              color: "#0a0e0a",
+              backgroundColor: "#58CC02",
+              color: "#ffffff",
               border: "none",
               borderRadius: "8px",
               padding: "0.75rem 1.5rem",
               fontSize: "1rem",
-              fontWeight: "600",
+              fontWeight: 700,
               cursor: "pointer"
             }}
           >
@@ -236,21 +236,21 @@ function QuizGame() {
       <motion.div style={{ paddingTop: '80px' }} initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
         <GlobalHeader />
         <div style={{ maxWidth: "600px", margin: "0 auto", padding: "2rem", textAlign: "center" }}>
-          <h2 style={{ color: "#ffffff", marginBottom: "1rem" }}>Active Quiz Session</h2>
-          <p style={{ color: "#9ca3af", marginBottom: "2rem" }}>
+          <h2 style={{ color: "#111827", marginBottom: "1rem" }}>Active Quiz Session</h2>
+          <p style={{ color: "#6b7280", marginBottom: "2rem" }}>
             You have an active quiz session for "{activeQuizId}". Please complete it first.
           </p>
           <div style={{ display: "flex", gap: "1rem", justifyContent: "center", flexWrap: "wrap" }}>
             <button 
               onClick={() => navigate({ to: '/quiz-game', search: { quiz: activeQuizId } })}
               style={{
-                backgroundColor: "#00ff87",
-                color: "#0a0e0a",
+                backgroundColor: "#58CC02",
+                color: "#ffffff",
                 border: "none",
                 borderRadius: "8px",
                 padding: "0.75rem 1.5rem",
                 fontSize: "1rem",
-                fontWeight: "600",
+                fontWeight: 700,
                 cursor: "pointer"
               }}
             >
@@ -259,13 +259,13 @@ function QuizGame() {
             <button 
               onClick={() => navigate({ to: '/contract' })}
               style={{
-                backgroundColor: "#6b7280",
-                color: "white",
+                backgroundColor: "#e5e7eb",
+                color: "#111827",
                 border: "none",
                 borderRadius: "8px",
                 padding: "0.75rem 1.5rem",
                 fontSize: "1rem",
-                fontWeight: "600",
+                fontWeight: 700,
                 cursor: "pointer"
               }}
             >
@@ -291,30 +291,31 @@ function QuizGame() {
           textAlign: "center"
         }}>
           <div style={{
-            background: "linear-gradient(135deg, #0f172a 0%, #1e293b 100%)",
+            background: "#ffffff",
             borderRadius: "16px",
             padding: "3rem",
-            border: "1px solid rgba(0, 255, 135, 0.2)"
+            border: "1px solid hsl(var(--border))",
+            boxShadow: "var(--shadow-card)"
           }}>
-            <h2 style={{ color: "#00ff87", marginBottom: "1rem", fontSize: "2rem" }}>
+            <h2 style={{ color: "#111827", marginBottom: "1rem", fontSize: "1.75rem", fontWeight: 800 }}>
               🎉 Quiz Completed!
             </h2>
-            <p style={{ color: "#ffffff", marginBottom: "2rem", fontSize: "1.1rem" }}>
+            <p style={{ color: "#374151", marginBottom: "2rem", fontSize: "1.05rem" }}>
               You scored <strong>{score} out of {quizConfig.questions.length}</strong> questions correctly ({percentage}%).
             </p>
             
             <div style={{
-              background: "rgba(0, 255, 135, 0.1)",
-              border: "1px solid rgba(0, 255, 135, 0.3)",
+              background: "#f0fdf4",
+              border: "1px solid #22c55e",
               borderRadius: "12px",
               padding: "1.5rem",
               marginBottom: "2rem"
             }}>
-              <h3 style={{ color: "#00ff87", marginBottom: "1rem" }}>🪙 Your Rewards</h3>
-              <p style={{ color: "#ffffff", margin: "0.5rem 0" }}>
+              <h3 style={{ color: "#14532d", marginBottom: "1rem", fontWeight: 800 }}>🪙 Your Rewards</h3>
+              <p style={{ color: "#374151", margin: "0.5rem 0" }}>
                  Base Tokens: {selectedAmount} tMETIS × 100 = {parseFloat(selectedAmount) * 100} TK1
               </p>
-              <p style={{ color: "#ffffff", margin: "0.5rem 0" }}>
+              <p style={{ color: "#374151", margin: "0.5rem 0" }}>
                 Bonus: {score === quizConfig.questions.length ? '10-90% additional tokens for all correct answers!' : 'Better luck next time!'}
               </p>
             </div>
@@ -323,13 +324,13 @@ function QuizGame() {
               onClick={handleCompleteQuiz}
               disabled={isCompletePending}
               style={{
-                backgroundColor: isCompletePending ? "#374151" : "#00ff87",
-                color: isCompletePending ? "#9ca3af" : "#0a0e0a",
+                backgroundColor: isCompletePending ? "#a3e635" : "#58CC02",
+                color: isCompletePending ? "#374151" : "#ffffff",
                 border: "none",
                 borderRadius: "12px",
                 padding: "1rem 2rem",
                 fontSize: "1.1rem",
-                fontWeight: "600",
+                fontWeight: 700,
                 cursor: isCompletePending ? "not-allowed" : "pointer",
                 transition: "all 0.3s ease",
                 minWidth: "140px"
@@ -355,17 +356,18 @@ function QuizGame() {
           margin: "0 auto",
           padding: "2rem"
         }}>
-          <h2 style={{ color: "#ffffff", marginBottom: "2rem", textAlign: "center" }}>
+          <h2 style={{ color: "#111827", marginBottom: "2rem", textAlign: "center", fontWeight: 800 }}>
             {quizConfig.title} - Question {currentQuestionIndex + 1} of {quizConfig.questions.length}
           </h2>
           <div style={{
-            background: "linear-gradient(135deg, #0f172a 0%, #1e293b 100%)",
+            background: "#ffffff",
             borderRadius: "12px",
             padding: "2rem",
-            border: "1px solid rgba(0, 255, 135, 0.2)",
+            border: "1px solid hsl(var(--border))",
+            boxShadow: "var(--shadow-card)",
             marginBottom: "2rem"
           }}>
-            <h3 style={{ color: "#ffffff", marginBottom: "1.5rem", fontSize: "1.3rem" }}>
+            <h3 style={{ color: "#111827", marginBottom: "1.5rem", fontSize: "1.25rem", fontWeight: 700 }}>
               {currentQuestion.question}
             </h3>
             <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
@@ -374,23 +376,23 @@ function QuizGame() {
                   key={index}
                   onClick={() => handleQuizAnswer(option)}
                   style={{
-                    backgroundColor: "rgba(15, 23, 42, 0.8)",
-                    border: "1px solid rgba(55, 65, 81, 0.5)",
+                    backgroundColor: "#ffffff",
+                    border: "2px solid hsl(var(--border))",
                     borderRadius: "8px",
                     padding: "1rem",
                     fontSize: "1rem",
                     cursor: "pointer",
                     transition: "all 0.3s ease",
                     textAlign: "left",
-                    color: "#ffffff"
+                    color: "#111827"
                   }}
                   onMouseEnter={(e) => {
-                    e.currentTarget.style.backgroundColor = "rgba(0, 255, 135, 0.1)"
-                    e.currentTarget.style.borderColor = "#00ff87"
+                    e.currentTarget.style.backgroundColor = "hsl(var(--quiz-selected))"
+                    e.currentTarget.style.borderColor = "hsl(var(--primary))"
                   }}
                   onMouseLeave={(e) => {
-                    e.currentTarget.style.backgroundColor = "rgba(15, 23, 42, 0.8)"
-                    e.currentTarget.style.borderColor = "rgba(55, 65, 81, 0.5)"
+                    e.currentTarget.style.backgroundColor = "#ffffff"
+                    e.currentTarget.style.borderColor = "hsl(var(--border))"
                   }}
                 >
                   {option}
@@ -413,30 +415,31 @@ function QuizGame() {
         padding: "2rem"
       }}>
         <div style={{
-          background: "linear-gradient(135deg, #0f172a 0%, #1e293b 100%)",
+          background: "#ffffff",
           borderRadius: "16px",
           padding: "3rem",
-          border: "1px solid rgba(0, 255, 135, 0.2)",
+          border: "1px solid hsl(var(--border))",
+          boxShadow: "var(--shadow-card)",
           textAlign: "center"
         }}>
-          <h1 style={{ color: "#00ff87", marginBottom: "1rem", fontSize: "2.5rem" }}>
+          <h1 style={{ color: "#111827", marginBottom: "1rem", fontSize: "2rem", fontWeight: 800 }}>
             {quizConfig?.title || "Quiz"}
           </h1>
-          <p style={{ color: "#ffffff", marginBottom: "2rem", fontSize: "1.1rem" }}>
+          <p style={{ color: "#374151", marginBottom: "2rem", fontSize: "1.05rem" }}>
             {quizConfig?.description || "Test your knowledge and earn rewards!"}
           </p>
           
           <div style={{
-            background: "rgba(0, 255, 135, 0.1)",
-            border: "1px solid rgba(0, 255, 135, 0.3)",
+            background: "#f0fdf4",
+            border: "1px solid #22c55e",
             borderRadius: "12px",
             padding: "1.5rem",
             marginBottom: "2rem",
             textAlign: "left"
           }}>
-            <h3 style={{ color: "#00ff87", marginBottom: "1rem" }}>📋 Quiz Info:</h3>
+            <h3 style={{ color: "#14532d", marginBottom: "1rem", fontWeight: 800 }}>📋 Quiz Info:</h3>
             <ul style={{ 
-              color: "#ffffff", 
+              color: "#374151", 
               lineHeight: "1.6",
               paddingLeft: "1.5rem",
               margin: 0
@@ -451,7 +454,7 @@ function QuizGame() {
           <div style={{ marginBottom: "2rem" }}>
             <label style={{ 
               display: "block", 
-              color: "#ffffff", 
+              color: "#111827", 
               marginBottom: "0.5rem",
               fontWeight: "500"
             }}>
@@ -465,12 +468,12 @@ function QuizGame() {
               style={{
                 width: "200px",
                 padding: "0.75rem",
-                border: "1px solid rgba(55, 65, 81, 0.5)",
+                border: "2px solid hsl(var(--border))",
                 borderRadius: "8px",
                 fontSize: "1rem",
                 textAlign: "center",
-                backgroundColor: "rgba(15, 23, 42, 0.8)",
-                color: "#ffffff"
+                backgroundColor: "#ffffff",
+                color: "#111827"
               }}
             />
           </div>
@@ -479,13 +482,13 @@ function QuizGame() {
             onClick={handleStartQuiz}
             disabled={isStartPending || !address}
             style={{
-              backgroundColor: isStartPending || !address ? "#374151" : "#00ff87",
-              color: isStartPending || !address ? "#9ca3af" : "#0a0e0a",
+              backgroundColor: isStartPending || !address ? "#a3e635" : "#58CC02",
+              color: isStartPending || !address ? "#374151" : "#ffffff",
               border: "none",
               borderRadius: "12px",
               padding: "1rem 2rem",
               fontSize: "1.1rem",
-              fontWeight: "600",
+              fontWeight: 700,
               cursor: isStartPending || !address ? "not-allowed" : "pointer",
               transition: "all 0.3s ease",
               minWidth: "200px"

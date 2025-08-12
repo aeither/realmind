@@ -124,21 +124,21 @@ function QuizGameContract() {
         padding: "2rem",
         textAlign: "center"
       }}>
-        <h2 style={{ color: "#ffffff", marginBottom: "1rem" }}>Wrong Network</h2>
-        <p style={{ color: "#9ca3af", marginBottom: "2rem" }}>
+        <h2 style={{ color: "#111827", marginBottom: "1rem" }}>Wrong Network</h2>
+        <p style={{ color: "#6b7280", marginBottom: "2rem" }}>
           Please switch to Hyperion (Testnet) to play the quiz game.
         </p>
         <div style={{ display: "flex", gap: "1rem", justifyContent: "center", flexWrap: "wrap", marginBottom: "2rem" }}>
           <button 
             onClick={() => switchChain({ chainId: hyperionTestnet.id })}
             style={{
-              backgroundColor: "#00ff87",
-              color: "#0a0e0a",
+              backgroundColor: "#58CC02",
+              color: "#ffffff",
               border: "none",
               borderRadius: "8px",
               padding: "0.75rem 1.5rem",
               fontSize: "0.9rem",
-              fontWeight: "600",
+              fontWeight: 700,
               cursor: "pointer",
               transition: "all 0.3s ease"
             }}
@@ -155,7 +155,7 @@ function QuizGameContract() {
             borderRadius: "8px",
             padding: "0.75rem 1.5rem",
             fontSize: "0.9rem",
-            fontWeight: "600",
+            fontWeight: 700,
             cursor: "pointer",
             transition: "all 0.3s ease"
           }}
@@ -178,15 +178,15 @@ function QuizGameContract() {
         textAlign: "center"
       }}>
         <div style={{
-          background: "rgba(0, 255, 135, 0.1)",
-          border: "1px solid rgba(0, 255, 135, 0.3)",
+          background: "#f0fdf4",
+          border: "1px solid #22c55e",
           borderRadius: "8px",
           padding: "1rem",
           marginBottom: "2rem",
           textAlign: "left"
         }}>
-          <h4 style={{ margin: "0 0 0.5rem 0", color: "#00ff87" }}>🔄 Active Quiz Session</h4>
-          <p style={{ margin: "0 0 1rem 0", color: "#ffffff", fontSize: "0.9rem" }}>
+          <h4 style={{ margin: "0 0 0.5rem 0", color: "#15803d" }}>🔄 Active Quiz Session</h4>
+          <p style={{ margin: "0 0 1rem 0", color: "#374151", fontSize: "0.9rem" }}>
             You have an active quiz session: <strong>{activeQuizConfig?.title || activeQuizId}</strong>
           </p>
           <div style={{ display: "flex", gap: "1rem", flexWrap: "wrap" }}>
@@ -194,13 +194,13 @@ function QuizGameContract() {
               to="/quiz-game"
               search={{ quiz: activeQuizId }}
               style={{
-                backgroundColor: "#00ff87",
-                color: "#0a0e0a",
+                backgroundColor: "#58CC02",
+                color: "#ffffff",
                 border: "none",
                 borderRadius: "8px",
                 padding: "0.75rem 1rem",
                 fontSize: "0.9rem",
-                fontWeight: "600",
+                fontWeight: 700,
                 cursor: "pointer",
                 transition: "all 0.3s ease",
                 textDecoration: "none",
@@ -220,13 +220,13 @@ function QuizGameContract() {
               }}
               disabled={isCompletePending}
               style={{
-                backgroundColor: isCompletePending ? "#374151" : "#ff4757",
+                backgroundColor: isCompletePending ? "#9ca3af" : "#ef4444",
                 color: "white",
                 border: "none",
                 borderRadius: "8px",
                 padding: "0.75rem 1rem",
                 fontSize: "0.9rem",
-                fontWeight: "600",
+                fontWeight: 700,
                 cursor: isCompletePending ? "not-allowed" : "pointer",
                 transition: "all 0.3s ease"
               }}
@@ -249,27 +249,28 @@ function QuizGameContract() {
       padding: "2rem"
     }}>
       <h1 style={{ 
-        color: "#00ff87", 
+        color: "hsl(var(--primary))", 
         textAlign: "center", 
         marginBottom: "2rem",
-        fontSize: "2.5rem",
-        fontWeight: "bold"
+        fontSize: "2rem",
+        fontWeight: 800
       }}>
-        🏛️ Realmind Quiz Game
+        🍋 Realmind Quiz Game
       </h1>
 
       {/* Game Rules */}
       <div style={{
-        background: "linear-gradient(135deg, #0f172a 0%, #1e293b 100%)",
+        background: "#ffffff",
         borderRadius: "12px",
         padding: "1.5rem",
         marginBottom: "2rem",
-        border: "1px solid rgba(0, 255, 135, 0.2)"
+        border: "1px solid hsl(var(--border))",
+        boxShadow: "var(--shadow-card)"
       }}>
-        <h3 style={{ color: "#00ff87", marginBottom: "1rem" }}>📋 How It Works:</h3>
+        <h3 style={{ color: "#111827", marginBottom: "1rem", fontWeight: 800 }}>📋 How It Works:</h3>
         <ul style={{ 
-          color: "#ffffff", 
-          lineHeight: "1.6",
+          color: "#374151", 
+          lineHeight: "1.7",
           paddingLeft: "1.5rem",
           margin: 0
         }}>
@@ -283,13 +284,14 @@ function QuizGameContract() {
 
       {/* Available Quizzes */}
       <div style={{
-        background: "linear-gradient(135deg, #0f172a 0%, #1e293b 100%)",
+        background: "#ffffff",
         borderRadius: "12px",
         padding: "2rem",
         marginBottom: "2rem",
-        border: "1px solid rgba(0, 255, 135, 0.2)"
+        border: "1px solid hsl(var(--border))",
+        boxShadow: "var(--shadow-card)"
       }}>
-        <h3 style={{ color: "#00ff87", marginBottom: "1.5rem", textAlign: "center" }}>
+        <h3 style={{ color: "#111827", marginBottom: "1.5rem", textAlign: "center", fontWeight: 800 }}>
           🎮 Select a Quiz
         </h3>
         
@@ -304,8 +306,8 @@ function QuizGameContract() {
               to="/quiz-game"
               search={{ quiz: quiz.id }}
               style={{
-                background: "rgba(0, 255, 135, 0.1)",
-                border: "1px solid rgba(0, 255, 135, 0.3)",
+                background: "#ffffff",
+                border: "1px solid hsl(var(--border))",
                 borderRadius: "8px",
                 padding: "1.5rem",
                 textDecoration: "none",
@@ -313,19 +315,19 @@ function QuizGameContract() {
                 display: "block"
               }}
               onMouseEnter={(e) => {
-                e.currentTarget.style.background = "rgba(0, 255, 135, 0.2)";
-                e.currentTarget.style.borderColor = "#00ff87";
+                e.currentTarget.style.background = "hsl(var(--quiz-selected))";
+                e.currentTarget.style.borderColor = "hsl(var(--primary))";
               }}
               onMouseLeave={(e) => {
-                e.currentTarget.style.background = "rgba(0, 255, 135, 0.1)";
-                e.currentTarget.style.borderColor = "rgba(0, 255, 135, 0.3)";
+                e.currentTarget.style.background = "#ffffff";
+                e.currentTarget.style.borderColor = "hsl(var(--border))";
               }}
             >
-              <h4 style={{ color: "#00ff87", marginBottom: "0.5rem" }}>{quiz.title}</h4>
-              <p style={{ color: "#ffffff", fontSize: "0.9rem", margin: "0 0 0.5rem 0" }}>
+              <h4 style={{ color: "#111827", marginBottom: "0.5rem", fontWeight: 700 }}>{quiz.title}</h4>
+              <p style={{ color: "#374151", fontSize: "0.9rem", margin: "0 0 0.5rem 0" }}>
                 {quiz.description}
               </p>
-              <p style={{ color: "#9ca3af", fontSize: "0.8rem", margin: 0 }}>
+              <p style={{ color: "#6b7280", fontSize: "0.8rem", margin: 0 }}>
                 {quiz.questions} questions
               </p>
             </Link>
