@@ -1,19 +1,19 @@
 # 🚀 Smart Contract Deployment Guide
 
-## Quick Deploy to Core Testnet2
+## Quick Deploy to Hyperion (Testnet)
 
 ### 1. Setup Environment
 ```bash
 # Create .env file in contracts/ directory
 echo "PRIVATE_KEY=your_private_key_here" > .env
-echo "CORE_TESTNET2_RPC_URL=https://rpc.test2.btcs.network" >> .env
+echo "HYPERION_RPC_URL=https://hyperion-testnet.metisdevops.link" >> .env
 ```
 
 ### 2. Deploy All Demo Contracts
 ```bash
 cd contracts
 forge script script/DeployDemoContracts.s.sol \
-  --rpc-url $CORE_TESTNET2_RPC_URL \
+  --rpc-url $HYPERION_RPC_URL \
   --private-key $PRIVATE_KEY \
   --broadcast \
   --verify
@@ -25,13 +25,10 @@ After deployment, update `src/libs/constants.ts` with the new addresses:
 
 ```typescript
 const CONTRACT_ADDRESSES = {
-  // Core Testnet2
-  1114: {
+  // Hyperion (Testnet)
+  133717: {
     token1ContractAddress: "0x...", // From deployment output
     quizGameContractAddress: "0x...", // From deployment output
-    quizDuelContractAddress: "0x...", // From deployment output
-    guildSystemContractAddress: "0x...", // From deployment output
-    quizNFTContractAddress: "0x..." // From deployment output
   }
 }
 ```
@@ -40,7 +37,7 @@ const CONTRACT_ADDRESSES = {
 ```bash
 cd ..
 pnpm run dev
-# Navigate to http://localhost:5173/demo
+# Navigate to http://localhost:5173
 ```
 
 ## Alternative: Manual Deployment
@@ -50,14 +47,14 @@ If you prefer to deploy contracts individually:
 ### Deploy Token Contract
 ```bash
 forge create src/Token1.sol:Token1 \
-  --rpc-url $CORE_TESTNET2_RPC_URL \
+  --rpc-url $HYPERION_RPC_URL \
   --private-key $PRIVATE_KEY
 ```
 
 ### Deploy Quiz Game Contract
 ```bash
 forge create src/QuizGame.sol:QuizGame \
-  --rpc-url $CORE_TESTNET2_RPC_URL \
+  --rpc-url $HYPERION_RPC_URL \
   --private-key $PRIVATE_KEY \
   --constructor-args <TOKEN_ADDRESS>
 ```
@@ -86,27 +83,26 @@ forge create src/QuizNFT.sol:QuizNFT \
   --constructor-args <TOKEN_ADDRESS>
 ```
 
-## Core Testnet2 Info
+## Hyperion (Testnet) Info
 
-- **Chain ID**: 1114 (0x45a)
-- **RPC URL**: https://rpc.test2.btcs.network
-- **Archive RPC**: https://rpcar.test2.btcs.network
-- **WebSocket**: wss://rpc.test2.btcs.network/wsp
-- **Explorer**: https://scan.test2.btcs.network/
-- **Faucet**: Available on the explorer
+- **Chain ID**: 133717
+- **RPC URL**: https://hyperion-testnet.metisdevops.link
+- **Explorer**: https://hyperion-testnet-explorer.metisdevops.link/
+- **Currency Symbol**: tMETIS
+- **Faucet**: Telegram Bot
 
 ## Verification
 
-After deployment, verify contracts on the explorer:
+After deployment, verify contracts on the Hyperion explorer:
 ```bash
 forge verify-contract <CONTRACT_ADDRESS> src/QuizGame.sol:QuizGame \
-  --chain-id 1114 \
-  --rpc-url https://rpc.test2.btcs.network \
+  --chain-id 133717 \
+  --rpc-url https://hyperion-testnet.metisdevops.link \
   --verifier blockscout \
-  --verifier-url 'https://scan.test2.btcs.network/api/' \
+  --verifier-url 'https://hyperion-testnet-explorer.metisdevops.link/api/' \
   --constructor-args $(cast abi-encode "constructor(address)" <TOKEN_ADDRESS>)
 ```
 
 ---
 
-**Note**: Make sure you have test tCORE in your wallet for gas fees before deploying!
+**Note**: Make sure you have test tMETIS in your wallet for gas fees before deploying!
