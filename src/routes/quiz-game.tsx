@@ -145,9 +145,12 @@ function QuizGame() {
   useEffect(() => {
     if (isCompleteSuccess) {
       toast.success('Rewards claimed! Check your wallet 🎁')
-      // Don't navigate away - let user stay on the quiz completion screen
+      // Navigate to home page after successful claim
+      setTimeout(() => {
+        navigate({ to: '/' })
+      }, 2000) // Wait 2 seconds to show the success message
     }
-  }, [isCompleteSuccess])
+  }, [isCompleteSuccess, navigate])
 
   // Handle quiz start
   const handleStartQuiz = () => {
@@ -169,21 +172,33 @@ function QuizGame() {
   const handleQuizAnswer = (answer: string) => {
     if (!quizConfig) return
     
+    console.log('Answer submitted:', answer)
+    console.log('Current question index:', currentQuestionIndex)
+    console.log('Total questions:', quizConfig.questions.length)
+    
     const newAnswers = [...userAnswers]
     newAnswers[currentQuestionIndex] = answer
     setUserAnswers(newAnswers)
 
     if (currentQuestionIndex < quizConfig.questions.length - 1) {
+      console.log('Moving to next question')
       setCurrentQuestionIndex(currentQuestionIndex + 1)
     } else {
+      console.log('Quiz completed - calculating score')
       // Quiz completed - calculate score
-      // Add the current answer to the array first, then calculate total score
-      const allAnswers = [...newAnswers, answer]
-      
-      const finalScore = allAnswers.reduce((score, ans, index) => {
-        return score + (ans === quizConfig.questions[index].options[quizConfig.questions[index].correct] ? 1 : 0)
+      // First calculate score for previous answers
+      let finalScore = newAnswers.reduce((score, ans, index) => {
+        const isCorrect = ans === quizConfig.questions[index].options[quizConfig.questions[index].correct]
+        console.log(`Previous question ${index}: ${ans} vs ${quizConfig.questions[index].options[quizConfig.questions[index].correct]} = ${isCorrect}`)
+        return score + (isCorrect ? 1 : 0)
       }, 0)
       
+      // Then add score for current answer
+      const currentAnswerCorrect = answer === quizConfig.questions[currentQuestionIndex].options[quizConfig.questions[currentQuestionIndex].correct]
+      console.log(`Current question ${currentQuestionIndex}: ${answer} vs ${quizConfig.questions[currentQuestionIndex].options[quizConfig.questions[currentQuestionIndex].correct]} = ${currentAnswerCorrect}`)
+      finalScore += currentAnswerCorrect ? 1 : 0
+      
+      console.log('Final score:', finalScore)
       setScore(finalScore)
       setQuizCompleted(true)
     }
@@ -365,8 +380,8 @@ function QuizGame() {
               onClick={handleCompleteQuiz}
               disabled={isCompletePending}
               style={{
-                backgroundColor: isCompletePending ? "#a3e635" : "#58CC02",
-                color: isCompletePending ? "#374151" : "#ffffff",
+                backgroundColor: isCompletePending ? "#9ca3af" : "#58CC02",
+                color: "white",
                 border: "none",
                 borderRadius: "12px",
                 padding: "1rem 2rem",
@@ -374,7 +389,8 @@ function QuizGame() {
                 fontWeight: 700,
                 cursor: isCompletePending ? "not-allowed" : "pointer",
                 transition: "all 0.3s ease",
-                minWidth: "140px"
+                minWidth: "140px",
+                opacity: isCompletePending ? 0.6 : 1
               }}
             >
               {isCompletePending ? "Claiming..." : "🎁 Claim Rewards"}
@@ -386,7 +402,7 @@ function QuizGame() {
   }
 
   // If quiz is active and user has started it, show current question
-  if ((isStartSuccess || (hasActiveQuiz && activeQuizId === quizId)) && !quizCompleted && quizConfig) {
+  if ((isStartSuccess || (hasActiveQuiz && activeQuizId === quizId)) && quizConfig && !quizCompleted) {
     const currentQuestion = quizConfig.questions[currentQuestionIndex]
     
     return (
@@ -513,8 +529,8 @@ function QuizGame() {
             onClick={handleStartQuiz}
             disabled={isStartPending || !address}
             style={{
-              backgroundColor: isStartPending || !address ? "#a3e635" : "#58CC02",
-              color: isStartPending || !address ? "#374151" : "#ffffff",
+              backgroundColor: isStartPending || !address ? "#9ca3af" : "#58CC02",
+              color: "white",
               border: "none",
               borderRadius: "12px",
               padding: "1rem 2rem",
@@ -522,7 +538,8 @@ function QuizGame() {
               fontWeight: 700,
               cursor: isStartPending || !address ? "not-allowed" : "pointer",
               transition: "all 0.3s ease",
-              minWidth: "200px"
+              minWidth: "200px",
+              opacity: isStartPending || !address ? 0.6 : 1
             }}
           >
             {isStartPending ? "Starting..." : `🎮 Start Quiz (${FIXED_ENTRY_AMOUNT} tMETIS)`}

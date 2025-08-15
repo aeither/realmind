@@ -228,7 +228,8 @@ function QuizGameContract() {
                 fontSize: "0.9rem",
                 fontWeight: 700,
                 cursor: isCompletePending ? "not-allowed" : "pointer",
-                transition: "all 0.3s ease"
+                transition: "all 0.3s ease",
+                opacity: isCompletePending ? 0.6 : 1
               }}
             >
               {isCompletePending ? "Completing..." : "Complete Session"}
