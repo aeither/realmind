@@ -36,6 +36,50 @@ const QUIZ_CONFIGS = {
         correct: 1
       }
     ]
+  },
+  'crypto-trading': {
+    id: 'crypto-trading',
+    title: 'Crypto Trading',
+    description: 'Learn about trading strategies, market analysis, and risk management',
+    questions: [
+      {
+        question: "What is a 'bull market' in cryptocurrency?",
+        options: ["A market where prices are falling", "A market where prices are rising", "A market with high volatility", "A market with low trading volume"],
+        correct: 1
+      },
+      {
+        question: "What does 'FOMO' stand for in trading?",
+        options: ["Fear of Missing Out", "Fear of Market Order", "Fast Order Market Option", "Financial Order Management"],
+        correct: 0
+      },
+      {
+        question: "What is 'DCA' in cryptocurrency trading?",
+        options: ["Daily Crypto Analysis", "Dollar Cost Averaging", "Digital Currency Arbitrage", "Direct Crypto Access"],
+        correct: 1
+      }
+    ]
+  },
+  'defi-protocols': {
+    id: 'defi-protocols',
+    title: 'DeFi Protocols',
+    description: 'Explore decentralized finance protocols, yield farming, and liquidity pools',
+    questions: [
+      {
+        question: "What is 'yield farming' in DeFi?",
+        options: ["Growing crops on blockchain", "Earning rewards by providing liquidity", "Mining cryptocurrency", "Trading tokens"],
+        correct: 1
+      },
+      {
+        question: "What is an 'AMM' in DeFi?",
+        options: ["Automated Market Maker", "Advanced Mining Method", "Asset Management Module", "Automated Money Market"],
+        correct: 0
+      },
+      {
+        question: "What is 'impermanent loss'?",
+        options: ["Loss from holding tokens too long", "Loss from providing liquidity to pools", "Loss from trading fees", "Loss from network fees"],
+        correct: 1
+      }
+    ]
   }
 } as const
 
@@ -133,12 +177,12 @@ function QuizGame() {
       setCurrentQuestionIndex(currentQuestionIndex + 1)
     } else {
       // Quiz completed - calculate score
-      const correctAnswer = quizConfig.questions[currentQuestionIndex].options[quizConfig.questions[currentQuestionIndex].correct]
-      const isCorrect = answer === correctAnswer
+      // Add the current answer to the array first, then calculate total score
+      const allAnswers = [...newAnswers, answer]
       
-      const finalScore = newAnswers.reduce((score, ans, index) => {
+      const finalScore = allAnswers.reduce((score, ans, index) => {
         return score + (ans === quizConfig.questions[index].options[quizConfig.questions[index].correct] ? 1 : 0)
-      }, 0) + (isCorrect ? 1 : 0)
+      }, 0)
       
       setScore(finalScore)
       setQuizCompleted(true)
