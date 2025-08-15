@@ -113,7 +113,7 @@ function GlobalHeader({
       {/* Right side - Token Balance and Connect Button */}
       <motion.div style={{ display: "flex", alignItems: "center", gap: "1rem" }} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.2 }}>
         {/* Token Balance Display */}
-        {address && tokenBalance && tokenSymbol && (
+        {address && tokenBalance !== undefined && tokenBalance !== 0n && tokenSymbol && (
           <div style={{
             background: "hsl(var(--quiz-selected))",
             borderRadius: "8px",

@@ -482,7 +482,7 @@ function ContractDebugPage() {
               padding: "0.5rem",
               borderRadius: "6px"
             }}>
-              {owner || "Loading..."}
+              {owner ? String(owner) : "Loading..."}
             </p>
           </div>
 
@@ -496,7 +496,7 @@ function ContractDebugPage() {
               padding: "0.5rem",
               borderRadius: "6px"
             }}>
-              {tokenAddress || "Loading..."}
+              {tokenAddress ? String(tokenAddress) : "Loading..."}
             </p>
           </div>
 
@@ -816,19 +816,19 @@ function ContractDebugPage() {
           {userSession ? (
             <div>
               <div style={{ marginBottom: "1rem" }}>
-                <strong>Active:</strong> {userSession.active ? "✅ Yes" : "❌ No"}
+                <strong>Active:</strong> {(userSession as any).active ? "✅ Yes" : "❌ No"}
               </div>
               <div style={{ marginBottom: "1rem" }}>
-                <strong>User Answer:</strong> {userSession.userAnswer.toString()}
+                <strong>User Answer:</strong> {(userSession as any).userAnswer?.toString() || "N/A"}
               </div>
               <div style={{ marginBottom: "1rem" }}>
-                <strong>Amount Paid:</strong> {formatEther(userSession.amountPaid)} ETH
+                <strong>Amount Paid:</strong> {(userSession as any).amountPaid ? formatEther((userSession as any).amountPaid) : "0"} ETH
               </div>
               <div style={{ marginBottom: "1rem" }}>
-                <strong>Initial Tokens:</strong> {formatEther(userSession.amountPaid * BigInt(100))} TK1
+                <strong>Initial Tokens:</strong> {(userSession as any).amountPaid ? formatEther((userSession as any).amountPaid * BigInt(100)) : "0"} TK1
               </div>
               <div style={{ marginBottom: "1rem" }}>
-                <strong>Timestamp:</strong> {new Date(Number(userSession.timestamp) * 1000).toLocaleString()}
+                <strong>Timestamp:</strong> {(userSession as any).timestamp ? new Date(Number((userSession as any).timestamp) * 1000).toLocaleString() : "N/A"}
               </div>
             </div>
           ) : (

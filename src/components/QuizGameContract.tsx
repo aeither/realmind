@@ -79,7 +79,7 @@ function QuizGameContract() {
   });
 
   // Extract quiz ID from user session
-  const activeQuizId = userSession?.quizId || '';
+  const activeQuizId = (userSession as any)?.quizId || '';
 
   // Contract writes
   const { writeContract: startQuiz, isPending: isStartPending, data: startHash } = useWriteContract();
