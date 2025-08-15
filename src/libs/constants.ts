@@ -2,8 +2,8 @@
 const CONTRACT_ADDRESSES = {
   // Hyperion (Testnet)
   133717: {
-    token1ContractAddress: "0xdED87fD6213A8f4ea824B8c74128fAf3DE65BFFE",
-    quizGameContractAddress: "0x9a486C66c308db15aD6a3d1aF4cb20244bD1e2c3",
+    token1ContractAddress: "0x9599861081C211E5C289cD833eeC9EE223Bcd51A",
+    quizGameContractAddress: "0x37E2619161ACe4149FD9366F30846DB909bd2A07",
     // New demo contracts (placeholder addresses - update after deployment)
     quizDuelContractAddress: "0x0000000000000000000000000000000000000001",
     guildSystemContractAddress: "0x0000000000000000000000000000000000000002",
