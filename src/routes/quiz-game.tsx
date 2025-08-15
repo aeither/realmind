@@ -586,9 +586,8 @@ function QuizGame() {
                 fontWeight: 700,
                 cursor: isStartPending || !address ? "not-allowed" : "pointer",
                 transition: "all 0.3s ease",
-                minWidth: "clamp(200px, 80vw, 300px)",
-                width: "100%",
-                maxWidth: "300px",
+                width: "auto",
+                maxWidth: "280px",
                 opacity: isStartPending || !address ? 0.6 : 1
               }}
             >
