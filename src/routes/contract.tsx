@@ -26,6 +26,7 @@ function ContractDebugPage() {
   const [selectedAmount, setSelectedAmount] = useState<number>(0.001);
   const [userAnswer, setUserAnswer] = useState<number>(42);
   const [submittedAnswer, setSubmittedAnswer] = useState<number>(42);
+  const [newOwnerAddress, setNewOwnerAddress] = useState<string>('');
 
   // Get contract addresses based on current chain
   const contractAddresses = chain ? getContractAddresses(chain.id) : getContractAddresses(hyperionTestnet.id);
@@ -92,6 +93,22 @@ function ContractDebugPage() {
     reset: resetMintToken
   } = useWriteContract();
 
+  const { 
+    data: transferOwnershipHash, 
+    isPending: isTransferOwnershipPending,
+    writeContract: transferOwnership,
+    error: transferOwnershipError,
+    reset: resetTransferOwnership
+  } = useWriteContract();
+
+  const { 
+    data: renounceOwnershipHash, 
+    isPending: isRenounceOwnershipPending,
+    writeContract: renounceOwnership,
+    error: renounceOwnershipError,
+    reset: resetRenounceOwnership
+  } = useWriteContract();
+
   // Wait for transaction confirmations
   const { isLoading: isStartConfirming, isSuccess: isStartConfirmed } = 
     useWaitForTransactionReceipt({ hash: startQuizHash });
@@ -104,6 +121,12 @@ function ContractDebugPage() {
 
   const { isLoading: isMintTokenConfirming, isSuccess: isMintTokenConfirmed } = 
     useWaitForTransactionReceipt({ hash: mintTokenHash });
+
+  const { isLoading: isTransferOwnershipConfirming, isSuccess: isTransferOwnershipConfirmed } = 
+    useWaitForTransactionReceipt({ hash: transferOwnershipHash });
+
+  const { isLoading: isRenounceOwnershipConfirming, isSuccess: isRenounceOwnershipConfirmed } = 
+    useWaitForTransactionReceipt({ hash: renounceOwnershipHash });
 
   // Check if current chain is supported
   const supportedChainIds = [133717, 11155111, 8453, 12345, 1114]; // From CONTRACT_ADDRESSES
@@ -165,6 +188,31 @@ function ContractDebugPage() {
     refetchOwner();
     refetchToken();
     refetchSession();
+  };
+
+  const handleTransferOwnership = () => {
+    if (!isConnected || !newOwnerAddress) return;
+    
+    resetTransferOwnership();
+    transferOwnership({
+      abi: quizGameABI,
+      address: contractAddresses.quizGameContractAddress as `0x${string}`,
+      functionName: 'transferOwnership',
+      args: [newOwnerAddress as `0x${string}`],
+      chainId: chain?.id,
+    });
+  };
+
+  const handleRenounceOwnership = () => {
+    if (!isConnected) return;
+    
+    resetRenounceOwnership();
+    renounceOwnership({
+      abi: quizGameABI,
+      address: contractAddresses.quizGameContractAddress as `0x${string}`,
+      functionName: 'renounceOwnership',
+      chainId: chain?.id,
+    });
   };
 
   // Calculate token rewards
@@ -694,6 +742,63 @@ function ContractDebugPage() {
           >
             {isWithdrawPending ? "Confirming..." : isWithdrawConfirming ? "Withdrawing..." : "💸 Withdraw Funds"}
           </button>
+
+          <div style={{ marginBottom: "1rem" }}>
+            <label style={{ display: "block", marginBottom: "0.5rem", fontWeight: "600" }}>
+              🔐 Ownership Transfer
+            </label>
+            <input
+              type="text"
+              placeholder="New owner address (0x...)"
+              value={newOwnerAddress}
+              onChange={(e) => setNewOwnerAddress(e.target.value)}
+              style={{
+                width: "100%",
+                padding: "0.75rem 1rem",
+                borderRadius: "8px",
+                border: "2px solid hsl(var(--border))",
+                fontSize: "1rem",
+                marginBottom: "0.5rem"
+              }}
+            />
+            
+            <button
+              onClick={handleTransferOwnership}
+              disabled={isTransferOwnershipPending || isTransferOwnershipConfirming || !newOwnerAddress}
+              style={{
+                backgroundColor: isTransferOwnershipPending || isTransferOwnershipConfirming || !newOwnerAddress ? "#9ca3af" : "#8b5cf6",
+                color: "white",
+                border: "none",
+                borderRadius: "8px",
+                padding: "0.75rem 1rem",
+                fontSize: "1rem",
+                cursor: isTransferOwnershipPending || isTransferOwnershipConfirming || !newOwnerAddress ? "not-allowed" : "pointer",
+                width: "100%",
+                marginBottom: "0.5rem",
+                fontWeight: 700
+              }}
+            >
+              {isTransferOwnershipPending ? "Confirming..." : isTransferOwnershipConfirming ? "Transferring..." : "👑 Transfer Ownership"}
+            </button>
+            
+            <button
+              onClick={handleRenounceOwnership}
+              disabled={isRenounceOwnershipPending || isRenounceOwnershipConfirming}
+              style={{
+                backgroundColor: isRenounceOwnershipPending || isRenounceOwnershipConfirming ? "#9ca3af" : "#dc2626",
+                color: "white",
+                border: "none",
+                borderRadius: "8px",
+                padding: "0.75rem 1rem",
+                fontSize: "1rem",
+                cursor: isRenounceOwnershipPending || isRenounceOwnershipConfirming ? "not-allowed" : "pointer",
+                width: "100%",
+                fontWeight: 700
+              }}
+            >
+              {isRenounceOwnershipPending ? "Confirming..." : isRenounceOwnershipConfirming ? "Renouncing..." : "🚫 Renounce Ownership"}
+            </button>
+          </div>
         </motion.div>
 
         {/* User Session */}
@@ -734,7 +839,8 @@ function ContractDebugPage() {
 
       {/* Transaction Status */}
       {(isStartPending || isStartConfirming || isCompletePending || isCompleteConfirming || 
-        isWithdrawPending || isWithdrawConfirming || isMintTokenPending || isMintTokenConfirming) && (
+        isWithdrawPending || isWithdrawConfirming || isMintTokenPending || isMintTokenConfirming ||
+        isTransferOwnershipPending || isTransferOwnershipConfirming || isRenounceOwnershipPending || isRenounceOwnershipConfirming) && (
         <div style={{
           position: "fixed",
           bottom: "2rem",
@@ -753,13 +859,15 @@ function ContractDebugPage() {
             {isStartPending || isStartConfirming ? "Starting quiz..." :
              isCompletePending || isCompleteConfirming ? "Completing quiz..." :
              isWithdrawPending || isWithdrawConfirming ? "Withdrawing funds..." :
-             isMintTokenPending || isMintTokenConfirming ? "Minting tokens..." : ""}
+             isMintTokenPending || isMintTokenConfirming ? "Minting tokens..." :
+             isTransferOwnershipPending || isTransferOwnershipConfirming ? "Transferring ownership..." :
+             isRenounceOwnershipPending || isRenounceOwnershipConfirming ? "Renouncing ownership..." : ""}
           </p>
         </div>
       )}
 
       {/* Error Messages */}
-      {(startError || completeError || withdrawError || mintTokenError) && (
+      {(startError || completeError || withdrawError || mintTokenError || transferOwnershipError || renounceOwnershipError) && (
         <div style={{
           position: "fixed",
           bottom: "2rem",
@@ -775,13 +883,15 @@ function ContractDebugPage() {
             ❌ Transaction Error
           </p>
           <p style={{ margin: 0, color: "#991b1b", fontSize: "0.9rem" }}>
-            {startError?.message || completeError?.message || withdrawError?.message || mintTokenError?.message}
+            {startError?.message || completeError?.message || withdrawError?.message || mintTokenError?.message || 
+             transferOwnershipError?.message || renounceOwnershipError?.message}
           </p>
         </div>
       )}
 
       {/* Success Messages */}
-      {(isStartConfirmed || isCompleteConfirmed || isWithdrawConfirmed || isMintTokenConfirmed) && (
+      {(isStartConfirmed || isCompleteConfirmed || isWithdrawConfirmed || isMintTokenConfirmed || 
+        isTransferOwnershipConfirmed || isRenounceOwnershipConfirmed) && (
         <div style={{
           position: "fixed",
           bottom: "2rem",
@@ -800,7 +910,9 @@ function ContractDebugPage() {
             {isStartConfirmed ? "Quiz started successfully! Tokens minted!" :
              isCompleteConfirmed ? "Quiz completed successfully! Bonus tokens minted!" :
              isWithdrawConfirmed ? "Funds withdrawn successfully!" :
-             isMintTokenConfirmed ? "Tokens minted successfully!" : ""}
+             isMintTokenConfirmed ? "Tokens minted successfully!" :
+             isTransferOwnershipConfirmed ? "Ownership transferred successfully!" :
+             isRenounceOwnershipConfirmed ? "Ownership renounced successfully!" : ""}
           </p>
         </div>
       )}
