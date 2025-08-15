@@ -37,6 +37,7 @@ contract QuizGame is Ownable {
         uint256 amountPaid;
         uint256 timestamp;
         string quizId;
+        uint256 correctAnswers; // Track correct answers for bonus calculation
     }
 
     event QuizStarted(address indexed user, string quizId, uint256 userAnswer);
@@ -63,41 +64,44 @@ contract QuizGame is Ownable {
         session.amountPaid = msg.value;
         session.timestamp = block.timestamp;
         session.quizId = quizId;
+        session.correctAnswers = 0;
 
         // Mint initial tokens: 100x ETH paid
         uint256 initialTokens = msg.value * 100;
-        try token.mint(msg.sender, initialTokens) {
-            // Success - ignore failure to avoid blocking quiz
-        } catch {
-            // Log or handle silently
-        }
+        token.mint(msg.sender, initialTokens);
 
         emit QuizStarted(msg.sender, quizId, userAnswer);
     }
 
-    function completeQuiz(uint256 submittedAnswer) external {
+    function completeQuiz(uint256 correctAnswerCount) external {
         QuizSession storage session = userSessions[msg.sender];
         require(session.active, "No active quiz session");
 
         // Mark as inactive first
         session.active = false;
 
-        bool correct = (submittedAnswer == session.userAnswer);
         uint256 initialTokens = session.amountPaid * 100;
         uint256 totalTokens = initialTokens;
 
-        if (correct) {
-            // Random bonus: 10% to 90%
+        // Calculate bonus based on correct answers (assuming 3 questions total)
+        if (correctAnswerCount >= 3) {
+            // Perfect score: 10% to 90% bonus
             uint256 bonusPercent = 10 + (uint256(keccak256(abi.encodePacked(block.timestamp, msg.sender))) % 81);
             uint256 bonusTokens = (initialTokens * bonusPercent) / 100;
             totalTokens += bonusTokens;
 
-            try token.mint(msg.sender, bonusTokens) {
-                emit QuizCompleted(msg.sender, session.quizId, true, totalTokens);
-            } catch {
-                emit QuizCompleted(msg.sender, session.quizId, true, initialTokens);
-            }
+            token.mint(msg.sender, bonusTokens);
+            emit QuizCompleted(msg.sender, session.quizId, true, totalTokens);
+        } else if (correctAnswerCount >= 2) {
+            // Good score: 5% to 25% bonus
+            uint256 bonusPercent = 5 + (uint256(keccak256(abi.encodePacked(block.timestamp, msg.sender))) % 21);
+            uint256 bonusTokens = (initialTokens * bonusPercent) / 100;
+            totalTokens += bonusTokens;
+
+            token.mint(msg.sender, bonusTokens);
+            emit QuizCompleted(msg.sender, session.quizId, true, totalTokens);
         } else {
+            // No bonus for poor performance
             emit QuizCompleted(msg.sender, session.quizId, false, initialTokens);
         }
     }

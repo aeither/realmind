@@ -1,9 +1,9 @@
 import { Link } from '@tanstack/react-router';
 import { motion } from 'framer-motion';
 import { ConnectButton } from '@rainbow-me/rainbowkit';
-import { useAccount, useBalance } from 'wagmi';
+import { useAccount, useReadContract } from 'wagmi';
 import { formatEther } from 'viem';
-import { getContractAddresses } from '../libs/constants';
+import { getContractAddresses, token1ABI } from '../libs/constants';
 
 interface GlobalHeaderProps {
   showBackButton?: boolean;
@@ -21,15 +21,26 @@ function GlobalHeader({
   // Get contract addresses based on current chain
   const contractAddresses = chain ? getContractAddresses(chain.id) : getContractAddresses(133717); // Default to Hyperion (Testnet)
 
-  // Get Token1 balance
-  const { data: tokenBalance } = useBalance({
-    address,
-    token: contractAddresses.token1ContractAddress as `0x${string}`,
-    chainId: chain?.id,
+  // Get Token1 balance using read contract
+  const { data: tokenBalance } = useReadContract({
+    address: contractAddresses.token1ContractAddress as `0x${string}`,
+    abi: token1ABI,
+    functionName: 'balanceOf',
+    args: [address as `0x${string}`],
+    query: {
+      enabled: !!address,
+    },
   });
 
-  // TODO: Fix token balance display
-  console.log("tokenBalance", tokenBalance);
+  // Get Token1 symbol
+  const { data: tokenSymbol } = useReadContract({
+    address: contractAddresses.token1ContractAddress as `0x${string}`,
+    abi: token1ABI,
+    functionName: 'symbol',
+    query: {
+      enabled: !!address,
+    },
+  });
   
   return (
     <motion.header
@@ -102,7 +113,7 @@ function GlobalHeader({
       {/* Right side - Token Balance and Connect Button */}
       <motion.div style={{ display: "flex", alignItems: "center", gap: "1rem" }} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.2 }}>
         {/* Token Balance Display */}
-        {address && tokenBalance && (
+        {address && tokenBalance && tokenSymbol && (
           <div style={{
             background: "hsl(var(--quiz-selected))",
             borderRadius: "8px",
@@ -118,7 +129,7 @@ function GlobalHeader({
               gap: "0.5rem"
             }}>
               <span>🟢</span>
-              <span>{parseFloat(tokenBalance.value.toString()).toFixed(2)} {tokenBalance.symbol}</span>
+              <span>{formatEther(tokenBalance)} {tokenSymbol}</span>
             </div>
           </div>
         )}

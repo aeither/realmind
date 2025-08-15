@@ -19,7 +19,7 @@ const quizGameABI = [
         "name": "completeQuiz",
         "inputs": [
             {
-                "name": "submittedAnswer",
+                "name": "correctAnswerCount",
                 "type": "uint256",
                 "internalType": "uint256"
             }
@@ -67,6 +67,11 @@ const quizGameABI = [
                         "name": "quizId",
                         "type": "string",
                         "internalType": "string"
+                    },
+                    {
+                        "name": "correctAnswers",
+                        "type": "uint256",
+                        "internalType": "uint256"
                     }
                 ]
             }
@@ -217,6 +222,16 @@ const quizGameABI = [
                 "name": "timestamp",
                 "type": "uint256",
                 "internalType": "uint256"
+            },
+            {
+                "name": "quizId",
+                "type": "string",
+                "internalType": "string"
+            },
+            {
+                "name": "correctAnswers",
+                "type": "uint256",
+                "internalType": "uint256"
             }
         ],
         "stateMutability": "view"
@@ -297,7 +312,7 @@ const quizGameABI = [
             {
                 "name": "userAnswer",
                 "type": "uint256",
-                "indexed": false,
+                "indexed": "false",
                 "internalType": "uint256"
             }
         ],

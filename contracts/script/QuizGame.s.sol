@@ -14,9 +14,6 @@ contract QuizGameScript is Script {
         uint256 deployerPrivateKey = vm.envUint("PRIVATE_KEY");
         vm.startBroadcast(deployerPrivateKey);
 
-        // Use deterministic CREATE2 with a fixed salt
-        // bytes32 salt = bytes32(abi.encodePacked("my_unique_salt_123456"));
-
         // Deploy Token1
         token = new Token1();
         console.log("Token1 deployed at:", address(token));
@@ -24,6 +21,10 @@ contract QuizGameScript is Script {
         // Deploy QuizGame
         quizGame = new QuizGame(address(token));
         console.log("QuizGame deployed at:", address(quizGame));
+
+        // Transfer ownership of Token1 to QuizGame so it can mint tokens
+        token.transferOwnership(address(quizGame));
+        console.log("Token1 ownership transferred to QuizGame");
 
         console.log("All contracts deployed successfully!");
         console.log("Token1:", address(token));

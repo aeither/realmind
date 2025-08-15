@@ -49,7 +49,7 @@ function QuizGame() {
   const [userAnswers, setUserAnswers] = useState<string[]>([])
   const [quizCompleted, setQuizCompleted] = useState(false)
   const [score, setScore] = useState(0)
-  const [selectedAmount, setSelectedAmount] = useState('0.1')
+  const FIXED_ENTRY_AMOUNT = '0.0001' // Fixed entry amount in tMETIS
 
   const contractAddresses = chain ? getContractAddresses(chain.id) : getContractAddresses(hyperionTestnet.id)
   const quizConfig = quizId ? QUIZ_CONFIGS[quizId as keyof typeof QUIZ_CONFIGS] : null
@@ -76,7 +76,7 @@ function QuizGame() {
   });
 
   // Extract quiz ID from user session
-  const activeQuizId = userSession?.quizId || '';
+  const activeQuizId = userSession && typeof userSession === 'object' && 'quizId' in userSession ? (userSession as any).quizId : '';
 
   // Contract writes
   const { writeContract: startQuiz, isPending: isStartPending, data: startHash } = useWriteContract()
@@ -101,20 +101,16 @@ function QuizGame() {
   useEffect(() => {
     if (isCompleteSuccess) {
       toast.success('Rewards claimed! Check your wallet 🎁')
-      setTimeout(() => {
-        navigate({ to: '/contract' })
-      }, 2000)
+      // Don't navigate away - let user stay on the quiz completion screen
     }
-  }, [isCompleteSuccess, navigate])
+  }, [isCompleteSuccess])
 
   // Handle quiz start
   const handleStartQuiz = () => {
     if (!address || !quizConfig) return
     
-    const actualAmount = parseEther(selectedAmount)
+    const actualAmount = parseEther(FIXED_ENTRY_AMOUNT)
     const userAnswerValue = BigInt(Math.floor(Math.random() * 100) + 1)
-    
-    if (!quizConfig) return
     
     startQuiz({
       address: contractAddresses.quizGameContractAddress as `0x${string}`,
@@ -153,13 +149,14 @@ function QuizGame() {
   const handleCompleteQuiz = () => {
     if (!address || !quizConfig) return
     
-    const answerToSubmit = BigInt(Math.floor(Math.random() * 100) + 1)
+    // Pass the actual score (number of correct answers) to the contract
+    const correctAnswerCount = BigInt(score)
     
     completeQuiz({
       address: contractAddresses.quizGameContractAddress as `0x${string}`,
       abi: quizGameABI,
       functionName: 'completeQuiz',
-      args: [answerToSubmit],
+      args: [correctAnswerCount],
     })
   }
   
@@ -238,7 +235,7 @@ function QuizGame() {
         <div style={{ maxWidth: "600px", margin: "0 auto", padding: "2rem", textAlign: "center" }}>
           <h2 style={{ color: "#111827", marginBottom: "1rem" }}>Active Quiz Session</h2>
           <p style={{ color: "#6b7280", marginBottom: "2rem" }}>
-            You have an active quiz session for "{activeQuizId}". Please complete it first.
+            You have an active quiz session for "{String(activeQuizId)}". Please complete it first.
           </p>
           <div style={{ display: "flex", gap: "1rem", justifyContent: "center", flexWrap: "wrap" }}>
             <button 
@@ -313,7 +310,7 @@ function QuizGame() {
             }}>
               <h3 style={{ color: "#14532d", marginBottom: "1rem", fontWeight: 800 }}>🪙 Your Rewards</h3>
               <p style={{ color: "#374151", margin: "0.5rem 0" }}>
-                 Base Tokens: {selectedAmount} tMETIS × 100 = {parseFloat(selectedAmount) * 100} TK1
+                 Base Tokens: {FIXED_ENTRY_AMOUNT} tMETIS × 100 = {parseFloat(FIXED_ENTRY_AMOUNT) * 100} TK1
               </p>
               <p style={{ color: "#374151", margin: "0.5rem 0" }}>
                 Bonus: {score === quizConfig.questions.length ? '10-90% additional tokens for all correct answers!' : 'Better luck next time!'}
@@ -452,30 +449,20 @@ function QuizGame() {
           </div>
 
           <div style={{ marginBottom: "2rem" }}>
-            <label style={{ 
-              display: "block", 
-              color: "#111827", 
-              marginBottom: "0.5rem",
-              fontWeight: "500"
+            <div style={{
+              background: "#f0f9ff",
+              border: "2px solid #0ea5e9",
+              borderRadius: "12px",
+              padding: "1rem",
+              textAlign: "center"
             }}>
-              Entry Amount (tMETIS):
-            </label>
-            <input
-              type="number"
-              step="0.1"
-              value={selectedAmount}
-              onChange={(e) => setSelectedAmount(e.target.value)}
-              style={{
-                width: "200px",
-                padding: "0.75rem",
-                border: "2px solid hsl(var(--border))",
-                borderRadius: "8px",
-                fontSize: "1rem",
-                textAlign: "center",
-                backgroundColor: "#ffffff",
-                color: "#111827"
-              }}
-            />
+              <p style={{ color: "#0c4a6e", margin: "0", fontWeight: 600 }}>
+                Entry Fee: {FIXED_ENTRY_AMOUNT} tMETIS
+              </p>
+              <p style={{ color: "#0c4a6e", margin: "0.25rem 0 0 0", fontSize: "0.9rem" }}>
+                Earn up to {parseFloat(FIXED_ENTRY_AMOUNT) * 190} TK1 tokens!
+              </p>
+            </div>
           </div>
 
           <button
@@ -494,7 +481,7 @@ function QuizGame() {
               minWidth: "200px"
             }}
           >
-            {isStartPending ? "Starting..." : `🎮 Start Quiz (${selectedAmount} tMETIS)`}
+            {isStartPending ? "Starting..." : `🎮 Start Quiz (${FIXED_ENTRY_AMOUNT} tMETIS)`}
           </button>
         </div>
       </div>
