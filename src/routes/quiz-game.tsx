@@ -411,20 +411,32 @@ function QuizGame() {
         <div style={{
           maxWidth: "600px",
           margin: "0 auto",
-          padding: "2rem"
+          padding: "clamp(1rem, 4vw, 2rem)"
         }}>
-          <h2 style={{ color: "#111827", marginBottom: "2rem", textAlign: "center", fontWeight: 800 }}>
+          <h2 style={{ 
+            color: "#111827", 
+            marginBottom: "2rem", 
+            textAlign: "center", 
+            fontWeight: 800,
+            fontSize: "clamp(1.25rem, 5vw, 1.5rem)"
+          }}>
             {quizConfig.title} - Question {currentQuestionIndex + 1} of {quizConfig.questions.length}
           </h2>
           <div style={{
             background: "#ffffff",
             borderRadius: "12px",
-            padding: "2rem",
+            padding: "clamp(1.5rem, 5vw, 2rem)",
             border: "1px solid hsl(var(--border))",
             boxShadow: "var(--shadow-card)",
             marginBottom: "2rem"
           }}>
-            <h3 style={{ color: "#111827", marginBottom: "1.5rem", fontSize: "1.25rem", fontWeight: 700 }}>
+            <h3 style={{ 
+              color: "#111827", 
+              marginBottom: "1.5rem", 
+              fontSize: "clamp(1rem, 4vw, 1.25rem)", 
+              fontWeight: 700,
+              lineHeight: "1.4"
+            }}>
               {currentQuestion.question}
             </h3>
             <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
@@ -436,12 +448,14 @@ function QuizGame() {
                     backgroundColor: "#ffffff",
                     border: "2px solid hsl(var(--border))",
                     borderRadius: "8px",
-                    padding: "1rem",
-                    fontSize: "1rem",
+                    padding: "clamp(0.75rem, 3vw, 1rem)",
+                    fontSize: "clamp(0.9rem, 3.5vw, 1rem)",
                     cursor: "pointer",
                     transition: "all 0.3s ease",
                     textAlign: "left",
-                    color: "#111827"
+                    color: "#111827",
+                    lineHeight: "1.4",
+                    minHeight: "clamp(3rem, 12vw, 4rem)"
                   }}
                   onMouseEnter={(e) => {
                     e.currentTarget.style.backgroundColor = "hsl(var(--quiz-selected))"
@@ -469,20 +483,30 @@ function QuizGame() {
       <div style={{
         maxWidth: "600px",
         margin: "0 auto",
-        padding: "2rem"
+        padding: "clamp(1rem, 4vw, 2rem)"
       }}>
         <div style={{
           background: "#ffffff",
           borderRadius: "16px",
-          padding: "3rem",
+          padding: "clamp(1.5rem, 6vw, 3rem)",
           border: "1px solid hsl(var(--border))",
           boxShadow: "var(--shadow-card)",
           textAlign: "center"
         }}>
-          <h1 style={{ color: "#111827", marginBottom: "1rem", fontSize: "2rem", fontWeight: 800 }}>
+          <h1 style={{ 
+            color: "#111827", 
+            marginBottom: "1rem", 
+            fontSize: "clamp(1.5rem, 6vw, 2rem)", 
+            fontWeight: 800 
+          }}>
             {quizConfig?.title || "Quiz"}
           </h1>
-          <p style={{ color: "#374151", marginBottom: "2rem", fontSize: "1.05rem" }}>
+          <p style={{ 
+            color: "#374151", 
+            marginBottom: "2rem", 
+            fontSize: "clamp(0.9rem, 4vw, 1.05rem)",
+            lineHeight: "1.5"
+          }}>
             {quizConfig?.description || "Test your knowledge and earn rewards!"}
           </p>
           
@@ -490,16 +514,22 @@ function QuizGame() {
             background: "#f0fdf4",
             border: "1px solid #22c55e",
             borderRadius: "12px",
-            padding: "1.5rem",
+            padding: "clamp(1rem, 4vw, 1.5rem)",
             marginBottom: "2rem",
             textAlign: "left"
           }}>
-            <h3 style={{ color: "#14532d", marginBottom: "1rem", fontWeight: 800 }}>📋 Quiz Info:</h3>
+            <h3 style={{ 
+              color: "#14532d", 
+              marginBottom: "1rem", 
+              fontWeight: 800,
+              fontSize: "clamp(1rem, 4vw, 1.1rem)"
+            }}>📋 Quiz Info:</h3>
             <ul style={{ 
               color: "#374151", 
               lineHeight: "1.6",
               paddingLeft: "1.5rem",
-              margin: 0
+              margin: 0,
+              fontSize: "clamp(0.85rem, 3.5vw, 1rem)"
             }}>
               <li>📝 {quizConfig?.questions.length || 0} questions about {(quizConfig?.title || "quiz").toLowerCase()}</li>
               <li>✅ Get all answers correct for bonus rewards (10-90%)</li>
@@ -513,37 +543,58 @@ function QuizGame() {
               background: "#f0f9ff",
               border: "2px solid #0ea5e9",
               borderRadius: "12px",
-              padding: "1rem",
+              padding: "clamp(0.75rem, 3vw, 1rem)",
               textAlign: "center"
             }}>
-              <p style={{ color: "#0c4a6e", margin: "0", fontWeight: 600 }}>
+              <p style={{ 
+                color: "#0c4a6e", 
+                margin: "0", 
+                fontWeight: 600,
+                fontSize: "clamp(0.9rem, 3.5vw, 1rem)"
+              }}>
                 Entry Fee: {FIXED_ENTRY_AMOUNT} tMETIS
               </p>
-              <p style={{ color: "#0c4a6e", margin: "0.25rem 0 0 0", fontSize: "0.9rem" }}>
+              <p style={{ 
+                color: "#0c4a6e", 
+                margin: "0.25rem 0 0 0", 
+                fontSize: "clamp(0.8rem, 3vw, 0.9rem)"
+              }}>
                 Earn up to {parseFloat(FIXED_ENTRY_AMOUNT) * 190} TK1 tokens!
               </p>
             </div>
           </div>
 
-          <button
-            onClick={handleStartQuiz}
-            disabled={isStartPending || !address}
-            style={{
-              backgroundColor: isStartPending || !address ? "#9ca3af" : "#58CC02",
-              color: "white",
-              border: "none",
-              borderRadius: "12px",
-              padding: "1rem 2rem",
-              fontSize: "1.1rem",
-              fontWeight: 700,
-              cursor: isStartPending || !address ? "not-allowed" : "pointer",
-              transition: "all 0.3s ease",
-              minWidth: "200px",
-              opacity: isStartPending || !address ? 0.6 : 1
-            }}
-          >
-            {isStartPending ? "Starting..." : `🎮 Start Quiz (${FIXED_ENTRY_AMOUNT} tMETIS)`}
-          </button>
+          <div style={{ textAlign: "center" }}>
+            <p style={{ 
+              color: "#6b7280", 
+              marginBottom: "0.5rem", 
+              fontSize: "clamp(0.8rem, 3vw, 0.9rem)",
+              fontWeight: "500"
+            }}>
+              Entry Fee: {FIXED_ENTRY_AMOUNT} tMETIS
+            </p>
+            <button
+              onClick={handleStartQuiz}
+              disabled={isStartPending || !address}
+              style={{
+                backgroundColor: isStartPending || !address ? "#9ca3af" : "#58CC02",
+                color: "white",
+                border: "none",
+                borderRadius: "12px",
+                padding: "clamp(0.75rem, 3vw, 1rem) clamp(1.5rem, 6vw, 2rem)",
+                fontSize: "clamp(0.9rem, 4vw, 1.1rem)",
+                fontWeight: 700,
+                cursor: isStartPending || !address ? "not-allowed" : "pointer",
+                transition: "all 0.3s ease",
+                minWidth: "clamp(200px, 80vw, 300px)",
+                width: "100%",
+                maxWidth: "300px",
+                opacity: isStartPending || !address ? 0.6 : 1
+              }}
+            >
+              {isStartPending ? "Starting..." : "🎮 Start Quiz"}
+            </button>
+          </div>
         </div>
       </div>
     </motion.div>
