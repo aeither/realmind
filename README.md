@@ -7,6 +7,7 @@
 
 a game-like learning app where users earn rewards by answering quizzes and challenging others turning study into friendly competition, with real benefits for every correct answer
 
+DailyWiser turns learning into a real rewards. Earn tokens by completing quizzes and battle friends in live quiz duels.
 
 ## DEMO
 
