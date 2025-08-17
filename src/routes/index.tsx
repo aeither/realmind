@@ -18,8 +18,8 @@ const AVAILABLE_QUIZZES: Quiz[] = [
     title: "Web3 Fundamentals",
     description: "Test your knowledge of blockchain, cryptocurrencies, and decentralized applications",
     icon: "🔗",
-    questions: 5,
-    estimatedTime: "3-5 min",
+    questions: 3,
+    estimatedTime: "1-2 min",
     category: "Web3"
   },
   {
@@ -27,8 +27,8 @@ const AVAILABLE_QUIZZES: Quiz[] = [
     title: "Crypto Trading",
     description: "Learn about trading strategies, market analysis, and risk management",
     icon: "📈",
-    questions: 5,
-    estimatedTime: "3-5 min",
+    questions: 3,
+    estimatedTime: "1-2 min",
     category: "Finance"
   },
   {
@@ -36,8 +36,8 @@ const AVAILABLE_QUIZZES: Quiz[] = [
     title: "DeFi Protocols",
     description: "Explore decentralized finance protocols, yield farming, and liquidity pools",
     icon: "🏦",
-    questions: 5,
-    estimatedTime: "3-5 min",
+    questions: 3,
+    estimatedTime: "1-2 min",
     category: "DeFi"
   }
 ];
@@ -47,12 +47,8 @@ function HomePage() {
 
   const handleQuizSelect = (quizId: string) => {
     setSelectedQuiz(quizId);
-  };
-
-  const handleRandomQuiz = () => {
-    const randomIndex = Math.floor(Math.random() * AVAILABLE_QUIZZES.length);
-    const randomQuiz = AVAILABLE_QUIZZES[randomIndex];
-    setSelectedQuiz(randomQuiz.id);
+    // Navigate to quiz immediately when selected
+    window.location.href = `/quiz-game?quiz=${quizId}`;
   };
 
   return (
@@ -66,13 +62,43 @@ function HomePage() {
           <p className="text-base sm:text-lg text-muted-foreground mb-4 sm:mb-6 max-w-2xl mx-auto px-4">
             Short, fun quizzes to build real crypto knowledge. Pick a topic and start earning points.
           </p>
-          <div className="flex items-center justify-center gap-3">
-            <button
-              onClick={handleRandomQuiz}
-              className="px-4 sm:px-6 py-2 sm:py-3 bg-primary text-primary-foreground rounded-xl font-bold quiz-button-glow hover:scale-105 transition-all text-sm sm:text-base"
-            >
-              Start a Random Quiz
-            </button>
+        </div>
+
+        {/* Leaderboard Section */}
+        <div className="text-center mb-8 sm:mb-12">
+          <div className="bg-gradient-to-r from-yellow-100 to-orange-100 border-2 border-yellow-300 rounded-2xl p-6 sm:p-8 max-w-4xl mx-auto">
+            <div className="flex items-center justify-center mb-4">
+              <span className="text-3xl sm:text-4xl mr-3">🏆</span>
+              <h2 className="text-xl sm:text-2xl font-bold text-foreground">August Initiation Campaign</h2>
+            </div>
+            <div className="bg-white rounded-xl p-4 mb-4 border border-yellow-200">
+              <p className="text-lg sm:text-xl font-bold text-primary mb-1">
+                Season3 Points + $300 USDC Raffle
+              </p>
+              <p className="text-sm text-muted-foreground">
+                Earn points with every quiz
+              </p>
+            </div>
+            <div className="flex flex-col sm:flex-row gap-3 justify-center items-center">
+              <a
+                href="https://hyperion-testnet-explorer.metisdevops.link/token/0x9599861081C211E5C289cD833eeC9EE223Bcd51A?tab=holders"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-block px-6 sm:px-8 py-3 sm:py-4 bg-gradient-to-r from-yellow-400 to-orange-400 text-white 
+                           rounded-xl font-bold hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-xl"
+              >
+                🏅 View Leaderboard
+              </a>
+              <a
+                href="https://x.com/DailyWiser_/status/1956651487800783034"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-block px-6 sm:px-8 py-3 sm:py-4 bg-blue-500 text-white 
+                           rounded-xl font-bold hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-xl"
+              >
+                📖 Learn More
+              </a>
+            </div>
           </div>
         </div>
 
@@ -87,23 +113,6 @@ function HomePage() {
               delay={`${index * 200}ms`}
             />
           ))}
-        </div>
-
-        {/* Action Buttons */}
-        <div className="text-center space-y-6">
-          {selectedQuiz && (
-            <div className="animate-bounce-in" style={{ animationDelay: '200ms' }}>
-              <Link
-                to="/quiz-game"
-                search={{ quiz: selectedQuiz }}
-                className="inline-block px-6 sm:px-12 py-4 sm:py-6 bg-gradient-primary text-primary-foreground 
-                           rounded-3xl text-lg sm:text-xl font-bold quiz-button-glow hover:scale-110 
-                           transition-all duration-300 animate-pulse-glow"
-              >
-                🚀 Start Quiz
-              </Link>
-            </div>
-          )}
         </div>
       </div>
     </div>
