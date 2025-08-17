@@ -1,8 +1,3 @@
-<br />
-<div align="center">
-    <img src="https://github.com/user-attachments/assets/b94f648d-1584-4a8f-91d5-ad3b5bb19248" alt="Logo" width="600">
-</div>
-
 # 🏛️ Realmind
 
 a game-like learning app where users earn rewards by answering quizzes and challenging others turning study into friendly competition, with real benefits for every correct answer
