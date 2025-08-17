@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from '@tanstack/react-router'
+import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
 import { useState } from 'react'
 import Header from '../components/Header'
 
@@ -44,11 +44,12 @@ const AVAILABLE_QUIZZES: Quiz[] = [
 
 function HomePage() {
   const [selectedQuiz, setSelectedQuiz] = useState<string | null>(null);
+  const navigate = useNavigate();
 
   const handleQuizSelect = (quizId: string) => {
     setSelectedQuiz(quizId);
-    // Navigate to quiz immediately when selected
-    window.location.href = `/quiz-game?quiz=${quizId}`;
+    // Navigate to quiz using TanStack Router
+    navigate({ to: '/quiz-game', search: { quiz: quizId } });
   };
 
   return (
