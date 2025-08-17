@@ -267,7 +267,7 @@ function QuizGame() {
             The requested quiz could not be found.
           </p>
           <button 
-            onClick={() => navigate({ to: '/contract' })}
+            onClick={() => navigate({ to: '/' })}
             style={{
               backgroundColor: "#58CC02",
               color: "#ffffff",
