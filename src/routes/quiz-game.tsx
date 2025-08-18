@@ -97,10 +97,34 @@ function QuizGame() {
   const [aiScore, setAiScore] = useState(0)
   const [aiAnswers, setAiAnswers] = useState<string[]>([])
   const [timeLeft, setTimeLeft] = useState(5)
+  const [userTimeLeft, setUserTimeLeft] = useState(5)
   const [isAiTurn, setIsAiTurn] = useState(false)
+  const [isUserTurn, setIsUserTurn] = useState(true)
   const [gameResult, setGameResult] = useState<'user_wins' | 'ai_wins' | 'tie' | null>(null)
   const [showAiAnswer, setShowAiAnswer] = useState(false)
+  const [userTimedOut, setUserTimedOut] = useState(false)
+  const [quizStarted, setQuizStarted] = useState(false)
+  const [questionResults, setQuestionResults] = useState<Array<{userAnswered: boolean, userCorrect: boolean, aiCorrect: boolean}>>([])
   const FIXED_ENTRY_AMOUNT = '0.0001' // Fixed entry amount in tMETIS
+
+  // Function to restart the quiz in AI challenge mode
+  const handleRestartQuiz = () => {
+    setCurrentQuestionIndex(0)
+    setUserAnswers([])
+    setQuizCompleted(false)
+    setScore(0)
+    setAiScore(0)
+    setAiAnswers([])
+    setTimeLeft(5)
+    setUserTimeLeft(5)
+    setIsAiTurn(false)
+    setIsUserTurn(true)
+    setGameResult(null)
+    setShowAiAnswer(false)
+    setUserTimedOut(false)
+    setQuizStarted(true)
+    setQuestionResults([])
+  }
 
   const contractAddresses = chain ? getContractAddresses(chain.id) : getContractAddresses(hyperionTestnet.id)
   const quizConfig = quizId ? QUIZ_CONFIGS[quizId as keyof typeof QUIZ_CONFIGS] : null
@@ -159,13 +183,71 @@ function QuizGame() {
   const { writeContract: completeQuiz, isPending: isCompletePending, data: completeHash } = useWriteContract()
 
   // Wait for transaction receipts
-  const { isSuccess: isStartSuccess } = useWaitForTransactionReceipt({
+  const { isSuccess: isStartSuccess, isLoading: isStartConfirming } = useWaitForTransactionReceipt({
     hash: startHash,
   })
 
-  const { isSuccess: isCompleteSuccess } = useWaitForTransactionReceipt({
+  const { isSuccess: isCompleteSuccess, isLoading: isCompleteConfirming } = useWaitForTransactionReceipt({
     hash: completeHash,
   })
+
+  // Combined transaction states
+  const isStartTransactionPending = isStartPending || isStartConfirming
+  const isCompleteTransactionPending = isCompletePending || isCompleteConfirming
+
+  // Timer effect for user turn in AI challenge mode
+  useEffect(() => {
+    if (isAiChallengeMode && isUserTurn && userTimeLeft > 0 && !userTimedOut && (quizStarted || (hasActiveQuiz && activeQuizId === quizId))) {
+      const timer = setTimeout(() => {
+        setUserTimeLeft(prev => prev - 1)
+      }, 1000)
+      return () => clearTimeout(timer)
+    } else if (isAiChallengeMode && isUserTurn && userTimeLeft === 0 && !userTimedOut && (quizStarted || (hasActiveQuiz && activeQuizId === quizId))) {
+      // User ran out of time - AI wins by default
+      setUserTimedOut(true)
+      setIsUserTurn(false)
+      
+      if (quizConfig) {
+        const currentQuestion = quizConfig.questions[currentQuestionIndex]
+        const aiAnswer = getAiAnswer(currentQuestion)
+        const newAiAnswers = [...aiAnswers]
+        newAiAnswers[currentQuestionIndex] = aiAnswer
+        setAiAnswers(newAiAnswers)
+        
+        // Record this question result - user timed out, AI gets the win
+        const newQuestionResults = [...questionResults]
+        const aiCorrect = aiAnswer === currentQuestion.options[currentQuestion.correct]
+        newQuestionResults[currentQuestionIndex] = {
+          userAnswered: false,
+          userCorrect: false,
+          aiCorrect: aiCorrect
+        }
+        setQuestionResults(newQuestionResults)
+        
+        if (aiCorrect) {
+          setAiScore(prev => prev + 1)
+        }
+        
+        // User loses - restart quiz from beginning
+        setTimeout(() => {
+          // Reset all state to restart the quiz
+          setCurrentQuestionIndex(0)
+          setUserAnswers([])
+          setScore(0)
+          setAiScore(0)
+          setAiAnswers([])
+          setTimeLeft(5)
+          setUserTimeLeft(5)
+          setIsAiTurn(false)
+          setIsUserTurn(true)
+          setUserTimedOut(false)
+          setShowAiAnswer(false)
+          setQuizStarted(true)
+          setQuestionResults([])
+        }, 2000)
+      }
+    }
+  }, [isAiChallengeMode, isUserTurn, userTimeLeft, userTimedOut, currentQuestionIndex, quizConfig, aiAnswers, quizStarted, hasActiveQuiz, activeQuizId, quizId])
 
   // Timer effect for AI challenge mode
   useEffect(() => {
@@ -184,17 +266,20 @@ function QuizGame() {
         setAiAnswers(newAiAnswers)
         setShowAiAnswer(true)
         
-        // Check if AI got it right
+            // Check if AI got it right
         const aiCorrect = aiAnswer === currentQuestion.options[currentQuestion.correct]
         if (aiCorrect) {
-          setAiScore(aiScore + 1)
+          setAiScore(prev => prev + 1)
         }
         
         // Move to next question or end game
         setTimeout(() => {
           setShowAiAnswer(false)
           setIsAiTurn(false)
+          setIsUserTurn(true)
           setTimeLeft(5)
+          setUserTimeLeft(5)
+          setUserTimedOut(false)
           
           if (currentQuestionIndex < quizConfig.questions.length - 1) {
             setCurrentQuestionIndex(currentQuestionIndex + 1)
@@ -222,12 +307,14 @@ function QuizGame() {
         }, 2000)
       }
     }
-  }, [isAiChallengeMode, isAiTurn, timeLeft, currentQuestionIndex, quizConfig, aiAnswers, aiScore, userAnswers])
+  }, [isAiChallengeMode, isAiTurn, timeLeft, currentQuestionIndex, quizConfig, aiAnswers, userAnswers])
 
   // Effects
   useEffect(() => {
     if (isStartSuccess) {
       toast.success(isAiChallengeMode ? 'AI Challenge started! Beat the bot! 🤖' : 'Quiz started! Good luck! 🎮')
+      // Start the quiz timer only after transaction success
+      setQuizStarted(true)
     }
   }, [isStartSuccess, isAiChallengeMode])
 
@@ -259,7 +346,7 @@ function QuizGame() {
 
   // Handle quiz answer submission
   const handleQuizAnswer = (answer: string) => {
-    if (!quizConfig) return
+    if (!quizConfig || !isUserTurn || userTimedOut) return
     
     const newAnswers = [...userAnswers]
     newAnswers[currentQuestionIndex] = answer
@@ -268,26 +355,59 @@ function QuizGame() {
     // Check if user got it right
     const userCorrect = answer === quizConfig.questions[currentQuestionIndex].options[quizConfig.questions[currentQuestionIndex].correct]
     if (userCorrect) {
-      setScore(score + 1)
+      setScore(prev => prev + 1)
     }
 
     if (isAiChallengeMode) {
-      // In AI challenge mode, trigger AI's turn
-      setIsAiTurn(true)
-      setTimeLeft(5)
+      // Record this question result - user answered in time, so AI gets 0
+      const newQuestionResults = [...questionResults]
+      newQuestionResults[currentQuestionIndex] = {
+        userAnswered: true,
+        userCorrect: userCorrect,
+        aiCorrect: false // AI loses because user answered first
+      }
+      setQuestionResults(newQuestionResults)
+      
+      if (currentQuestionIndex < quizConfig.questions.length - 1) {
+        // Move to next question
+        setCurrentQuestionIndex(currentQuestionIndex + 1)
+        setUserTimeLeft(5)
+        setTimeLeft(5)
+        setIsUserTurn(true)
+        setIsAiTurn(false)
+        setUserTimedOut(false)
+      } else {
+        // Quiz completed - calculate final scores from question results
+        const finalUserScore = newQuestionResults.reduce((score, result) => {
+          return score + (result.userCorrect ? 1 : 0)
+        }, 0)
+        
+        const finalAiScore = newQuestionResults.reduce((score, result) => {
+          return score + (result.aiCorrect ? 1 : 0)
+        }, 0)
+        
+        setScore(finalUserScore)
+        setAiScore(finalAiScore)
+        
+        if (finalUserScore > finalAiScore) {
+          setGameResult('user_wins')
+        } else if (finalAiScore > finalUserScore) {
+          setGameResult('ai_wins')
+        } else {
+          setGameResult('tie')
+        }
+        setQuizCompleted(true)
+      }
     } else {
       // Regular quiz mode
       if (currentQuestionIndex < quizConfig.questions.length - 1) {
         setCurrentQuestionIndex(currentQuestionIndex + 1)
       } else {
-        // Quiz completed - calculate final score
-        let finalScore = newAnswers.reduce((score, ans, index) => {
+        // Quiz completed - calculate final score from all answers
+        const finalScore = newAnswers.reduce((score, ans, index) => {
           const isCorrect = ans === quizConfig.questions[index].options[quizConfig.questions[index].correct]
           return score + (isCorrect ? 1 : 0)
         }, 0)
-        
-        const currentAnswerCorrect = answer === quizConfig.questions[currentQuestionIndex].options[quizConfig.questions[currentQuestionIndex].correct]
-        finalScore += currentAnswerCorrect ? 1 : 0
         
         setScore(finalScore)
         setQuizCompleted(true)
@@ -459,7 +579,7 @@ function QuizGame() {
                   </p>
                   <div style={{ display: "flex", gap: "1rem", justifyContent: "center", flexWrap: "wrap" }}>
                     <button
-                      onClick={() => navigate({ to: '/quiz-game', search: { quiz: quizId, mode: 'ai-challenge' } })}
+                      onClick={handleRestartQuiz}
                       style={{
                         backgroundColor: "#ef4444",
                         color: "white",
@@ -471,7 +591,7 @@ function QuizGame() {
                         cursor: "pointer"
                       }}
                     >
-                      🔄 Try Again
+                      🔄 Restart Quiz
                     </button>
                     <button
                       onClick={() => navigate({ to: '/' })}
@@ -517,20 +637,20 @@ function QuizGame() {
                   </div>
                   <button
                     onClick={handleCompleteQuiz}
-                    disabled={isCompletePending}
+                    disabled={isCompleteTransactionPending}
                     style={{
-                      backgroundColor: isCompletePending ? "#9ca3af" : "#58CC02",
+                      backgroundColor: isCompleteTransactionPending ? "#9ca3af" : "#58CC02",
                       color: "white",
                       border: "none",
                       borderRadius: "12px",
                       padding: "1rem 2rem",
                       fontSize: "1.1rem",
                       fontWeight: 700,
-                      cursor: isCompletePending ? "not-allowed" : "pointer",
-                      opacity: isCompletePending ? 0.6 : 1
+                      cursor: isCompleteTransactionPending ? "not-allowed" : "pointer",
+                      opacity: isCompleteTransactionPending ? 0.6 : 1
                     }}
                   >
-                    {isCompletePending ? "Claiming..." : "🎁 Claim Rewards"}
+                    {isCompleteTransactionPending ? (isCompletePending ? "Confirm in wallet..." : "Confirming on blockchain...") : "🎁 Claim Rewards"}
                   </button>
                 </>
               )}
@@ -560,20 +680,20 @@ function QuizGame() {
                   </div>
                   <button
                     onClick={handleCompleteQuiz}
-                    disabled={isCompletePending}
+                    disabled={isCompleteTransactionPending}
                     style={{
-                      backgroundColor: isCompletePending ? "#9ca3af" : "#58CC02",
+                      backgroundColor: isCompleteTransactionPending ? "#9ca3af" : "#58CC02",
                       color: "white",
                       border: "none",
                       borderRadius: "12px",
                       padding: "1rem 2rem",
                       fontSize: "1.1rem",
                       fontWeight: 700,
-                      cursor: isCompletePending ? "not-allowed" : "pointer",
-                      opacity: isCompletePending ? 0.6 : 1
+                      cursor: isCompleteTransactionPending ? "not-allowed" : "pointer",
+                      opacity: isCompleteTransactionPending ? 0.6 : 1
                     }}
                   >
-                    {isCompletePending ? "Claiming..." : "🎁 Claim Rewards"}
+                    {isCompleteTransactionPending ? (isCompletePending ? "Confirm in wallet..." : "Confirming on blockchain...") : "🎁 Claim Rewards"}
                   </button>
                 </>
               )}
@@ -683,6 +803,43 @@ function QuizGame() {
                   <div style={{ fontSize: "1.5rem", fontWeight: 800, color: "#ef4444" }}>{aiScore}</div>
                 </div>
               </div>
+              {isUserTurn && (
+                <div style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "0.5rem",
+                  background: userTimeLeft <= 2 ? "#fef2f2" : "#dbeafe",
+                  padding: "0.5rem 1rem",
+                  borderRadius: "8px",
+                  minWidth: "200px"
+                }}>
+                  <span style={{ fontSize: "0.9rem", fontWeight: 600, color: userTimeLeft <= 2 ? "#dc2626" : "#1d4ed8" }}>
+                    ⏰ Your turn:
+                  </span>
+                  <div style={{
+                    fontSize: "1.2rem",
+                    fontWeight: 800,
+                    color: userTimeLeft <= 2 ? "#dc2626" : "#1d4ed8",
+                    minWidth: "1.5rem"
+                  }}>
+                    {userTimeLeft}
+                  </div>
+                  <div style={{
+                    width: "60px",
+                    height: "6px",
+                    backgroundColor: "#e5e7eb",
+                    borderRadius: "3px",
+                    overflow: "hidden"
+                  }}>
+                    <div style={{
+                      width: `${(userTimeLeft / 5) * 100}%`,
+                      height: "100%",
+                      backgroundColor: userTimeLeft <= 2 ? "#dc2626" : "#22c55e",
+                      transition: "all 0.3s ease"
+                    }}></div>
+                  </div>
+                </div>
+              )}
               {isAiTurn && (
                 <div style={{
                   display: "flex",
@@ -703,6 +860,21 @@ function QuizGame() {
                   }}>
                     {timeLeft}
                   </div>
+                </div>
+              )}
+              {userTimedOut && (
+                <div style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "0.5rem",
+                  background: "#fef2f2",
+                  padding: "0.5rem 1rem",
+                  borderRadius: "8px",
+                  border: "2px solid #dc2626"
+                }}>
+                  <span style={{ fontSize: "0.9rem", fontWeight: 600, color: "#dc2626" }}>
+                    ⏰ Time's up! Restarting quiz...
+                  </span>
                 </div>
               )}
             </div>
@@ -764,29 +936,29 @@ function QuizGame() {
                 <button
                   key={index}
                   onClick={() => handleQuizAnswer(option)}
-                  disabled={isAiTurn}
+                  disabled={isAiTurn || userTimedOut || !isUserTurn}
                   style={{
-                    backgroundColor: isAiTurn ? "#f3f4f6" : "#ffffff",
+                    backgroundColor: (isAiTurn || userTimedOut || !isUserTurn) ? "#f3f4f6" : "#ffffff",
                     border: "2px solid hsl(var(--border))",
                     borderRadius: "8px",
                     padding: "clamp(0.75rem, 3vw, 1rem)",
                     fontSize: "clamp(0.9rem, 3.5vw, 1rem)",
-                    cursor: isAiTurn ? "not-allowed" : "pointer",
+                    cursor: (isAiTurn || userTimedOut || !isUserTurn) ? "not-allowed" : "pointer",
                     transition: "all 0.3s ease",
                     textAlign: "left",
-                    color: isAiTurn ? "#9ca3af" : "#111827",
+                    color: (isAiTurn || userTimedOut || !isUserTurn) ? "#9ca3af" : "#111827",
                     lineHeight: "1.4",
                     minHeight: "clamp(3rem, 12vw, 4rem)",
-                    opacity: isAiTurn ? 0.6 : 1
+                    opacity: (isAiTurn || userTimedOut || !isUserTurn) ? 0.6 : 1
                   }}
                   onMouseEnter={(e) => {
-                    if (!isAiTurn) {
+                    if (!isAiTurn && !userTimedOut && isUserTurn) {
                       e.currentTarget.style.backgroundColor = "hsl(var(--quiz-selected))"
                       e.currentTarget.style.borderColor = "hsl(var(--primary))"
                     }
                   }}
                   onMouseLeave={(e) => {
-                    if (!isAiTurn) {
+                    if (!isAiTurn && !userTimedOut && isUserTurn) {
                       e.currentTarget.style.backgroundColor = "#ffffff"
                       e.currentTarget.style.borderColor = "hsl(var(--border))"
                     }
@@ -805,6 +977,17 @@ function QuizGame() {
                 fontStyle: "italic"
               }}>
                 Wait for the AI to answer...
+              </div>
+            )}
+            {userTimedOut && (
+              <div style={{
+                textAlign: "center",
+                marginTop: "1rem",
+                fontSize: "1rem",
+                color: "#dc2626",
+                fontWeight: 600
+              }}>
+                ⏰ Time expired! Quiz is restarting...
               </div>
             )}
           </div>
@@ -939,19 +1122,21 @@ function QuizGame() {
                 </p>
                 <button
                   onClick={() => navigate({ to: '/quiz-game', search: { quiz: quizId, mode: 'ai-challenge' } })}
+                  disabled={isStartTransactionPending}
                   style={{
-                    backgroundColor: "#3b82f6",
+                    backgroundColor: isStartTransactionPending ? "#9ca3af" : "#3b82f6",
                     color: "white",
                     border: "none",
                     borderRadius: "8px",
                     padding: "0.75rem 1.5rem",
                     fontSize: "0.9rem",
                     fontWeight: 700,
-                    cursor: "pointer",
-                    marginRight: "0.5rem"
+                    cursor: isStartTransactionPending ? "not-allowed" : "pointer",
+                    marginRight: "0.5rem",
+                    opacity: isStartTransactionPending ? 0.6 : 1
                   }}
                 >
-                  🤖 AI Challenge Mode
+                  {isStartTransactionPending ? (isStartPending ? "Confirm in wallet..." : "Confirming on blockchain...") : "🤖 AI Challenge Mode"}
                 </button>
               </div>
             )}
@@ -959,35 +1144,37 @@ function QuizGame() {
             <div style={{ display: "flex", gap: "1rem", justifyContent: "center", flexWrap: "wrap" }}>
               <button
                 onClick={handleStartQuiz}
-                disabled={isStartPending || !address}
+                disabled={isStartTransactionPending || !address}
                 style={{
-                  backgroundColor: isStartPending || !address ? "#9ca3af" : (isAiChallengeMode ? "#ef4444" : "#58CC02"),
+                  backgroundColor: isStartTransactionPending || !address ? "#9ca3af" : (isAiChallengeMode ? "#ef4444" : "#58CC02"),
                   color: "white",
                   border: "none",
                   borderRadius: "12px",
                   padding: "clamp(0.75rem, 3vw, 1rem) clamp(1.5rem, 6vw, 2rem)",
                   fontSize: "clamp(0.9rem, 4vw, 1.1rem)",
                   fontWeight: 700,
-                  cursor: isStartPending || !address ? "not-allowed" : "pointer",
+                  cursor: isStartTransactionPending || !address ? "not-allowed" : "pointer",
                   transition: "all 0.3s ease",
-                  opacity: isStartPending || !address ? 0.6 : 1
+                  opacity: isStartTransactionPending || !address ? 0.6 : 1
                 }}
               >
-                {isStartPending ? "Starting..." : (isAiChallengeMode ? "🤖 Start AI Challenge" : "🎮 Start Quiz")}
+                {isStartTransactionPending ? (isStartPending ? "Confirm in wallet..." : "Confirming on blockchain...") : (isAiChallengeMode ? "🤖 Start AI Challenge" : "🎮 Start Quiz")}
               </button>
               
               {isAiChallengeMode && (
                 <button
                   onClick={() => navigate({ to: '/quiz-game', search: { quiz: quizId } })}
+                  disabled={isStartTransactionPending}
                   style={{
-                    backgroundColor: "#6b7280",
+                    backgroundColor: isStartTransactionPending ? "#9ca3af" : "#6b7280",
                     color: "white",
                     border: "none",
                     borderRadius: "12px",
                     padding: "clamp(0.75rem, 3vw, 1rem) clamp(1.5rem, 6vw, 2rem)",
                     fontSize: "clamp(0.9rem, 4vw, 1.1rem)",
                     fontWeight: 700,
-                    cursor: "pointer"
+                    cursor: isStartTransactionPending ? "not-allowed" : "pointer",
+                    opacity: isStartTransactionPending ? 0.6 : 1
                   }}
                 >
                   🎮 Normal Mode
