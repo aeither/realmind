@@ -11,6 +11,7 @@ import GlobalHeader from '../components/GlobalHeader'
 
 interface QuizSearchParams {
   quiz?: string
+  mode?: string
 }
 
 // Quiz configurations
@@ -85,7 +86,7 @@ const QUIZ_CONFIGS = {
 
 function QuizGame() {
   const navigate = useNavigate()
-  const { quiz: quizId } = useSearch({ from: '/quiz-game' }) as QuizSearchParams
+  const { quiz: quizId, mode } = useSearch({ from: '/quiz-game' }) as QuizSearchParams
   const { address, chain } = useAccount()
   const { switchChain } = useSwitchChain()
 
@@ -93,10 +94,35 @@ function QuizGame() {
   const [userAnswers, setUserAnswers] = useState<string[]>([])
   const [quizCompleted, setQuizCompleted] = useState(false)
   const [score, setScore] = useState(0)
+  const [aiScore, setAiScore] = useState(0)
+  const [aiAnswers, setAiAnswers] = useState<string[]>([])
+  const [timeLeft, setTimeLeft] = useState(5)
+  const [isAiTurn, setIsAiTurn] = useState(false)
+  const [gameResult, setGameResult] = useState<'user_wins' | 'ai_wins' | 'tie' | null>(null)
+  const [showAiAnswer, setShowAiAnswer] = useState(false)
   const FIXED_ENTRY_AMOUNT = '0.0001' // Fixed entry amount in tMETIS
 
   const contractAddresses = chain ? getContractAddresses(chain.id) : getContractAddresses(hyperionTestnet.id)
   const quizConfig = quizId ? QUIZ_CONFIGS[quizId as keyof typeof QUIZ_CONFIGS] : null
+  const isAiChallengeMode = mode === 'ai-challenge'
+
+  // AI bot logic - simple but effective
+  const getAiAnswer = (question: any) => {
+    // AI has a 85% chance of getting the answer correct
+    const correctChance = 0.85
+    const willAnswerCorrectly = Math.random() < correctChance
+    
+    if (willAnswerCorrectly) {
+      return question.options[question.correct]
+    } else {
+      // Pick a random wrong answer
+      const wrongIndices = question.options
+        .map((_: any, index: number) => index)
+        .filter((index: number) => index !== question.correct)
+      const randomWrongIndex = wrongIndices[Math.floor(Math.random() * wrongIndices.length)]
+      return question.options[randomWrongIndex]
+    }
+  }
 
   // Contract reads
   const { data: userSession } = useReadContract({
@@ -106,6 +132,9 @@ function QuizGame() {
     args: [address as `0x${string}`],
     query: {
       enabled: !!address,
+      refetchInterval: 10000, // Refetch every 10 seconds instead of constantly
+      staleTime: 5000, // Consider data fresh for 5 seconds
+      retry: 1, // Reduce retry attempts
     },
   });
 
@@ -116,6 +145,9 @@ function QuizGame() {
     args: [address as `0x${string}`],
     query: {
       enabled: !!address,
+      refetchInterval: 10000, // Refetch every 10 seconds instead of constantly
+      staleTime: 5000, // Consider data fresh for 5 seconds
+      retry: 1, // Reduce retry attempts
     },
   });
 
@@ -135,12 +167,69 @@ function QuizGame() {
     hash: completeHash,
   })
 
+  // Timer effect for AI challenge mode
+  useEffect(() => {
+    if (isAiChallengeMode && isAiTurn && timeLeft > 0) {
+      const timer = setTimeout(() => {
+        setTimeLeft(prev => prev - 1)
+      }, 1000)
+      return () => clearTimeout(timer)
+    } else if (isAiChallengeMode && isAiTurn && timeLeft === 0) {
+      // AI's turn to answer
+      if (quizConfig) {
+        const currentQuestion = quizConfig.questions[currentQuestionIndex]
+        const aiAnswer = getAiAnswer(currentQuestion)
+        const newAiAnswers = [...aiAnswers]
+        newAiAnswers[currentQuestionIndex] = aiAnswer
+        setAiAnswers(newAiAnswers)
+        setShowAiAnswer(true)
+        
+        // Check if AI got it right
+        const aiCorrect = aiAnswer === currentQuestion.options[currentQuestion.correct]
+        if (aiCorrect) {
+          setAiScore(aiScore + 1)
+        }
+        
+        // Move to next question or end game
+        setTimeout(() => {
+          setShowAiAnswer(false)
+          setIsAiTurn(false)
+          setTimeLeft(5)
+          
+          if (currentQuestionIndex < quizConfig.questions.length - 1) {
+            setCurrentQuestionIndex(currentQuestionIndex + 1)
+          } else {
+            // Quiz completed - determine winner
+            const finalUserScore = userAnswers.reduce((score, ans, index) => {
+              const isCorrect = ans === quizConfig.questions[index].options[quizConfig.questions[index].correct]
+              return score + (isCorrect ? 1 : 0)
+            }, 0)
+            
+            const finalAiScore = newAiAnswers.reduce((score, ans, index) => {
+              const isCorrect = ans === quizConfig.questions[index].options[quizConfig.questions[index].correct]
+              return score + (isCorrect ? 1 : 0)
+            }, 0)
+            
+            if (finalUserScore > finalAiScore) {
+              setGameResult('user_wins')
+            } else if (finalAiScore > finalUserScore) {
+              setGameResult('ai_wins')
+            } else {
+              setGameResult('tie')
+            }
+            setQuizCompleted(true)
+          }
+        }, 2000)
+      }
+    }
+  }, [isAiChallengeMode, isAiTurn, timeLeft, currentQuestionIndex, quizConfig, aiAnswers, aiScore, userAnswers])
+
   // Effects
   useEffect(() => {
     if (isStartSuccess) {
-      toast.success('Quiz started! Good luck! 🎮')
+      toast.success(isAiChallengeMode ? 'AI Challenge started! Beat the bot! 🤖' : 'Quiz started! Good luck! 🎮')
     }
-  }, [isStartSuccess])
+  }, [isStartSuccess, isAiChallengeMode])
 
   useEffect(() => {
     if (isCompleteSuccess) {
@@ -172,35 +261,37 @@ function QuizGame() {
   const handleQuizAnswer = (answer: string) => {
     if (!quizConfig) return
     
-    console.log('Answer submitted:', answer)
-    console.log('Current question index:', currentQuestionIndex)
-    console.log('Total questions:', quizConfig.questions.length)
-    
     const newAnswers = [...userAnswers]
     newAnswers[currentQuestionIndex] = answer
     setUserAnswers(newAnswers)
 
-    if (currentQuestionIndex < quizConfig.questions.length - 1) {
-      console.log('Moving to next question')
-      setCurrentQuestionIndex(currentQuestionIndex + 1)
+    // Check if user got it right
+    const userCorrect = answer === quizConfig.questions[currentQuestionIndex].options[quizConfig.questions[currentQuestionIndex].correct]
+    if (userCorrect) {
+      setScore(score + 1)
+    }
+
+    if (isAiChallengeMode) {
+      // In AI challenge mode, trigger AI's turn
+      setIsAiTurn(true)
+      setTimeLeft(5)
     } else {
-      console.log('Quiz completed - calculating score')
-      // Quiz completed - calculate score
-      // First calculate score for previous answers
-      let finalScore = newAnswers.reduce((score, ans, index) => {
-        const isCorrect = ans === quizConfig.questions[index].options[quizConfig.questions[index].correct]
-        console.log(`Previous question ${index}: ${ans} vs ${quizConfig.questions[index].options[quizConfig.questions[index].correct]} = ${isCorrect}`)
-        return score + (isCorrect ? 1 : 0)
-      }, 0)
-      
-      // Then add score for current answer
-      const currentAnswerCorrect = answer === quizConfig.questions[currentQuestionIndex].options[quizConfig.questions[currentQuestionIndex].correct]
-      console.log(`Current question ${currentQuestionIndex}: ${answer} vs ${quizConfig.questions[currentQuestionIndex].options[quizConfig.questions[currentQuestionIndex].correct]} = ${currentAnswerCorrect}`)
-      finalScore += currentAnswerCorrect ? 1 : 0
-      
-      console.log('Final score:', finalScore)
-      setScore(finalScore)
-      setQuizCompleted(true)
+      // Regular quiz mode
+      if (currentQuestionIndex < quizConfig.questions.length - 1) {
+        setCurrentQuestionIndex(currentQuestionIndex + 1)
+      } else {
+        // Quiz completed - calculate final score
+        let finalScore = newAnswers.reduce((score, ans, index) => {
+          const isCorrect = ans === quizConfig.questions[index].options[quizConfig.questions[index].correct]
+          return score + (isCorrect ? 1 : 0)
+        }, 0)
+        
+        const currentAnswerCorrect = answer === quizConfig.questions[currentQuestionIndex].options[quizConfig.questions[currentQuestionIndex].correct]
+        finalScore += currentAnswerCorrect ? 1 : 0
+        
+        setScore(finalScore)
+        setQuizCompleted(true)
+      }
     }
   }
 
@@ -337,68 +428,224 @@ function QuizGame() {
   if (quizCompleted && quizConfig) {
     const percentage = Math.round((score / quizConfig.questions.length) * 100)
     
-    return (
-      <div style={{ paddingTop: '80px' }}>
-        <GlobalHeader />
-        <div style={{
-          maxWidth: "600px",
-          margin: "0 auto",
-          padding: "2rem",
-          textAlign: "center"
-        }}>
+    if (isAiChallengeMode) {
+      // AI Challenge completion screen
+      return (
+        <div style={{ paddingTop: '80px' }}>
+          <GlobalHeader />
           <div style={{
-            background: "#ffffff",
-            borderRadius: "16px",
-            padding: "3rem",
-            border: "1px solid hsl(var(--border))",
-            boxShadow: "var(--shadow-card)"
+            maxWidth: "600px",
+            margin: "0 auto",
+            padding: "2rem",
+            textAlign: "center"
           }}>
-            <h2 style={{ color: "#111827", marginBottom: "1rem", fontSize: "1.75rem", fontWeight: 800 }}>
-              🎉 Quiz Completed!
-            </h2>
-            <p style={{ color: "#374151", marginBottom: "2rem", fontSize: "1.05rem" }}>
-              You scored <strong>{score} out of {quizConfig.questions.length}</strong> questions correctly ({percentage}%).
-            </p>
-            
             <div style={{
-              background: "#f0fdf4",
-              border: "1px solid #22c55e",
-              borderRadius: "12px",
-              padding: "1.5rem",
-              marginBottom: "2rem"
+              background: "#ffffff",
+              borderRadius: "16px",
+              padding: "3rem",
+              border: "1px solid hsl(var(--border))",
+              boxShadow: "var(--shadow-card)"
             }}>
-              <h3 style={{ color: "#14532d", marginBottom: "1rem", fontWeight: 800 }}>🪙 Your Rewards</h3>
-              <p style={{ color: "#374151", margin: "0.5rem 0" }}>
-                 Base Tokens: {FIXED_ENTRY_AMOUNT} tMETIS × 100 = {parseFloat(FIXED_ENTRY_AMOUNT) * 100} TK1
-              </p>
-              <p style={{ color: "#374151", margin: "0.5rem 0" }}>
-                Bonus: {score === quizConfig.questions.length ? '10-90% additional tokens for all correct answers!' : 'Better luck next time!'}
-              </p>
+              {gameResult === 'ai_wins' && (
+                <>
+                  <h2 style={{ color: "#ef4444", marginBottom: "1rem", fontSize: "1.75rem", fontWeight: 800 }}>
+                    🤖 AI Bot Wins!
+                  </h2>
+                  <p style={{ color: "#374151", marginBottom: "2rem", fontSize: "1.05rem" }}>
+                    The AI bot scored <strong>{aiScore}</strong> while you scored <strong>{score}</strong> out of {quizConfig.questions.length}.
+                  </p>
+                  <p style={{ color: "#ef4444", marginBottom: "2rem", fontSize: "1.1rem", fontWeight: 600 }}>
+                    You must start over! Try again to beat the AI.
+                  </p>
+                  <div style={{ display: "flex", gap: "1rem", justifyContent: "center", flexWrap: "wrap" }}>
+                    <button
+                      onClick={() => navigate({ to: '/quiz-game', search: { quiz: quizId, mode: 'ai-challenge' } })}
+                      style={{
+                        backgroundColor: "#ef4444",
+                        color: "white",
+                        border: "none",
+                        borderRadius: "12px",
+                        padding: "1rem 2rem",
+                        fontSize: "1.1rem",
+                        fontWeight: 700,
+                        cursor: "pointer"
+                      }}
+                    >
+                      🔄 Try Again
+                    </button>
+                    <button
+                      onClick={() => navigate({ to: '/' })}
+                      style={{
+                        backgroundColor: "#6b7280",
+                        color: "white",
+                        border: "none",
+                        borderRadius: "12px",
+                        padding: "1rem 2rem",
+                        fontSize: "1.1rem",
+                        fontWeight: 700,
+                        cursor: "pointer"
+                      }}
+                    >
+                      🏠 Back to Home
+                    </button>
+                  </div>
+                </>
+              )}
+              
+              {gameResult === 'user_wins' && (
+                <>
+                  <h2 style={{ color: "#22c55e", marginBottom: "1rem", fontSize: "1.75rem", fontWeight: 800 }}>
+                    🎉 You Beat the AI!
+                  </h2>
+                  <p style={{ color: "#374151", marginBottom: "2rem", fontSize: "1.05rem" }}>
+                    You scored <strong>{score}</strong> while the AI scored <strong>{aiScore}</strong> out of {quizConfig.questions.length}.
+                  </p>
+                  <div style={{
+                    background: "#f0fdf4",
+                    border: "1px solid #22c55e",
+                    borderRadius: "12px",
+                    padding: "1.5rem",
+                    marginBottom: "2rem"
+                  }}>
+                    <h3 style={{ color: "#14532d", marginBottom: "1rem", fontWeight: 800 }}>🪙 Your Rewards</h3>
+                    <p style={{ color: "#374151", margin: "0.5rem 0" }}>
+                       Base Tokens: {FIXED_ENTRY_AMOUNT} tMETIS × 100 = {parseFloat(FIXED_ENTRY_AMOUNT) * 100} TK1
+                    </p>
+                    <p style={{ color: "#374151", margin: "0.5rem 0" }}>
+                      AI Challenge Bonus: 50% extra for beating the bot!
+                    </p>
+                  </div>
+                  <button
+                    onClick={handleCompleteQuiz}
+                    disabled={isCompletePending}
+                    style={{
+                      backgroundColor: isCompletePending ? "#9ca3af" : "#58CC02",
+                      color: "white",
+                      border: "none",
+                      borderRadius: "12px",
+                      padding: "1rem 2rem",
+                      fontSize: "1.1rem",
+                      fontWeight: 700,
+                      cursor: isCompletePending ? "not-allowed" : "pointer",
+                      opacity: isCompletePending ? 0.6 : 1
+                    }}
+                  >
+                    {isCompletePending ? "Claiming..." : "🎁 Claim Rewards"}
+                  </button>
+                </>
+              )}
+              
+              {gameResult === 'tie' && (
+                <>
+                  <h2 style={{ color: "#f59e0b", marginBottom: "1rem", fontSize: "1.75rem", fontWeight: 800 }}>
+                    🤝 It's a Tie!
+                  </h2>
+                  <p style={{ color: "#374151", marginBottom: "2rem", fontSize: "1.05rem" }}>
+                    Both you and the AI scored <strong>{score}</strong> out of {quizConfig.questions.length}. Great job!
+                  </p>
+                  <div style={{
+                    background: "#fff7ed",
+                    border: "1px solid #f59e0b",
+                    borderRadius: "12px",
+                    padding: "1.5rem",
+                    marginBottom: "2rem"
+                  }}>
+                    <h3 style={{ color: "#92400e", marginBottom: "1rem", fontWeight: 800 }}>🪙 Your Rewards</h3>
+                    <p style={{ color: "#374151", margin: "0.5rem 0" }}>
+                       Base Tokens: {FIXED_ENTRY_AMOUNT} tMETIS × 100 = {parseFloat(FIXED_ENTRY_AMOUNT) * 100} TK1
+                    </p>
+                    <p style={{ color: "#374151", margin: "0.5rem 0" }}>
+                      Tie Bonus: 25% extra for matching the AI!
+                    </p>
+                  </div>
+                  <button
+                    onClick={handleCompleteQuiz}
+                    disabled={isCompletePending}
+                    style={{
+                      backgroundColor: isCompletePending ? "#9ca3af" : "#58CC02",
+                      color: "white",
+                      border: "none",
+                      borderRadius: "12px",
+                      padding: "1rem 2rem",
+                      fontSize: "1.1rem",
+                      fontWeight: 700,
+                      cursor: isCompletePending ? "not-allowed" : "pointer",
+                      opacity: isCompletePending ? 0.6 : 1
+                    }}
+                  >
+                    {isCompletePending ? "Claiming..." : "🎁 Claim Rewards"}
+                  </button>
+                </>
+              )}
             </div>
-
-            <button
-              onClick={handleCompleteQuiz}
-              disabled={isCompletePending}
-              style={{
-                backgroundColor: isCompletePending ? "#9ca3af" : "#58CC02",
-                color: "white",
-                border: "none",
-                borderRadius: "12px",
-                padding: "1rem 2rem",
-                fontSize: "1.1rem",
-                fontWeight: 700,
-                cursor: isCompletePending ? "not-allowed" : "pointer",
-                transition: "all 0.3s ease",
-                minWidth: "140px",
-                opacity: isCompletePending ? 0.6 : 1
-              }}
-            >
-              {isCompletePending ? "Claiming..." : "🎁 Claim Rewards"}
-            </button>
           </div>
         </div>
-      </div>
-    )
+      )
+    } else {
+      // Regular quiz completion screen
+      return (
+        <div style={{ paddingTop: '80px' }}>
+          <GlobalHeader />
+          <div style={{
+            maxWidth: "600px",
+            margin: "0 auto",
+            padding: "2rem",
+            textAlign: "center"
+          }}>
+            <div style={{
+              background: "#ffffff",
+              borderRadius: "16px",
+              padding: "3rem",
+              border: "1px solid hsl(var(--border))",
+              boxShadow: "var(--shadow-card)"
+            }}>
+              <h2 style={{ color: "#111827", marginBottom: "1rem", fontSize: "1.75rem", fontWeight: 800 }}>
+                🎉 Quiz Completed!
+              </h2>
+              <p style={{ color: "#374151", marginBottom: "2rem", fontSize: "1.05rem" }}>
+                You scored <strong>{score} out of {quizConfig.questions.length}</strong> questions correctly ({percentage}%).
+              </p>
+              
+              <div style={{
+                background: "#f0fdf4",
+                border: "1px solid #22c55e",
+                borderRadius: "12px",
+                padding: "1.5rem",
+                marginBottom: "2rem"
+              }}>
+                <h3 style={{ color: "#14532d", marginBottom: "1rem", fontWeight: 800 }}>🪙 Your Rewards</h3>
+                <p style={{ color: "#374151", margin: "0.5rem 0" }}>
+                   Base Tokens: {FIXED_ENTRY_AMOUNT} tMETIS × 100 = {parseFloat(FIXED_ENTRY_AMOUNT) * 100} TK1
+                </p>
+                <p style={{ color: "#374151", margin: "0.5rem 0" }}>
+                  Bonus: {score === quizConfig.questions.length ? '10-90% additional tokens for all correct answers!' : 'Better luck next time!'}
+                </p>
+              </div>
+
+              <button
+                onClick={handleCompleteQuiz}
+                disabled={isCompletePending}
+                style={{
+                  backgroundColor: isCompletePending ? "#9ca3af" : "#58CC02",
+                  color: "white",
+                  border: "none",
+                  borderRadius: "12px",
+                  padding: "1rem 2rem",
+                  fontSize: "1.1rem",
+                  fontWeight: 700,
+                  cursor: isCompletePending ? "not-allowed" : "pointer",
+                  transition: "all 0.3s ease",
+                  minWidth: "140px",
+                  opacity: isCompletePending ? 0.6 : 1
+                }}
+              >
+                {isCompletePending ? "Claiming..." : "🎁 Claim Rewards"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )
+    }
   }
 
   // If quiz is active and user has started it, show current question
@@ -413,6 +660,54 @@ function QuizGame() {
           margin: "0 auto",
           padding: "clamp(1rem, 4vw, 2rem)"
         }}>
+          {isAiChallengeMode && (
+            <div style={{
+              background: "#f8fafc",
+              border: "2px solid #3b82f6",
+              borderRadius: "12px",
+              padding: "1rem",
+              marginBottom: "1rem",
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              flexWrap: "wrap"
+            }}>
+              <div style={{ display: "flex", gap: "2rem", alignItems: "center", flexWrap: "wrap" }}>
+                <div style={{ textAlign: "center" }}>
+                  <div style={{ fontSize: "0.8rem", color: "#6b7280", fontWeight: 600 }}>YOU</div>
+                  <div style={{ fontSize: "1.5rem", fontWeight: 800, color: "#22c55e" }}>{score}</div>
+                </div>
+                <div style={{ fontSize: "1.2rem", color: "#6b7280", fontWeight: 600 }}>VS</div>
+                <div style={{ textAlign: "center" }}>
+                  <div style={{ fontSize: "0.8rem", color: "#6b7280", fontWeight: 600 }}>AI BOT</div>
+                  <div style={{ fontSize: "1.5rem", fontWeight: 800, color: "#ef4444" }}>{aiScore}</div>
+                </div>
+              </div>
+              {isAiTurn && (
+                <div style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "0.5rem",
+                  background: "#fee2e2",
+                  padding: "0.5rem 1rem",
+                  borderRadius: "8px"
+                }}>
+                  <span style={{ fontSize: "0.9rem", fontWeight: 600, color: "#dc2626" }}>
+                    🤖 AI thinking...
+                  </span>
+                  <div style={{
+                    fontSize: "1.2rem",
+                    fontWeight: 800,
+                    color: "#dc2626",
+                    minWidth: "1.5rem"
+                  }}>
+                    {timeLeft}
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+          
           <h2 style={{ 
             color: "#111827", 
             marginBottom: "2rem", 
@@ -420,8 +715,33 @@ function QuizGame() {
             fontWeight: 800,
             fontSize: "clamp(1.25rem, 5vw, 1.5rem)"
           }}>
-            {quizConfig.title} - Question {currentQuestionIndex + 1} of {quizConfig.questions.length}
+            {isAiChallengeMode ? '🤖 AI Challenge' : quizConfig.title} - Question {currentQuestionIndex + 1} of {quizConfig.questions.length}
           </h2>
+          
+          {showAiAnswer && aiAnswers[currentQuestionIndex] && (
+            <div style={{
+              background: "#fef3c7",
+              border: "2px solid #f59e0b",
+              borderRadius: "12px",
+              padding: "1rem",
+              marginBottom: "1rem",
+              textAlign: "center"
+            }}>
+              <div style={{ fontSize: "0.9rem", color: "#92400e", fontWeight: 600, marginBottom: "0.5rem" }}>
+                🤖 AI Bot answered:
+              </div>
+              <div style={{ fontSize: "1rem", fontWeight: 700, color: "#111827" }}>
+                {aiAnswers[currentQuestionIndex]}
+              </div>
+              {aiAnswers[currentQuestionIndex] === currentQuestion.options[currentQuestion.correct] && (
+                <div style={{ fontSize: "0.8rem", color: "#15803d", marginTop: "0.25rem" }}>✅ Correct!</div>
+              )}
+              {aiAnswers[currentQuestionIndex] !== currentQuestion.options[currentQuestion.correct] && (
+                <div style={{ fontSize: "0.8rem", color: "#dc2626", marginTop: "0.25rem" }}>❌ Wrong!</div>
+              )}
+            </div>
+          )}
+          
           <div style={{
             background: "#ffffff",
             borderRadius: "12px",
@@ -444,32 +764,49 @@ function QuizGame() {
                 <button
                   key={index}
                   onClick={() => handleQuizAnswer(option)}
+                  disabled={isAiTurn}
                   style={{
-                    backgroundColor: "#ffffff",
+                    backgroundColor: isAiTurn ? "#f3f4f6" : "#ffffff",
                     border: "2px solid hsl(var(--border))",
                     borderRadius: "8px",
                     padding: "clamp(0.75rem, 3vw, 1rem)",
                     fontSize: "clamp(0.9rem, 3.5vw, 1rem)",
-                    cursor: "pointer",
+                    cursor: isAiTurn ? "not-allowed" : "pointer",
                     transition: "all 0.3s ease",
                     textAlign: "left",
-                    color: "#111827",
+                    color: isAiTurn ? "#9ca3af" : "#111827",
                     lineHeight: "1.4",
-                    minHeight: "clamp(3rem, 12vw, 4rem)"
+                    minHeight: "clamp(3rem, 12vw, 4rem)",
+                    opacity: isAiTurn ? 0.6 : 1
                   }}
                   onMouseEnter={(e) => {
-                    e.currentTarget.style.backgroundColor = "hsl(var(--quiz-selected))"
-                    e.currentTarget.style.borderColor = "hsl(var(--primary))"
+                    if (!isAiTurn) {
+                      e.currentTarget.style.backgroundColor = "hsl(var(--quiz-selected))"
+                      e.currentTarget.style.borderColor = "hsl(var(--primary))"
+                    }
                   }}
                   onMouseLeave={(e) => {
-                    e.currentTarget.style.backgroundColor = "#ffffff"
-                    e.currentTarget.style.borderColor = "hsl(var(--border))"
+                    if (!isAiTurn) {
+                      e.currentTarget.style.backgroundColor = "#ffffff"
+                      e.currentTarget.style.borderColor = "hsl(var(--border))"
+                    }
                   }}
                 >
                   {option}
                 </button>
               ))}
             </div>
+            {isAiTurn && (
+              <div style={{
+                textAlign: "center",
+                marginTop: "1rem",
+                fontSize: "0.9rem",
+                color: "#6b7280",
+                fontStyle: "italic"
+              }}>
+                Wait for the AI to answer...
+              </div>
+            )}
           </div>
         </div>
       </div>
@@ -523,7 +860,7 @@ function QuizGame() {
               marginBottom: "1rem", 
               fontWeight: 800,
               fontSize: "clamp(1rem, 4vw, 1.1rem)"
-            }}>📋 Quiz Info:</h3>
+            }}>{isAiChallengeMode ? '🤖 AI Challenge Info:' : '📋 Quiz Info:'}</h3>
             <ul style={{ 
               color: "#374151", 
               lineHeight: "1.6",
@@ -532,9 +869,20 @@ function QuizGame() {
               fontSize: "clamp(0.85rem, 3.5vw, 1rem)"
             }}>
               <li>📝 {quizConfig?.questions.length || 0} questions about {(quizConfig?.title || "quiz").toLowerCase()}</li>
-              <li>✅ Get all answers correct for bonus rewards (10-90%)</li>
-              <li>🪙 Receive Token1 tokens equal to your entry fee × 100</li>
-              <li>⏰ Complete the quiz to claim your rewards</li>
+              {isAiChallengeMode ? (
+                <>
+                  <li>🤖 Race against AI bot that answers in 5 seconds</li>
+                  <li>🏁 If AI wins, you must restart the quiz</li>
+                  <li>🎯 Beat the AI to earn 50% bonus rewards</li>
+                  <li>🤝 Tie with AI to earn 25% bonus rewards</li>
+                </>
+              ) : (
+                <>
+                  <li>✅ Get all answers correct for bonus rewards (10-90%)</li>
+                  <li>🪙 Receive Token1 tokens equal to your entry fee × 100</li>
+                  <li>⏰ Complete the quiz to claim your rewards</li>
+                </>
+              )}
             </ul>
           </div>
 
@@ -567,32 +915,85 @@ function QuizGame() {
           <div style={{ textAlign: "center" }}>
             <p style={{ 
               color: "#6b7280", 
-              marginBottom: "0.5rem", 
+              marginBottom: "1rem", 
               fontSize: "clamp(0.8rem, 3vw, 0.9rem)",
               fontWeight: "500"
             }}>
               Entry Fee: {FIXED_ENTRY_AMOUNT} tMETIS
             </p>
-            <button
-              onClick={handleStartQuiz}
-              disabled={isStartPending || !address}
-              style={{
-                backgroundColor: isStartPending || !address ? "#9ca3af" : "#58CC02",
-                color: "white",
-                border: "none",
+            
+            {!isAiChallengeMode && (
+              <div style={{
+                background: "#f0f9ff",
+                border: "2px solid #3b82f6",
                 borderRadius: "12px",
-                padding: "clamp(0.75rem, 3vw, 1rem) clamp(1.5rem, 6vw, 2rem)",
-                fontSize: "clamp(0.9rem, 4vw, 1.1rem)",
-                fontWeight: 700,
-                cursor: isStartPending || !address ? "not-allowed" : "pointer",
-                transition: "all 0.3s ease",
-                width: "auto",
-                maxWidth: "280px",
-                opacity: isStartPending || !address ? 0.6 : 1
-              }}
-            >
-              {isStartPending ? "Starting..." : "🎮 Start Quiz"}
-            </button>
+                padding: "1rem",
+                marginBottom: "1rem",
+                textAlign: "center"
+              }}>
+                <h4 style={{ color: "#1e40af", margin: "0 0 0.5rem 0", fontWeight: 700 }}>
+                  🤖 Want a Challenge?
+                </h4>
+                <p style={{ color: "#1e40af", margin: "0 0 1rem 0", fontSize: "0.9rem" }}>
+                  Face our AI bot! Answer correctly in 5 seconds before it does, or start over!
+                </p>
+                <button
+                  onClick={() => navigate({ to: '/quiz-game', search: { quiz: quizId, mode: 'ai-challenge' } })}
+                  style={{
+                    backgroundColor: "#3b82f6",
+                    color: "white",
+                    border: "none",
+                    borderRadius: "8px",
+                    padding: "0.75rem 1.5rem",
+                    fontSize: "0.9rem",
+                    fontWeight: 700,
+                    cursor: "pointer",
+                    marginRight: "0.5rem"
+                  }}
+                >
+                  🤖 AI Challenge Mode
+                </button>
+              </div>
+            )}
+            
+            <div style={{ display: "flex", gap: "1rem", justifyContent: "center", flexWrap: "wrap" }}>
+              <button
+                onClick={handleStartQuiz}
+                disabled={isStartPending || !address}
+                style={{
+                  backgroundColor: isStartPending || !address ? "#9ca3af" : (isAiChallengeMode ? "#ef4444" : "#58CC02"),
+                  color: "white",
+                  border: "none",
+                  borderRadius: "12px",
+                  padding: "clamp(0.75rem, 3vw, 1rem) clamp(1.5rem, 6vw, 2rem)",
+                  fontSize: "clamp(0.9rem, 4vw, 1.1rem)",
+                  fontWeight: 700,
+                  cursor: isStartPending || !address ? "not-allowed" : "pointer",
+                  transition: "all 0.3s ease",
+                  opacity: isStartPending || !address ? 0.6 : 1
+                }}
+              >
+                {isStartPending ? "Starting..." : (isAiChallengeMode ? "🤖 Start AI Challenge" : "🎮 Start Quiz")}
+              </button>
+              
+              {isAiChallengeMode && (
+                <button
+                  onClick={() => navigate({ to: '/quiz-game', search: { quiz: quizId } })}
+                  style={{
+                    backgroundColor: "#6b7280",
+                    color: "white",
+                    border: "none",
+                    borderRadius: "12px",
+                    padding: "clamp(0.75rem, 3vw, 1rem) clamp(1.5rem, 6vw, 2rem)",
+                    fontSize: "clamp(0.9rem, 4vw, 1.1rem)",
+                    fontWeight: 700,
+                    cursor: "pointer"
+                  }}
+                >
+                  🎮 Normal Mode
+                </button>
+              )}
+            </div>
           </div>
         </div>
       </div>
@@ -604,5 +1005,6 @@ export const Route = createFileRoute('/quiz-game')({
   component: QuizGame,
   validateSearch: (search): QuizSearchParams => ({
     quiz: search.quiz as string,
+    mode: search.mode as string,
   }),
 })
