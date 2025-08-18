@@ -27,6 +27,7 @@ contract Token1 is ERC20, Ownable {
 
 contract QuizGame is Ownable {
     Token1 public token;
+    address public vaultAddress;
 
     // Mapping: user address => active quiz session (only one allowed at a time)
     mapping(address => QuizSession) public userSessions;
@@ -42,13 +43,22 @@ contract QuizGame is Ownable {
 
     event QuizStarted(address indexed user, string quizId, uint256 userAnswer);
     event QuizCompleted(address indexed user, string quizId, bool success, uint256 tokensMinted);
+    event VaultAddressUpdated(address indexed oldVault, address indexed newVault);
 
     constructor(address tokenAddress) Ownable(msg.sender) {
         token = Token1(tokenAddress);
+        vaultAddress = msg.sender; // Initialize vault to deployer
     }
 
     function setToken(address tokenAddress) external onlyOwner {
         token = Token1(tokenAddress);
+    }
+
+    function setVaultAddress(address newVaultAddress) external onlyOwner {
+        require(newVaultAddress != address(0), "Vault address cannot be zero");
+        address oldVault = vaultAddress;
+        vaultAddress = newVaultAddress;
+        emit VaultAddressUpdated(oldVault, newVaultAddress);
     }
 
     function startQuiz(string memory quizId, uint256 userAnswer) external payable {
@@ -123,7 +133,7 @@ contract QuizGame is Ownable {
 
     // Withdraw ETH collected
     function withdraw() external onlyOwner {
-        (bool sent, ) = owner().call{value: address(this).balance}("");
+        (bool sent, ) = vaultAddress.call{value: address(this).balance}("");
         require(sent, "Withdrawal failed");
     }
 
