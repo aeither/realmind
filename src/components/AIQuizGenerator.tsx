@@ -61,29 +61,25 @@ export default function AIQuizGenerator({ className = '' }: AIQuizGeneratorProps
         duration: 3000
       });
 
-      // AI Quiz generation temporarily disabled for build compatibility
-      toast.error('AI Quiz generation is currently unavailable. This feature requires server-side implementation.');
-      return;
+      const quizConfig = await aiQuizGenerator.generateQuiz({
+        topic: formData.topic,
+        difficulty: formData.difficulty,
+        questionCount: formData.questionCount,
+        userInterests: formData.userInterests
+      });
 
-      // const quizConfig = await aiQuizGenerator.generateQuiz({
-      //   topic: formData.topic,
-      //   difficulty: formData.difficulty,
-      //   questionCount: formData.questionCount,
-      //   userInterests: formData.userInterests
-      // });
-
-      // const encodedQuiz = btoa(JSON.stringify(quizConfig));
+      const encodedQuiz = btoa(JSON.stringify(quizConfig));
       
-      // toast.success('🎉 Your AI quiz is ready!');
+      toast.success('🎉 Your AI quiz is ready!');
       
       // Navigate to the generated quiz
-      // navigate({ 
-      //   to: '/quiz-game', 
-      //   search: { 
-      //     quiz: 'ai-custom', 
-      //     data: encodedQuiz 
-      //   } 
-      // });
+      navigate({ 
+        to: '/quiz-game', 
+        search: { 
+          quiz: 'ai-custom', 
+          data: encodedQuiz 
+        } 
+      });
       
     } catch (error) {
       console.error('Failed to generate quiz:', error);

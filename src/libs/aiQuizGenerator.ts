@@ -39,12 +39,16 @@ export class AIQuizGenerator {
     try {
       console.log('🤖 Requesting AI quiz generation from backend...');
       
-      const response = await fetch(`${this.backendUrl}/generate-ai-quiz`, {
+      const response = await fetch(`${this.backendUrl}/generate-quiz`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(params),
+        body: JSON.stringify({
+          topic: params.topic,
+          difficulty: params.difficulty,
+          questionCount: params.questionCount
+        }),
       });
 
       if (!response.ok) {
@@ -59,7 +63,25 @@ export class AIQuizGenerator {
       }
 
       console.log('✅ AI quiz generated successfully');
-      return data.quiz;
+      
+      // Transform backend3 response to match expected format
+      const quiz = data.quiz;
+      return {
+        id: quiz.id,
+        title: quiz.title,
+        description: quiz.description,
+        difficulty: quiz.difficulty,
+        topic: quiz.topic,
+        questionCount: quiz.questionCount,
+        questions: quiz.questions.map((q: any) => ({
+          question: q.question,
+          options: q.options,
+          correct: q.correct,
+          explanation: q.explanation
+        })),
+        createdAt: quiz.createdAt,
+        source: 'ai-generated-groq'
+      };
     } catch (error) {
       console.error('❌ Failed to generate AI quiz:', error);
       throw error;
