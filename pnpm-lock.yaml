@@ -38,9 +38,6 @@ importers:
       '@wagmi/core':
         specifier: ^2.17.3
         version: 2.17.3(@tanstack/query-core@5.45.0)(@types/react@18.3.23)(react@18.3.1)(typescript@5.8.3)(use-sync-external-store@1.5.0(react@18.3.1))(viem@2.31.3(bufferutil@4.0.9)(typescript@5.8.3)(utf-8-validate@5.0.10)(zod@3.25.67))
-      alith:
-        specifier: ^0.11.1
-        version: 0.11.1(bufferutil@4.0.9)(typescript@5.8.3)(utf-8-validate@5.0.10)
       dotenv:
         specifier: ^17.2.1
         version: 17.2.1
@@ -93,6 +90,9 @@ importers:
       '@wagmi/cli':
         specifier: latest
         version: 2.3.1(bufferutil@4.0.9)(typescript@5.8.3)(utf-8-validate@5.0.10)
+      alith:
+        specifier: ^0.11.1
+        version: 0.11.1(bufferutil@4.0.9)(typescript@5.8.3)(utf-8-validate@5.0.10)
       concurrently:
         specifier: ^9.1.0
         version: 9.2.0

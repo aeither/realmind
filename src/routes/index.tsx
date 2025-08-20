@@ -1,6 +1,7 @@
 import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
 import { useState } from 'react'
 import Header from '../components/Header'
+import AIQuizGenerator from '../components/AIQuizGenerator'
 
 interface Quiz {
   id: string;
@@ -102,6 +103,9 @@ function HomePage() {
             </div>
           </div>
         </div>
+
+        {/* AI Quiz Generator Section */}
+        <AIQuizGenerator className="mb-8 sm:mb-12" />
 
         {/* Quiz Selection Cards */}
         <div id="topics" className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 mb-8 sm:mb-12">

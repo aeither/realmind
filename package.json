@@ -10,7 +10,8 @@
     "dev:all": "concurrently \"pnpm run dev\" \"pnpm run dev:ngrok\"",
     "build": "tsc && vite build",
     "lint": "biome check src",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "alith": "cd scripts && tsx alith.ts"
   },
   "dependencies": {
     "@farcaster/frame-sdk": "latest",
@@ -23,7 +24,6 @@
     "@thirdweb-dev/react": "^4.4.0",
     "@thirdweb-dev/sdk": "^4.0.0",
     "@wagmi/core": "^2.17.3",
-    "alith": "^0.11.1",
     "dotenv": "^17.2.1",
     "framer-motion": "^11.0.5",
     "react": "^18.3.1",
@@ -43,6 +43,7 @@
     "@types/react-dom": "^18.3.0",
     "@vitejs/plugin-react": "^4.2.1",
     "@wagmi/cli": "latest",
+    "alith": "^0.11.1",
     "concurrently": "^9.1.0",
     "tsx": "^4.20.3",
     "typescript": "^5.4.5",

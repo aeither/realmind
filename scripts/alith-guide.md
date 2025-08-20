@@ -42,12 +42,23 @@ $env:OPENAI_API_KEY = "<your API key>"
 
 ## Run the Code
 
-### Standard TypeScript compilation
+### Using the provided example script
 ```bash
-tsc index.ts && node index.js
+# Set your OpenAI API key first
+export OPENAI_API_KEY=<your API key>
+
+# Run the example script
+npx tsx scripts/alith.ts
 ```
 
-### Using tsx for direct TypeScript execution
+### For your own files
 ```bash
-npx tsx alith.ts
+# Standard TypeScript compilation
+tsc your-file.ts && node your-file.js
+
+# Using tsx for direct TypeScript execution
+npx tsx your-file.ts
 ```
+
+## Example Script
+We've included a ready-to-run example script at `scripts/alith.ts` that demonstrates the basic usage. The script includes error handling and environment variable checking for a better development experience.
