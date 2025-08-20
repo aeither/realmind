@@ -10,9 +10,10 @@ const app = new Hono()
 app.use(
   '*',
   cors({
-    origin: process.env.NODE_ENV === 'production' ? ['*'] : ['http://localhost:3000', 'http://localhost:5173'],
+    origin: ['*'],
     allowMethods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     allowHeaders: ['Content-Type', 'Authorization'],
+    credentials: false,
   })
 )
 
