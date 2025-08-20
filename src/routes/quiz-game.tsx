@@ -132,6 +132,14 @@ function QuizGame() {
   
   // Handle AI-generated quizzes
   let quizConfig = null
+  
+  // Redirect ai-generated to web3-basics (default fallback)
+  if (quizId === 'ai-generated') {
+    toast.info('Redirecting to Web3 Basics quiz...')
+    navigate({ to: '/quiz-game', search: { quiz: 'web3-basics' } })
+    return null
+  }
+  
   if (quizId === 'ai-custom' && data) {
     try {
       quizConfig = AIQuizGenerator.decodeQuizFromUrl(data)
