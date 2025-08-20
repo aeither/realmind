@@ -542,7 +542,7 @@ function QuizGame() {
               Continue Active Quiz
             </button>
             <button 
-              onClick={() => navigate({ to: '/contract' })}
+              onClick={() => navigate({ to: '/' })}
               style={{
                 backgroundColor: "#e5e7eb",
                 color: "#111827",
