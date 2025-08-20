@@ -2,8 +2,9 @@
   "name": "hono",
   "type": "module",
   "scripts": {
-    "dev": "vc dev",
-    "build": "vc build"
+    "dev": "tsx src/index.ts",
+    "build": "echo 'No build needed for Hono app'",
+    "start": "node src/index.ts"
   },
   "dependencies": {
     "@ai-sdk/cerebras": "^1.0.0",
