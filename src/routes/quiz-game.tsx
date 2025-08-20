@@ -107,6 +107,7 @@ function QuizGame() {
   const [userTimedOut, setUserTimedOut] = useState(false)
   const [quizStarted, setQuizStarted] = useState(false)
   const [questionResults, setQuestionResults] = useState<Array<{userAnswered: boolean, userCorrect: boolean, aiCorrect: boolean}>>([])
+  const [justCompletedQuiz, setJustCompletedQuiz] = useState(false)
   const FIXED_ENTRY_AMOUNT = '0.0001' // Fixed entry amount in tMETIS
 
   // Function to restart the quiz in AI challenge mode
@@ -344,12 +345,25 @@ function QuizGame() {
   useEffect(() => {
     if (isCompleteSuccess) {
       toast.success('Rewards claimed! Check your wallet 🎁')
+      setJustCompletedQuiz(true) // Mark that user just completed a quiz
+      
       // Navigate to home page after successful claim
       setTimeout(() => {
         navigate({ to: '/' })
       }, 2000) // Wait 2 seconds to show the success message
     }
   }, [isCompleteSuccess, navigate])
+
+  // Reset the justCompletedQuiz flag after 10 seconds to prevent permanent bypass
+  useEffect(() => {
+    if (justCompletedQuiz) {
+      const timer = setTimeout(() => {
+        setJustCompletedQuiz(false)
+      }, 10000) // Reset after 10 seconds
+      
+      return () => clearTimeout(timer)
+    }
+  }, [justCompletedQuiz])
 
   // Handle quiz start
   const handleStartQuiz = () => {
@@ -524,9 +538,16 @@ function QuizGame() {
   }
 
   // Check if user has an active quiz session but for a different quiz
-  if (hasActiveQuiz && activeQuizId && activeQuizId !== quizId) {
+  // Special case: Allow web3-basics to load when user has an ai-generated session (completes the AI session)
+  const shouldBypassBlockingScreen = activeQuizId === 'ai-generated' && quizId === 'web3-basics'
+  
+  // Don't show blocking screen if user just completed a quiz (prevents showing after claiming rewards)
+  const shouldSkipDueToCompletion = justCompletedQuiz
+  
+  if (hasActiveQuiz && activeQuizId && activeQuizId !== quizId && !shouldBypassBlockingScreen && !shouldSkipDueToCompletion) {
     // Special handling for AI-generated quiz sessions
     if (activeQuizId === 'ai-generated') {
+      // Show the AI session recovery screen
       return (
         <motion.div style={{ paddingTop: '80px' }} initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
           <GlobalHeader />
@@ -534,12 +555,12 @@ function QuizGame() {
             <h2 style={{ color: "#111827", marginBottom: "1rem" }}>AI Quiz Session Found</h2>
             <p style={{ color: "#6b7280", marginBottom: "2rem" }}>
               You have an active AI-generated quiz session, but the original quiz data cannot be recovered. 
-              You can complete it with a default quiz or generate a new AI quiz.
+              Complete it with the Web3 Basics quiz to earn your rewards.
             </p>
             <div style={{ display: "flex", gap: "1rem", justifyContent: "center", flexWrap: "wrap" }}>
               <button 
                 onClick={() => {
-                  toast.info('Redirecting to Web3 Basics quiz to complete your session...')
+                  toast.info('Completing your AI session with Web3 Basics quiz...')
                   navigate({ to: '/quiz-game', search: { quiz: 'web3-basics' } })
                 }}
                 style={{
@@ -554,21 +575,6 @@ function QuizGame() {
                 }}
               >
                 Complete with Web3 Quiz
-              </button>
-              <button 
-                onClick={() => navigate({ to: '/' })}
-                style={{
-                  backgroundColor: "#3b82f6",
-                  color: "#ffffff",
-                  border: "none",
-                  borderRadius: "8px",
-                  padding: "0.75rem 1.5rem",
-                  fontSize: "1rem",
-                  fontWeight: 700,
-                  cursor: "pointer"
-                }}
-              >
-                Generate New AI Quiz
               </button>
               <button 
                 onClick={() => navigate({ to: '/' })}
@@ -861,7 +867,10 @@ function QuizGame() {
   }
 
   // If quiz is active and user has started it, show current question
-  if ((isStartSuccess || (hasActiveQuiz && activeQuizId === quizId)) && quizConfig && !quizCompleted) {
+  // Special case: Allow web3-basics to start immediately when user has AI session (no payment needed)
+  const shouldStartWebBasicsForAiSession = hasActiveQuiz && activeQuizId === 'ai-generated' && quizId === 'web3-basics'
+  
+  if ((isStartSuccess || (hasActiveQuiz && activeQuizId === quizId) || shouldStartWebBasicsForAiSession) && quizConfig && !quizCompleted) {
     const currentQuestion = quizConfig.questions[currentQuestionIndex]
     
     return (
@@ -1219,7 +1228,7 @@ function QuizGame() {
                   Face our AI bot! Answer correctly in 5 seconds before it does, or start over!
                 </p>
                 <button
-                  onClick={() => navigate({ to: '/quiz-game', search: { quiz: quizId, mode: 'ai-challenge' } })}
+                  onClick={() => navigate({ to: '/quiz-game', search: { quiz: quizId, mode: 'ai-challenge', ...(data && { data }) } })}
                   disabled={isStartTransactionPending}
                   style={{
                     backgroundColor: isStartTransactionPending ? "#9ca3af" : "#3b82f6",
@@ -1261,7 +1270,7 @@ function QuizGame() {
               
               {isAiChallengeMode && (
                 <button
-                  onClick={() => navigate({ to: '/quiz-game', search: { quiz: quizId } })}
+                  onClick={() => navigate({ to: '/quiz-game', search: { quiz: quizId, ...(data && { data }) } })}
                   disabled={isStartTransactionPending}
                   style={{
                     backgroundColor: isStartTransactionPending ? "#9ca3af" : "#6b7280",
