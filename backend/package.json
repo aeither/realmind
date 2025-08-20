@@ -20,5 +20,12 @@
     "tsx": "^4.7.1",
     "typescript": "^5.8.3",
     "vercel": "latest"
+  },
+  "pnpm": {
+    "ignoredBuiltDependencies": [
+      "bufferutil",
+      "esbuild",
+      "utf-8-validate"
+    ]
   }
 }
