@@ -525,6 +525,72 @@ function QuizGame() {
 
   // Check if user has an active quiz session but for a different quiz
   if (hasActiveQuiz && activeQuizId && activeQuizId !== quizId) {
+    // Special handling for AI-generated quiz sessions
+    if (activeQuizId === 'ai-generated') {
+      return (
+        <motion.div style={{ paddingTop: '80px' }} initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+          <GlobalHeader />
+          <div style={{ maxWidth: "600px", margin: "0 auto", padding: "2rem", textAlign: "center" }}>
+            <h2 style={{ color: "#111827", marginBottom: "1rem" }}>AI Quiz Session Found</h2>
+            <p style={{ color: "#6b7280", marginBottom: "2rem" }}>
+              You have an active AI-generated quiz session, but the original quiz data cannot be recovered. 
+              You can complete it with a default quiz or generate a new AI quiz.
+            </p>
+            <div style={{ display: "flex", gap: "1rem", justifyContent: "center", flexWrap: "wrap" }}>
+              <button 
+                onClick={() => {
+                  toast.info('Redirecting to Web3 Basics quiz to complete your session...')
+                  navigate({ to: '/quiz-game', search: { quiz: 'web3-basics' } })
+                }}
+                style={{
+                  backgroundColor: "#58CC02",
+                  color: "#ffffff",
+                  border: "none",
+                  borderRadius: "8px",
+                  padding: "0.75rem 1.5rem",
+                  fontSize: "1rem",
+                  fontWeight: 700,
+                  cursor: "pointer"
+                }}
+              >
+                Complete with Web3 Quiz
+              </button>
+              <button 
+                onClick={() => navigate({ to: '/' })}
+                style={{
+                  backgroundColor: "#3b82f6",
+                  color: "#ffffff",
+                  border: "none",
+                  borderRadius: "8px",
+                  padding: "0.75rem 1.5rem",
+                  fontSize: "1rem",
+                  fontWeight: 700,
+                  cursor: "pointer"
+                }}
+              >
+                Generate New AI Quiz
+              </button>
+              <button 
+                onClick={() => navigate({ to: '/' })}
+                style={{
+                  backgroundColor: "#e5e7eb",
+                  color: "#111827",
+                  border: "none",
+                  borderRadius: "8px",
+                  padding: "0.75rem 1.5rem",
+                  fontSize: "1rem",
+                  fontWeight: 700,
+                  cursor: "pointer"
+                }}
+              >
+                Back to Selection
+              </button>
+            </div>
+          </div>
+        </motion.div>
+      )
+    }
+    
     return (
       <motion.div style={{ paddingTop: '80px' }} initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
         <GlobalHeader />

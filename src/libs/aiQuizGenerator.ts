@@ -88,16 +88,32 @@ export class AIQuizGenerator {
     }
   }
 
+  // UTF-8 safe base64 encoding
+  private utf8ToBase64(str: string): string {
+    return btoa(encodeURIComponent(str).replace(/%([0-9A-F]{2})/g, 
+      (match, p1) => String.fromCharCode(parseInt(p1, 16))
+    ));
+  }
+
+  // UTF-8 safe base64 decoding
+  private base64ToUtf8(str: string): string {
+    return decodeURIComponent(atob(str).split('').map(
+      c => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)
+    ).join(''));
+  }
+
   // Generate quiz URL with base64 encoded data
   generateQuizUrl(quizConfig: AIQuizConfig): string {
-    const encodedQuiz = btoa(JSON.stringify(quizConfig));
+    const encodedQuiz = this.utf8ToBase64(JSON.stringify(quizConfig));
     return `/quiz-game?quiz=ai-custom&data=${encodedQuiz}`;
   }
 
   // Decode quiz data from URL
   static decodeQuizFromUrl(encodedData: string): AIQuizConfig {
     try {
-      const decodedData = atob(encodedData);
+      // Create temporary instance to access base64ToUtf8 method
+      const generator = new AIQuizGenerator();
+      const decodedData = generator.base64ToUtf8(encodedData);
       return JSON.parse(decodedData);
     } catch (error) {
       console.error('Failed to decode quiz data:', error);

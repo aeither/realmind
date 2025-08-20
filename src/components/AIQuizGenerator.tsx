@@ -68,18 +68,12 @@ export default function AIQuizGenerator({ className = '' }: AIQuizGeneratorProps
         userInterests: formData.userInterests
       });
 
-      const encodedQuiz = btoa(JSON.stringify(quizConfig));
+      const quizUrl = aiQuizGenerator.generateQuizUrl(quizConfig);
       
       toast.success('🎉 Your AI quiz is ready!');
       
-      // Navigate to the generated quiz
-      navigate({ 
-        to: '/quiz-game', 
-        search: { 
-          quiz: 'ai-custom', 
-          data: encodedQuiz 
-        } 
-      });
+      // Navigate to the generated quiz using the safe URL generation
+      navigate({ to: quizUrl });
       
     } catch (error) {
       console.error('Failed to generate quiz:', error);
