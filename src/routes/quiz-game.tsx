@@ -544,7 +544,10 @@ function QuizGame() {
   // Don't show blocking screen if user just completed a quiz (prevents showing after claiming rewards)
   const shouldSkipDueToCompletion = justCompletedQuiz
   
-  if (hasActiveQuiz && activeQuizId && activeQuizId !== quizId && !shouldBypassBlockingScreen && !shouldSkipDueToCompletion) {
+  // Don't show blocking screen during transaction processing (user should see completion screen with "Claiming..." status)
+  const shouldSkipDuringTransaction = isCompleteTransactionPending
+  
+  if (hasActiveQuiz && activeQuizId && activeQuizId !== quizId && !shouldBypassBlockingScreen && !shouldSkipDueToCompletion && !shouldSkipDuringTransaction) {
     // Special handling for AI-generated quiz sessions
     if (activeQuizId === 'ai-generated') {
       // Show the AI session recovery screen
